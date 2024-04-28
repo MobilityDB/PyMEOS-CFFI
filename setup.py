@@ -3,12 +3,12 @@ import platform
 import shutil
 import sys
 
+from setuptools import setup
+
 # Add current directory to sys.path to be able to run builder functions
 current_directory = os.path.abspath(os.path.dirname(__file__))
 if current_directory not in sys.path:
     sys.path.append(current_directory)
-
-from setuptools import setup
 
 from builder.build_header import build_header_file
 from builder.build_pymeos_functions import build_pymeos_functions
@@ -59,12 +59,10 @@ def build_pymeos():  # Build Header File
 
 
 cffi_modules = []
-setup_requires = []
 
 if "bdist_wheel" in sys.argv:
     build_pymeos()
     cffi_modules.append("builder/build_pymeos.py:ffibuilder")
-    setup_requires.append("cffi")
 else:
     init_template = os.path.join(
         os.path.dirname(__file__), "builder", "templates", "init.py"
@@ -105,6 +103,6 @@ else:
 setup(
     packages=["pymeos_cffi"],
     package_data={"pymeos_cffi": package_data},
-    setup_requires=setup_requires,
+    setup_requires=["cffi"],
     cffi_modules=cffi_modules,
 )
