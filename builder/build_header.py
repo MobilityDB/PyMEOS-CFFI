@@ -56,9 +56,7 @@ def remove_repeated_functions(
     return content, seen_functions
 
 
-def build_header_file(
-    include_dir, so_path=None, destination_path="pymeos_cffi/builder/meos.h"
-):
+def build_header_file(include_dir, so_path=None, destination_path="builder/meos.h"):
     files = ["meos.h", "meos_catalog.h", "meos_internal.h"]
     global_content = ""
     functions = set()

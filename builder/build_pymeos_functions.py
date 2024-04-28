@@ -2,8 +2,8 @@ import os.path
 import sys
 from typing import List
 
-from .build_pymeos_functions_modifiers import *
-from .objects import conversion_map, Conversion
+from build_pymeos_functions_modifiers import *
+from objects import conversion_map, Conversion
 
 
 class Parameter:
@@ -230,7 +230,7 @@ def check_modifiers(functions: List[str]) -> None:
             )
 
 
-def build_pymeos_functions(header_path="pymeos_cffi/builder/meos.h"):
+def build_pymeos_functions(header_path="builder/meos.h"):
     with open(header_path) as f:
         content = f.read()
     # Regex lines:
