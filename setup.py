@@ -58,8 +58,13 @@ def build_pymeos():  # Build Header File
     build_pymeos_functions(header_path)
 
 
+cffi_modules = []
+setup_requires = []
+
 if "bdist_wheel" in sys.argv:
     build_pymeos()
+    cffi_modules.append("builder/build_pymeos.py:ffibuilder")
+    setup_requires.append("cffi")
 
 
 # Copy PROJ data to package data
@@ -90,7 +95,7 @@ else:
 
 setup(
     packages=["pymeos_cffi"],
-    setup_requires=["cffi"],
     package_data={"pymeos_cffi": package_data},
-    cffi_modules=["builder/build_pymeos.py:ffibuilder"],
+    setup_requires=setup_requires,
+    cffi_modules=cffi_modules,
 )
