@@ -25,7 +25,6 @@ jobs:
           python -m pip install build
 
       - name: Build sdist
-        working-directory: pymeos_cffi
         run: |
           python -m build -s
           ls -l dist
@@ -33,7 +32,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: pymeos_cffi-sdist
-          path: ./pymeos_cffi/dist/pymeos_cffi-*.tar.gz
+          path: ./dist/pymeos_cffi-*.tar.gz
 
   build_wheels:
     name: Build PyMEOS CFFI for ${{ matrix.os }}
@@ -105,7 +104,6 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64" >> $GITHUB_ENV
 
       - name: Build wheels
-        working-directory: pymeos_cffi
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
@@ -141,7 +139,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: pymeos_cffi-wheels-${{ matrix.os }}
-          path: ./pymeos_cffi/wheelhouse/*.whl
+          path: ./wheelhouse/*.whl
 
   test_wheels:
     name: Test PyMEOS CFFI wheel - Python ${{ matrix.python-version }} on ${{ matrix.os }}
