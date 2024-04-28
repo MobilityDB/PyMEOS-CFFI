@@ -43,6 +43,8 @@ jobs:
         include:
           - ld_prefix: "/usr/local"
             ld_extension: "so"
+          - os: macos-13
+            ld_extension: "dylib"
           - os: macos-14
             ld_prefix: "/opt/homebrew"
             ld_extension: "dylib"
