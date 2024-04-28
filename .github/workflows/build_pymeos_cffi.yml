@@ -145,42 +145,6 @@ jobs:
           name: pymeos_cffi-wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
-  test_sdist:
-    name: Test PyMEOS CFFI sdist - Python ${{ matrix.python-version }} on ${{ matrix.os }}
-    needs: build_sdist
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
-        os: [ ubuntu-latest, macos-13, macos-14 ]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download wheels
-        uses: actions/download-artifact@v4
-        with:
-          name: pymeos_cffi-sdist
-          path: ./pymeos_cffi_sdist
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-
-      - name: Install PyMEOS-CFFI
-        run: |
-          python -m pip install --upgrade pip
-          pip install --no-binary pymeos_cffi -f ./pymeos_cffi_sdist pymeos_cffi
-
-      - name: Run PyMEOS-CFFI check
-        run: |
-          python -c "import pymeos_cffi; print(pymeos_cffi.__version__);"
-          python -c "from pymeos_cffi import *; meos_initialize("NULL"); print(tpoint_out(tgeompoint_in('POINT(2 3)@2000-01-01'))); meos_finalize();"
-
   test_wheels:
     name: Test PyMEOS CFFI wheel - Python ${{ matrix.python-version }} on ${{ matrix.os }}
     needs: build_wheels
@@ -219,7 +183,7 @@ jobs:
 
   upload_pypi:
     name: Upload to PyPI
-    needs: [ test_wheels, test_sdist ]
+    needs: [ test_wheels, build_sdist ]
     runs-on: ubuntu-22.04
     if: github.repository == 'MobilityDB/PyMEOS-CFFI'
     permissions:
@@ -238,7 +202,7 @@ jobs:
 
   create_release:
     name: Create GitHub Release
-    needs: [ test_wheels, test_sdist ]
+    needs: [ test_wheels, build_sdist ]
     runs-on: ubuntu-22.04
     steps:
       - name: Get artifacts
