@@ -1,1 +1,2 @@
-include pymeos_cffi/builder/meos.h
+graft builder
+exclude builder/meos.h

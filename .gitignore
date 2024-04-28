@@ -15,4 +15,9 @@ dist
 *.o
 *.so
 
-test.py
+sandbox.py
+sandbox.ipynb
+
+pymeos_cffi/functions.py
+builder/meos.h
+
