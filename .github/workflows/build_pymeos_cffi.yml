@@ -29,7 +29,8 @@ jobs:
           python -m build -s
           ls -l dist
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: pymeos_cffi-sdist
           path: ./dist/pymeos_cffi-*.tar.gz
@@ -42,12 +43,8 @@ jobs:
         os: [ ubuntu-latest, macos-13, macos-14 ]
         include:
           - ld_prefix: "/usr/local"
-            ld_extension: "so"
-          - os: macos-13
-            ld_extension: "dylib"
           - os: macos-14
             ld_prefix: "/opt/homebrew"
-            ld_extension: "dylib"
 
     steps:
       - name: Checkout
@@ -140,7 +137,8 @@ jobs:
           # Skip tests since they will be tested in the next job
           CIBW_TEST_SKIP: "*"
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: pymeos_cffi-wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
