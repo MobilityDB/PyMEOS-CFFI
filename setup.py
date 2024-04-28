@@ -49,7 +49,7 @@ def build_pymeos():  # Build Header File
             )
 
     header_path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "builder/meos.h")
+        os.path.join(os.path.dirname(__file__), "builder", "meos.h")
     )
 
     build_header_file(include_dir, meos_bin, header_path)
@@ -65,6 +65,15 @@ if "bdist_wheel" in sys.argv:
     build_pymeos()
     cffi_modules.append("builder/build_pymeos.py:ffibuilder")
     setup_requires.append("cffi")
+else:
+    init_template = os.path.join(
+        os.path.dirname(__file__), "builder", "templates", "init.py"
+    )
+    init_file = os.path.join(os.path.dirname(__file__), "pymeos_cffi", "__init__.py")
+    with open(init_template, "r") as i, open(init_file, "w") as o:
+        lines = i.readlines()
+        version_line = next(line for line in lines if line.startswith("__version__"))
+        o.write(version_line)
 
 
 # Copy PROJ data to package data
