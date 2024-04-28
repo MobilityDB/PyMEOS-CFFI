@@ -135,7 +135,7 @@ jobs:
             make -j &&
             make install
 
-          # Skip tests since they will be thoroughly tested in the next job
+          # Skip tests since they will be tested in the next job
           CIBW_TEST_SKIP: "*"
 
       - uses: actions/upload-artifact@v4
@@ -169,21 +169,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
 
-      - name: Install PyMEOS dependencies
+      - name: Install PyMEOS-CFFI wheels
         run: |
           python -m pip install --upgrade pip
           pip install -f ./pymeos_cffi_wheels pymeos_cffi
-          pip install -r pymeos/dev-requirements.txt
 
-      - name: Test PyMEOS with pytest
-        working-directory: pymeos
-        run: pytest
+      - name: Run PyMEOS-CFFI check
+        run: |
+          python -c "import pymeos_cffi; print(pymeos_cffi.__version__);"
+          python -c "from pymeos_cffi import *; meos_initialize("NULL"); print(tpoint_out(tgeompoint_in('POINT(2 3)@2000-01-01'))); meos_finalize();"
 
   upload_pypi:
     name: Upload to PyPI
     needs: [ test_wheels, build_sdist ]
     runs-on: ubuntu-22.04
-    if: github.repository == 'MobilityDB/PyMEOS'
+    if: github.repository == 'MobilityDB/PyMEOS-CFFI'
     permissions:
       id-token: write
     steps:
