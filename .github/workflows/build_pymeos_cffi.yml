@@ -179,7 +179,7 @@ jobs:
       - name: Run PyMEOS-CFFI check
         run: |
           python -c "import pymeos_cffi; print(pymeos_cffi.__version__);"
-          python -c "from pymeos_cffi import *; meos_initialize("NULL"); print(tpoint_out(tgeompoint_in('POINT(2 3)@2000-01-01'))); meos_finalize();"
+          python -c "from pymeos_cffi import *; meos_initialize(None); print(tpoint_out(tgeompoint_in('POINT(2 3)@2000-01-01'))); meos_finalize();"
 
   upload_pypi:
     name: Upload to PyPI
