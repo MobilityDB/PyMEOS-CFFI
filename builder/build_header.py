@@ -21,7 +21,7 @@ def remove_undefined_functions(content, so_path):
     def remove_if_not_defined(m):
         function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
         if function in defined or (
-            sys.platform == "darwin" and ("_" + function) in defined
+                sys.platform == "darwin" and ("_" + function) in defined
         ):
             for t in undefined_types:
                 if t in m.group(0):
@@ -39,7 +39,7 @@ def remove_undefined_functions(content, so_path):
 
 
 def remove_repeated_functions(
-    content: str, seen_functions: set
+        content: str, seen_functions: set
 ) -> Tuple[str, Set[str]]:
     def remove_if_repeated(m):
         function = m.group(0).replace("\n", "").strip()
@@ -58,7 +58,30 @@ def remove_repeated_functions(
 
 def build_header_file(include_dir, so_path=None, destination_path="builder/meos.h"):
     files = ["meos.h", "meos_catalog.h", "meos_internal.h"]
-    global_content = ""
+    global_content = """
+typedef struct
+  {
+    const char *name;
+    unsigned long int max;
+    unsigned long int min;
+    size_t size;
+    void (*set) (void *state, unsigned long int seed);
+    unsigned long int (*get) (void *state);
+    double (*get_double) (void *state);
+  }
+gsl_rng_type;
+
+typedef struct
+  {
+    const gsl_rng_type * type;
+    void *state;
+  }
+gsl_rng;
+
+struct pj_ctx;
+typedef struct pj_ctx PJ_CONTEXT;
+"""
+
     functions = set()
     for file_name in files:
         file_path = os.path.join(include_dir, file_name)
