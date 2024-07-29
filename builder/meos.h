@@ -2171,9 +2171,11 @@ typedef enum
   T_NPOINTSET      = 49,  
   T_NSEGMENT       = 50,  
   T_TNPOINT        = 51,  
+  T_POSE           = 54,  
+  T_TPOSE          = 55,  
 } meosType;
 
-#define NO_MEOS_TYPES 54
+#define NO_MEOS_TYPES 56
 typedef enum
 {
   UNKNOWN_OP      = 0,

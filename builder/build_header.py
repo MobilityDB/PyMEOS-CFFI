@@ -21,7 +21,7 @@ def remove_undefined_functions(content, so_path):
     def remove_if_not_defined(m):
         function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
         if function in defined or (
-                sys.platform == "darwin" and ("_" + function) in defined
+            sys.platform == "darwin" and ("_" + function) in defined
         ):
             for t in undefined_types:
                 if t in m.group(0):
@@ -39,7 +39,7 @@ def remove_undefined_functions(content, so_path):
 
 
 def remove_repeated_functions(
-        content: str, seen_functions: set
+    content: str, seen_functions: set
 ) -> Tuple[str, Set[str]]:
     def remove_if_repeated(m):
         function = m.group(0).replace("\n", "").strip()
