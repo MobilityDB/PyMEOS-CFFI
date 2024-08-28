@@ -89,7 +89,7 @@ jobs:
           cache: "pip"
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.17.0
+        run: python -m pip install cibuildwheel==2.20.0
 
       - name: Set PROJ_DATA (macOS)
         if: runner.os == 'macOS'
