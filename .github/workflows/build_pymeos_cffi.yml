@@ -207,6 +207,8 @@ jobs:
           CIBW_SKIP: "pp* *musllinux*"
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_ENVIRONMENT_PASS_LINUX: PACKAGE_DATA LD_LIBRARY_PATH PROJ_DATA C_INCLUDE_PATH
+          CIBW_ENVIRONMENT_MACOS: >
+            MACOSX_DEPLOYMENT_TARGET=14.0
           CIBW_BEFORE_ALL_LINUX: >
             yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&
             yum -y update &&
