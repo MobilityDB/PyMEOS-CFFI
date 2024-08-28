@@ -76,7 +76,7 @@ jobs:
       - name: Install MEOS
         if: runner.os == 'macOS'
         run: |
-          git clone --depth 1 https://github.com/MobilityDB/MobilityDB
+          git clone --depth 1 --branch ${{ env.BRANCH_NAME }} https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
           cmake .. -DMEOS=on
@@ -119,7 +119,6 @@ jobs:
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_ENVIRONMENT_PASS_LINUX: PACKAGE_DATA LD_LIBRARY_PATH PROJ_DATA C_INCLUDE_PATH
           CIBW_BEFORE_ALL_LINUX: >
-            echo $C_INCLUDE_PATH &&
             yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&
             yum -y update &&
             yum -y install gcc gcc-c++ make cmake postgresql13-devel proj81-devel geos39-devel gsl-devel &&
@@ -129,7 +128,7 @@ jobs:
             cmake ../json-c &&
             make &&
             make install &&            
-            git clone --depth 1 https://github.com/MobilityDB/MobilityDB &&
+            git clone --depth 1 --branch ${{ env.BRANCH_NAME }} https://github.com/MobilityDB/MobilityDB &&
             mkdir MobilityDB/build &&
             cd MobilityDB/build &&
             cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so &&
