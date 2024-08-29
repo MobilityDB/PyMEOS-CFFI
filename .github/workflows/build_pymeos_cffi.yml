@@ -262,7 +262,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           ls -l ./pymeos_cffi_wheels
-          pip install -f ./pymeos_cffi_wheels --no-index pymeos_cffi
+          pip install -v -f ./pymeos_cffi_wheels pymeos_cffi
 
       - name: Run PyMEOS-CFFI check
         run: |
