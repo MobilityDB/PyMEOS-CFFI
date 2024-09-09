@@ -16,6 +16,7 @@ jobs:
       is_rc: ${{ steps.check_rc.outputs.is_rc }}
       is_prerelease: ${{ steps.check_prerelease.outputs.is_prerelease }}
       branch: ${{ steps.check_branch.outputs.branch }}
+      version: ${{ steps.check_version.outputs.version }}
 
     steps:
       - name: Checkout
