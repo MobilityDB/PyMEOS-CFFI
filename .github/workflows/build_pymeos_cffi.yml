@@ -273,10 +273,18 @@ jobs:
           cache: "pip"
 
       - name: Install PyMEOS-CFFI wheels
+        if: matrix.os != 'macos-13'
         run: |
           python -m pip install --upgrade pip
           ls -l ./pymeos_cffi_wheels
           pip install -v -f ./pymeos_cffi_wheels pymeos_cffi==${{ needs.checks.outputs.version }}
+
+      - name: Install PyMEOS-CFFI wheels
+        if: matrix.os == 'macos-13'
+        run: |
+          python -m pip install --upgrade pip
+          ls -l ./pymeos_cffi_wheels
+          pip install -v ./pymeos_cffi_wheels/pymeos_cffi-1.1.2.post1-cp38-cp38-macosx_13_6_x86_64.whl
 
       - name: Run PyMEOS-CFFI check
         run: |
