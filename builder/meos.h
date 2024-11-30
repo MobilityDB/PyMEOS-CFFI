@@ -2121,8 +2121,8 @@ extern Span *datespan_bins(const Span *s, const Interval *duration, DateADT tori
 extern Span *datespanset_time_spans(const SpanSet *ss, const Interval *duration, DateADT torigin, int *count);
 extern double float_get_bin(double value, double vsize, double vorigin);
 extern Span *floatspan_bins(const Span *s, double vsize, double vorigin, int *count);
-extern Span *floatspanset_bins(const SpanSet *ss, double vsize, double vorigin,
-  int *count);
+/* extern Span *floatspanset_bins(const SpanSet *ss, double vsize, double vorigin,
+  int *count);  (undefined) */
 extern Span *floatspanset_value_spans(const SpanSet *ss, double vsize, double vorigin, int *count);
 extern int int_get_bin(int value, int vsize, int vorigin);
 extern Span *intspan_bins(const Span *s, int vsize, int vorigin, int *count);

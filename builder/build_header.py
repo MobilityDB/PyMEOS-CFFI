@@ -33,7 +33,10 @@ def remove_undefined_functions(content, so_path):
             return f"/* {m.group(0)}  (undefined) */"
 
     content = re.sub(
-        r"^extern .*?;", remove_if_not_defined, content, flags=re.RegexFlag.MULTILINE
+        r"^extern (?s:.)*?;",
+        remove_if_not_defined,
+        content,
+        flags=re.RegexFlag.MULTILINE,
     )
     return content
 
@@ -51,7 +54,7 @@ def remove_repeated_functions(
             return m.group(0)
 
     content = re.sub(
-        r"^extern .*?(?P<function>\w+)\(.*?;",
+        r"^extern .*?(?P<function>\w+)\((?s:.)*?;",
         remove_if_repeated,
         content,
         flags=re.RegexFlag.MULTILINE,
