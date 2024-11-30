@@ -137,7 +137,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-13, macos-14 ]
+#        os: [ ubuntu-latest, macos-13, macos-14 ]
+        os: [ ubuntu-latest, macos-14 ]
         include:
           - ld_prefix: "/usr/local"
           - os: macos-14
@@ -213,7 +214,6 @@ jobs:
           # Disable PyPy builds
           # Disable builds on musllinux
           # Disable builds in linux architectures other than x86_64
-          CIBW_BUILD: "cp38*"
           CIBW_SKIP: "pp* *musllinux*"
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_ENVIRONMENT_PASS_LINUX: PACKAGE_DATA LD_LIBRARY_PATH PROJ_DATA C_INCLUDE_PATH
@@ -252,9 +252,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
-        python-version: [ "3.8" ]
-        os: [ ubuntu-latest, macos-13, macos-14 ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
+#        os: [ ubuntu-latest, macos-13, macos-14 ]
+        os: [ ubuntu-latest, macos-14 ]
 
     steps:
       - name: Checkout
@@ -273,18 +273,10 @@ jobs:
           cache: "pip"
 
       - name: Install PyMEOS-CFFI wheels
-        if: matrix.os != 'macos-13'
         run: |
           python -m pip install --upgrade pip
           ls -l ./pymeos_cffi_wheels
           pip install -v -f ./pymeos_cffi_wheels pymeos_cffi==${{ needs.checks.outputs.version }}
-
-      - name: Install PyMEOS-CFFI wheels
-        if: matrix.os == 'macos-13'
-        run: |
-          python -m pip install --upgrade pip
-          ls -l ./pymeos_cffi_wheels
-          pip install -v ./pymeos_cffi_wheels/pymeos_cffi-1.1.2.post1-cp38-cp38-macosx_13_6_x86_64.whl
 
       - name: Run PyMEOS-CFFI check
         run: |
