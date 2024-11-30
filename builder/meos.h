@@ -2150,7 +2150,7 @@ extern TBox *tfloatbox_get_value_time_tile(double value, TimestampTz t, double v
 /* extern TBox *tfloatbox_time_tiles(const TBox *box, const Interval *duration, TimestampTz torigin, int *count);  (undefined) */
 /* extern TBox *tfloatbox_value_tiles(const TBox *box, double vsize, double vorigin, int *count);  (undefined) */
 extern TBox *tfloatbox_value_time_tiles(const TBox *box, double vsize, const Interval *duration, double vorigin, TimestampTz torigin, int *count);
-extern TimestampTz timestamptz_get_bin(TimestampTz timestamp, const Interval *duration, TimestampTz torigin);
+/* extern TimestampTz timestamptz_get_bin(TimestampTz timestamp, const Interval *duration, TimestampTz torigin);  (repeated) */
 extern Span *tint_value_spans(const Temporal *temp, int vsize, int vorigin, int *count);
 extern Temporal **tint_value_split(const Temporal *temp, int vsize, int vorigin, int **value_bins, int *count);
 extern Temporal **tint_value_time_split(const Temporal *temp, int size, const Interval *duration, int vorigin, TimestampTz torigin, int **value_bins, TimestampTz **time_bins, int *count);

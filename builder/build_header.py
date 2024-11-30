@@ -3,7 +3,7 @@ import platform
 import re
 import subprocess
 import sys
-from typing import Set, Tuple
+from typing import Set, Tuple, Match
 
 
 def get_defined_functions(library_path):
@@ -41,8 +41,8 @@ def remove_undefined_functions(content, so_path):
 def remove_repeated_functions(
     content: str, seen_functions: set
 ) -> Tuple[str, Set[str]]:
-    def remove_if_repeated(m):
-        function = m.group(0).replace("\n", "").strip()
+    def remove_if_repeated(m: Match):
+        function = m.group("function")
         if function in seen_functions:
             print(f"Removing repeated function: {function}")
             return f"/* {m.group(0)}  (repeated) */"
@@ -51,7 +51,10 @@ def remove_repeated_functions(
             return m.group(0)
 
     content = re.sub(
-        r"^extern .*?;", remove_if_repeated, content, flags=re.RegexFlag.MULTILINE
+        r"^extern .*?(?P<function>\w+)\(.*?;",
+        remove_if_repeated,
+        content,
+        flags=re.RegexFlag.MULTILINE,
     )
     return content, seen_functions
 
