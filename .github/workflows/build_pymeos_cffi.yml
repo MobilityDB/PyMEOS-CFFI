@@ -275,7 +275,6 @@ jobs:
       - name: Install PyMEOS-CFFI wheels
         run: |
           python -m pip install --upgrade pip
-          ls -l ./pymeos_cffi_wheels
           pip install -v -f ./pymeos_cffi_wheels pymeos_cffi==${{ needs.checks.outputs.version }}
 
       - name: Run PyMEOS-CFFI check
