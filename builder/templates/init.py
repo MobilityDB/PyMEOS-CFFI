@@ -2,7 +2,7 @@ from .functions import *
 from .enums import *
 from .errors import *
 
-__version__ = "1.1.2-post.1"
+__version__ = "1.1.3"
 __all__ = [
     # Exceptions
     "MeosException",
