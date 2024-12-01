@@ -12710,25 +12710,18 @@ def temporal_time_spans(
 
 
 def temporal_time_split(
-    temp: "const Temporal *",
-    duration: "const Interval *",
-    torigin: int,
-    time_bins: "TimestampTz **",
-) -> "Tuple['Temporal **', 'int']":
+    temp: "const Temporal *", duration: "const Interval *", torigin: int
+) -> "Tuple['Temporal **', 'TimestampTz *', 'int']":
     temp_converted = _ffi.cast("const Temporal *", temp)
     duration_converted = _ffi.cast("const Interval *", duration)
     torigin_converted = _ffi.cast("TimestampTz", torigin)
-    time_bins_converted = [_ffi.cast("TimestampTz *", x) for x in time_bins]
+    time_bins = _ffi.new("TimestampTz **")
     count = _ffi.new("int *")
     result = _lib.temporal_time_split(
-        temp_converted,
-        duration_converted,
-        torigin_converted,
-        time_bins_converted,
-        count,
+        temp_converted, duration_converted, torigin_converted, time_bins, count
     )
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return result if result != _ffi.NULL else None, time_bins[0], count[0]
 
 
 def tfloat_value_spans(
@@ -12742,16 +12735,14 @@ def tfloat_value_spans(
 
 
 def tfloat_value_split(
-    temp: "const Temporal *", vsize: float, vorigin: float, value_bins: "double **"
-) -> "Tuple['Temporal **', 'int']":
+    temp: "const Temporal *", vsize: float, vorigin: float
+) -> "Tuple['Temporal **', 'double *', 'int']":
     temp_converted = _ffi.cast("const Temporal *", temp)
-    value_bins_converted = [_ffi.cast("double *", x) for x in value_bins]
+    value_bins = _ffi.new("double **")
     count = _ffi.new("int *")
-    result = _lib.tfloat_value_split(
-        temp_converted, vsize, vorigin, value_bins_converted, count
-    )
+    result = _lib.tfloat_value_split(temp_converted, vsize, vorigin, value_bins, count)
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return result if result != _ffi.NULL else None, value_bins[0], count[0]
 
 
 def tfloat_value_time_split(
@@ -12760,14 +12751,12 @@ def tfloat_value_time_split(
     duration: "const Interval *",
     vorigin: float,
     torigin: int,
-    value_bins: "double **",
-    time_bins: "TimestampTz **",
-) -> "Tuple['Temporal **', 'int']":
+) -> "Tuple['Temporal **', 'double *', 'TimestampTz *', 'int']":
     temp_converted = _ffi.cast("const Temporal *", temp)
     duration_converted = _ffi.cast("const Interval *", duration)
     torigin_converted = _ffi.cast("TimestampTz", torigin)
-    value_bins_converted = [_ffi.cast("double *", x) for x in value_bins]
-    time_bins_converted = [_ffi.cast("TimestampTz *", x) for x in time_bins]
+    value_bins = _ffi.new("double **")
+    time_bins = _ffi.new("TimestampTz **")
     count = _ffi.new("int *")
     result = _lib.tfloat_value_time_split(
         temp_converted,
@@ -12775,12 +12764,17 @@ def tfloat_value_time_split(
         duration_converted,
         vorigin,
         torigin_converted,
-        value_bins_converted,
-        time_bins_converted,
+        value_bins,
+        time_bins,
         count,
     )
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return (
+        result if result != _ffi.NULL else None,
+        value_bins[0],
+        time_bins[0],
+        count[0],
+    )
 
 
 def tfloatbox_get_time_tile(
@@ -12888,16 +12882,14 @@ def tint_value_spans(
 
 
 def tint_value_split(
-    temp: "const Temporal *", vsize: int, vorigin: int, value_bins: "int **"
-) -> "Tuple['Temporal **', 'int']":
+    temp: "const Temporal *", vsize: int, vorigin: int
+) -> "Tuple['Temporal **', 'int *', 'int']":
     temp_converted = _ffi.cast("const Temporal *", temp)
-    value_bins_converted = [_ffi.cast("int *", x) for x in value_bins]
+    value_bins = _ffi.new("int **")
     count = _ffi.new("int *")
-    result = _lib.tint_value_split(
-        temp_converted, vsize, vorigin, value_bins_converted, count
-    )
+    result = _lib.tint_value_split(temp_converted, vsize, vorigin, value_bins, count)
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return result if result != _ffi.NULL else None, value_bins[0], count[0]
 
 
 def tint_value_time_split(
@@ -12906,14 +12898,12 @@ def tint_value_time_split(
     duration: "const Interval *",
     vorigin: int,
     torigin: int,
-    value_bins: "int **",
-    time_bins: "TimestampTz **",
-) -> "Tuple['Temporal **', 'int']":
+) -> "Tuple['Temporal **', 'int *', 'TimestampTz *', 'int']":
     temp_converted = _ffi.cast("const Temporal *", temp)
     duration_converted = _ffi.cast("const Interval *", duration)
     torigin_converted = _ffi.cast("TimestampTz", torigin)
-    value_bins_converted = [_ffi.cast("int *", x) for x in value_bins]
-    time_bins_converted = [_ffi.cast("TimestampTz *", x) for x in time_bins]
+    value_bins = _ffi.new("int **")
+    time_bins = _ffi.new("TimestampTz **")
     count = _ffi.new("int *")
     result = _lib.tint_value_time_split(
         temp_converted,
@@ -12921,12 +12911,17 @@ def tint_value_time_split(
         duration_converted,
         vorigin,
         torigin_converted,
-        value_bins_converted,
-        time_bins_converted,
+        value_bins,
+        time_bins,
         count,
     )
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return (
+        result if result != _ffi.NULL else None,
+        value_bins[0],
+        time_bins[0],
+        count[0],
+    )
 
 
 def tintbox_get_time_tile(
@@ -13024,11 +13019,10 @@ def tpoint_space_split(
     sorigin: "const GSERIALIZED *",
     bitmatrix: bool,
     border_inc: bool,
-    space_bins: "GSERIALIZED ***",
-) -> "Tuple['Temporal **', 'int']":
+) -> "Tuple['Temporal **', 'GSERIALIZED ***', 'int']":
     temp_converted = _ffi.cast("const Temporal *", temp)
     sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin)
-    space_bins_converted = [_ffi.cast("GSERIALIZED **", x) for x in space_bins]
+    space_bins = _ffi.new("GSERIALIZED ***")
     count = _ffi.new("int *")
     result = _lib.tpoint_space_split(
         temp_converted,
@@ -13038,11 +13032,11 @@ def tpoint_space_split(
         sorigin_converted,
         bitmatrix,
         border_inc,
-        space_bins_converted,
+        space_bins,
         count,
     )
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return result if result != _ffi.NULL else None, space_bins[0], count[0]
 
 
 def tpoint_space_time_split(
@@ -13055,15 +13049,13 @@ def tpoint_space_time_split(
     torigin: int,
     bitmatrix: bool,
     border_inc: bool,
-    space_bins: "GSERIALIZED ***",
-    time_bins: "TimestampTz **",
-) -> "Tuple['Temporal **', 'int']":
+) -> "Tuple['Temporal **', 'GSERIALIZED ***', 'TimestampTz *', 'int']":
     temp_converted = _ffi.cast("const Temporal *", temp)
     duration_converted = _ffi.cast("const Interval *", duration)
     sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin)
     torigin_converted = _ffi.cast("TimestampTz", torigin)
-    space_bins_converted = [_ffi.cast("GSERIALIZED **", x) for x in space_bins]
-    time_bins_converted = [_ffi.cast("TimestampTz *", x) for x in time_bins]
+    space_bins = _ffi.new("GSERIALIZED ***")
+    time_bins = _ffi.new("TimestampTz **")
     count = _ffi.new("int *")
     result = _lib.tpoint_space_time_split(
         temp_converted,
@@ -13075,12 +13067,17 @@ def tpoint_space_time_split(
         torigin_converted,
         bitmatrix,
         border_inc,
-        space_bins_converted,
-        time_bins_converted,
+        space_bins,
+        time_bins,
         count,
     )
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return (
+        result if result != _ffi.NULL else None,
+        space_bins[0],
+        time_bins[0],
+        count[0],
+    )
 
 
 def tpoint_time_split(
