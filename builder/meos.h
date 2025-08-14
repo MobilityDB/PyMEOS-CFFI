@@ -283,7 +283,6 @@ extern void meos_finalize(void);
 extern DateADT add_date_int(DateADT d, int32 days);
 extern Interval *add_interval_interval(const Interval *interv1, const Interval *interv2);
 extern TimestampTz add_timestamptz_interval(TimestampTz t, const Interval *interv);
-/* extern TimestampTz sub_timestamptz_interval(TimestampTz t, const Interval *interv);  (undefined) */
 extern bool bool_in(const char *str);
 extern char *bool_out(bool b);
 extern text *cstring2text(const char *str);
@@ -304,8 +303,6 @@ extern char *pg_date_out(DateADT d);
 extern int pg_interval_cmp(const Interval *interv1, const Interval *interv2);
 extern Interval *pg_interval_in(const char *str, int32 typmod);
 extern char *pg_interval_out(const Interval *interv);
-/* extern TimeADT pg_time_in(const char *str, int32 typmod);  (undefined) */
-/* extern char *pg_time_out(TimeADT t);  (undefined) */
 extern Timestamp pg_timestamp_in(const char *str, int32 typmod);
 extern char *pg_timestamp_out(Timestamp t);
 extern TimestampTz pg_timestamptz_in(const char *str, int32 typmod);
@@ -1704,6 +1701,7 @@ typedef struct
 
 /* extern bool temptype_subtype(tempSubtype subtype);  (undefined) */
 /* extern bool temptype_subtype_all(tempSubtype subtype);  (undefined) */
+
 extern const char *tempsubtype_name(tempSubtype subtype);
 extern bool tempsubtype_from_string(const char *str, int16 *subtype);
 extern const char *meosoper_name(meosOper oper);
@@ -1720,11 +1718,11 @@ extern meosType spansettype_spantype(meosType type);
 extern meosType basetype_spantype(meosType type);
 extern meosType basetype_settype(meosType type);
 
-/* extern bool meos_basetype(meosType type);  (undefined) */
 extern bool tnumber_basetype(meosType type);
+extern bool geo_basetype(meosType type);
+/* extern bool meos_basetype(meosType type);  (undefined) */
 /* extern bool alphanum_basetype(meosType type);  (undefined) */
 /* extern bool alphanum_temptype(meosType type);  (undefined) */
-extern bool geo_basetype(meosType type);
 
 extern bool time_type(meosType type);
 /* extern bool set_basetype(meosType type);  (undefined) */
@@ -1759,11 +1757,13 @@ extern bool ensure_timespanset_type(meosType type);
 
 extern bool temporal_type(meosType type);
 /* extern bool temporal_basetype(meosType type);  (undefined) */
+
 extern bool temptype_continuous(meosType type);
 extern bool basetype_byvalue(meosType type);
 extern bool basetype_varlength(meosType type);
 extern int16 basetype_length(meosType type);
 /* extern bool talphanum_type(meosType type);  (undefined) */
+
 extern bool talpha_type(meosType type);
 extern bool tnumber_type(meosType type);
 extern bool ensure_tnumber_type(meosType type);
@@ -2176,6 +2176,7 @@ extern GSERIALIZED *geog_to_geom(const GSERIALIZED *geog);
 
 extern bool geo_is_empty(const GSERIALIZED *g);
 /* extern bool geo_is_unitary(const GSERIALIZED *gs);  (undefined) */
+
 extern const char *geo_typename(int type);
 extern double geog_area(const GSERIALIZED *g, bool use_spheroid);
 extern GSERIALIZED *geog_centroid(const GSERIALIZED *g, bool use_spheroid);
@@ -2202,6 +2203,7 @@ extern int geo_ngeos(const GSERIALIZED *gs);
 extern GSERIALIZED *geo_geoN(const GSERIALIZED *geom, int n);
 /* extern GSERIALIZED **geo_pointarr(const GSERIALIZED *gs, int *count);  (undefined) */
 /* extern GSERIALIZED *geo_points(const GSERIALIZED *gs);  (undefined) */
+
 extern GSERIALIZED *geom_array_union(GSERIALIZED **gsarr, int count);
 extern GSERIALIZED *geom_boundary(const GSERIALIZED *gs);
 extern GSERIALIZED *geom_buffer(const GSERIALIZED *gs, double size, char *params);
@@ -2211,6 +2213,7 @@ extern GSERIALIZED *geom_difference2d(const GSERIALIZED *gs1, const GSERIALIZED 
 extern GSERIALIZED *geom_intersection2d(const GSERIALIZED *gs1, const GSERIALIZED *gs2);
 /* extern GSERIALIZED *geom_intersection2d_coll(const GSERIALIZED *gs1, const GSERIALIZED *gs2);  (undefined) */
 /* extern GSERIALIZED *geom_min_bounding_radius(const GSERIALIZED *geom, double *radius);  (undefined) */
+
 extern GSERIALIZED *geom_shortestline2d(const GSERIALIZED *gs1, const GSERIALIZED *s2);
 extern GSERIALIZED *geom_shortestline3d(const GSERIALIZED *gs1, const GSERIALIZED *s2);
 extern GSERIALIZED *geom_unary_union(GSERIALIZED *gs, double prec);
@@ -2230,7 +2233,6 @@ extern bool geom_intersects3d(const GSERIALIZED *gs1, const GSERIALIZED *gs2);
 extern bool geom_relate_pattern(const GSERIALIZED *gs1, const GSERIALIZED *gs2, char *patt);
 extern bool geom_touches(const GSERIALIZED *gs1, const GSERIALIZED *gs2);
 
-/* extern STBox *geo_expand_space(const GSERIALIZED *gs, double d);  (undefined) */
 extern STBox *geo_stboxes(const GSERIALIZED *gs, int *count);
 extern STBox *geo_split_each_n_stboxes(const GSERIALIZED *gs, int elem_count, int *count);
 extern STBox *geo_split_n_stboxes(const GSERIALIZED *gs, int box_count, int *count);
@@ -2463,7 +2465,6 @@ extern Temporal *teq_tgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
 extern Temporal *tne_geo_tgeo(const GSERIALIZED *gs, const Temporal *temp);
 extern Temporal *tne_tgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
 
-/* extern STBox *tspatial_expand_space(const Temporal *temp, double d);  (undefined) */
 extern STBox *tgeo_stboxes(const Temporal *temp, int *count);
 extern STBox *tgeo_space_boxes(const Temporal *temp, double xsize, double ysize, double zsize, const GSERIALIZED *sorigin, bool bitmatrix, bool border_inc, int *count);
 extern STBox *tgeo_space_time_boxes(const Temporal *temp, double xsize, double ysize, double zsize, const Interval *duration, const GSERIALIZED *sorigin, TimestampTz torigin, bool bitmatrix, bool border_inc, int *count);
@@ -2771,7 +2772,6 @@ extern void datespan_set_tstzspan(const Span *s1, Span *s2);
 extern void floatspan_set_intspan(const Span *s1, Span *s2);
 extern void intspan_set_floatspan(const Span *s1, Span *s2);
 extern Set *numset_shift_scale(const Set *s, Datum shift, Datum width, bool hasshift, bool haswidth);
-/* extern Span *numspan_expand(const Span *s, Datum value);  (repeated) */
 extern Span *numspan_shift_scale(const Span *s, Datum shift, Datum width, bool hasshift, bool haswidth);
 extern SpanSet *numspanset_shift_scale(const SpanSet *ss, Datum shift, Datum width, bool hasshift, bool haswidth);
 extern Set *set_compact(const Set *s);
@@ -2863,11 +2863,9 @@ extern void number_set_tbox(Datum d, meosType basetype, TBox *box);
 extern TBox *number_tbox(Datum value, meosType basetype);
 extern void numset_set_tbox(const Set *s, TBox *box);
 extern void numspan_set_tbox(const Span *span, TBox *box);
-/* extern void numspanset_set_tbox(const SpanSet *ss, TBox *box);  (undefined) */
 extern void timestamptz_set_tbox(TimestampTz t, TBox *box);
 extern void tstzset_set_tbox(const Set *s, TBox *box);
 extern void tstzspan_set_tbox(const Span *s, TBox *box);
-/* extern void tstzspanset_set_tbox(const SpanSet *ss, TBox *box);  (undefined) */
 
 extern TBox *tbox_shift_scale_value(const TBox *box, Datum shift, Datum width, bool hasshift, bool haswidth);
 extern void tbox_expand(const TBox *box1, TBox *box2);
@@ -3121,8 +3119,6 @@ extern int ever_le_temporal_base(const Temporal *temp, Datum value);
 extern int ever_lt_base_temporal(Datum value, const Temporal *temp);
 extern int ever_lt_temporal_base(const Temporal *temp, Datum value);
 
-/* extern TSequence *tfloatseq_derivative(const TSequence *seq);  (undefined) */
-/* extern TSequenceSet *tfloatseqset_derivative(const TSequenceSet *ss);  (undefined) */
 extern TInstant *tnumberinst_abs(const TInstant *inst);
 extern TSequence *tnumberseq_abs(const TSequence *seq);
 extern TSequence *tnumberseq_angular_difference(const TSequence *seq);
@@ -3179,7 +3175,6 @@ extern GSERIALIZED *point_round(const GSERIALIZED *gs, int maxdd);
 
 extern void stbox_set(bool hasx, bool hasz, bool geodetic, int32 srid, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, const Span *s, STBox *box);
 
-/* extern STBox *box3d_to_stbox(const BOX3D *box);  (repeated) */
 extern void gbox_set_stbox(const GBOX *box, int32_t srid, STBox *result);
 extern bool geo_set_stbox(const GSERIALIZED *gs, STBox *box);
 extern void geoarr_set_stbox(const Datum *values, int count, STBox *box);
@@ -3243,14 +3238,12 @@ extern TSequence *tpointseq_cumulative_length(const TSequence *seq, double prevl
 extern bool tpointseq_is_simple(const TSequence *seq);
 extern double tpointseq_length(const TSequence *seq);
 extern GSERIALIZED *tpointseq_linear_trajectory(const TSequence *seq, bool unary_union);
-/* extern TSequence *tpointseq_speed(const TSequence *seq);  (undefined) */
 extern STBox *tgeoseq_stboxes(const TSequence *seq, int *count);
 extern STBox *tgeoseq_split_n_stboxes(const TSequence *seq, int max_count, int *count);
 extern TSequenceSet *tpointseqset_azimuth(const TSequenceSet *ss);
 extern TSequenceSet *tpointseqset_cumulative_length(const TSequenceSet *ss);
 extern bool tpointseqset_is_simple(const TSequenceSet *ss);
 extern double tpointseqset_length(const TSequenceSet *ss);
-/* extern TSequenceSet *tpointseqset_speed(const TSequenceSet *ss);  (undefined) */
 extern STBox *tgeoseqset_stboxes(const TSequenceSet *ss, int *count);
 extern STBox *tgeoseqset_split_n_stboxes(const TSequenceSet *ss, int max_count, int *count);
 extern Temporal *tpoint_get_coord(const Temporal *temp, int coord);

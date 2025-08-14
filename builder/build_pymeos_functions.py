@@ -376,7 +376,7 @@ def get_param_conversion(param_type: str) -> Conversion:
     else:
         return Conversion(
             param_type,
-            f"Annotated[cdata, '{param_type}']",
+            f"Annotated[_ffi.CData, '{param_type}']",
             lambda name: f"_ffi.cast('{param_type}', {name})",
             lambda name: name,
         )
@@ -393,7 +393,7 @@ def get_return_type(inner_return_type) -> ReturnType:
             conversion.c_to_p("result") if conversion.c_to_p else None,
         )
     # Otherwise, don't transform anything
-    return ReturnType(inner_return_type, "cdata", None)
+    return ReturnType(inner_return_type, "_ffi.CData", None)
 
 
 def build_function_string(function_name: str, return_type: ReturnType, parameters: list[Parameter]) -> str:

@@ -10,7 +10,7 @@ def array_length_remover_modifier(list_name: str, length_param_name: str = "coun
 
 def array_parameter_modifier(list_name: str, length_param_name: str | None = None) -> Callable[[str], str]:
     def custom_array_modifier(function: str) -> str:
-        type_regex = list_name + r": Annotated\[(?:(?:cdata)|(?:list)), '([\w \*]+)'\]"
+        type_regex = list_name + r": Annotated\[(?:(?:_ffi\.CData)|(?:list)), '([\w \*]+)'\]"
         match = next(re.finditer(type_regex, function))
         whole_type = match.group(1)
         base_type = " ".join(whole_type.split(" ")[:-1])
@@ -107,13 +107,15 @@ def tstzset_make_modifier(function: str) -> str:
 
 def spanset_make_modifier(function: str) -> str:
     return (
-        function.replace("spans: Annotated[cdata, 'Span *'], count: int", "spans: list[Annotated[cdata, 'Span *']]")
+        function.replace(
+            "spans: Annotated[_ffi.CData, 'Span *'], count: int", "spans: list[Annotated[_ffi.CData, 'Span *']]"
+        )
         .replace("_ffi.cast('Span *', spans)", "_ffi.new('Span []', spans)")
         .replace(", count", ", len(spans)")
     )
 
 
 def mi_span_span_modifier(function: str) -> str:
-    return function.replace('-> Annotated[cdata, "Span *"]', '-> tuple[Annotated[cdata, "Span *"], int]').replace(
-        "return out_result", "return out_result, result"
-    )
+    return function.replace(
+        '-> Annotated[_ffi.CData, "Span *"]', '-> tuple[Annotated[_ffi.CData, "Span *"], int]'
+    ).replace("return out_result", "return out_result, result")

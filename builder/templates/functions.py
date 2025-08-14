@@ -5,7 +5,6 @@ from typing import Annotated, Any
 
 import _meos_cffi
 import shapely.geometry as spg
-from cffi import cdata
 from dateutil.parser import parse
 from shapely import get_srid, set_srid, wkt
 from shapely.geometry.base import BaseGeometry
@@ -44,11 +43,11 @@ def py_error_handler(error_level, error_code, error_msg):
     logger.debug(f"ERROR Handler called: Level: {_error} | Code: {_error_level} | Message: {_error_message}")
 
 
-def create_pointer(object: "Any", type: str) -> Annotated[cdata, "Any *"]:
+def create_pointer(object: "Any", type: str) -> Annotated[_ffi.CData, "Any *"]:
     return _ffi.new(f"{type} *", object)
 
 
-def get_address(value: "Any") -> Annotated[cdata, "Any *"]:
+def get_address(value: "Any") -> Annotated[_ffi.CData, "Any *"]:
     return _ffi.addressof(value)
 
 
@@ -80,14 +79,14 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def geo_to_gserialized(geom: BaseGeometry, geodetic: bool) -> Annotated[cdata, "GSERIALIZED *"]:
+def geo_to_gserialized(geom: BaseGeometry, geodetic: bool) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     if geodetic:
         return geography_to_gserialized(geom)
     else:
         return geometry_to_gserialized(geom)
 
 
-def geometry_to_gserialized(geom: BaseGeometry) -> Annotated[cdata, "GSERIALIZED *"]:
+def geometry_to_gserialized(geom: BaseGeometry) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     text = wkt.dumps(geom)
     if get_srid(geom) > 0:
         text = f"SRID={get_srid(geom)};{text}"
@@ -95,7 +94,7 @@ def geometry_to_gserialized(geom: BaseGeometry) -> Annotated[cdata, "GSERIALIZED
     return gs
 
 
-def geography_to_gserialized(geom: BaseGeometry) -> Annotated[cdata, "GSERIALIZED *"]:
+def geography_to_gserialized(geom: BaseGeometry) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     text = wkt.dumps(geom)
     if get_srid(geom) > 0:
         text = f"SRID={get_srid(geom)};{text}"
@@ -121,15 +120,15 @@ def gserialized_to_shapely_geometry(geom: "const GSERIALIZED *", precision: int 
     return geometry
 
 
-def as_tinstant(temporal: Annotated[cdata, "Temporal *"]) -> Annotated[cdata, "TInstant *"]:
+def as_tinstant(temporal: Annotated[_ffi.CData, "Temporal *"]) -> Annotated[_ffi.CData, "TInstant *"]:
     return _ffi.cast("TInstant *", temporal)
 
 
-def as_tsequence(temporal: Annotated[cdata, "Temporal *"]) -> Annotated[cdata, "TSequence *"]:
+def as_tsequence(temporal: Annotated[_ffi.CData, "Temporal *"]) -> Annotated[_ffi.CData, "TSequence *"]:
     return _ffi.cast("TSequence *", temporal)
 
 
-def as_tsequenceset(temporal: Annotated[cdata, "Temporal *"]) -> Annotated[cdata, "TSequenceSet *"]:
+def as_tsequenceset(temporal: Annotated[_ffi.CData, "Temporal *"]) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     return _ffi.cast("TSequenceSet *", temporal)
 
 
