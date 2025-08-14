@@ -13,7 +13,7 @@ header_files = [
 
 ffibuilder = FFI()
 
-with open(os.path.join(os.path.dirname(__file__), "meos.h"), "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "meos.h")) as f:
     content = f.read()
 
 ffibuilder.cdef(content)

@@ -1,6 +1,6 @@
-from .functions import *
 from .enums import *
 from .errors import *
+from .functions import *
 
 __version__ = "1.3.0a1"
 __all__ = [

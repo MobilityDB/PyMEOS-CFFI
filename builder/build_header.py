@@ -3,7 +3,6 @@ import platform
 import re
 import subprocess
 import sys
-from typing import Set, Tuple, Match
 
 header_files = [
     "meos.h",
@@ -29,9 +28,7 @@ def remove_undefined_functions(content, so_path):
 
     def remove_if_not_defined(m):
         function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
-        if function in defined or (
-            sys.platform == "darwin" and ("_" + function) in defined
-        ):
+        if function in defined or (sys.platform == "darwin" and ("_" + function) in defined):
             for t in undefined_types:
                 if t in m.group(0):
                     print(f"Removing function due to undefined type {t}: {function}")
@@ -50,10 +47,8 @@ def remove_undefined_functions(content, so_path):
     return content
 
 
-def remove_repeated_functions(
-    content: str, seen_functions: set
-) -> Tuple[str, Set[str]]:
-    def remove_if_repeated(m: Match):
+def remove_repeated_functions(content: str, seen_functions: set) -> tuple[str, set[str]]:
+    def remove_if_repeated(m: re.Match):
         function = m.group("function")
         if function in seen_functions:
             print(f"Removing repeated function: {function}")
@@ -99,7 +94,7 @@ typedef struct pj_ctx PJ_CONTEXT;
     functions = set()
     for file_name in header_files:
         file_path = os.path.join(include_dir, file_name)
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             content = f.read()
             # Remove comments
             content = re.sub(r"//.*", "", content)
@@ -113,9 +108,7 @@ typedef struct pj_ctx PJ_CONTEXT;
                 content,
                 flags=re.RegexFlag.MULTILINE,
             )
-            content = re.sub(
-                r"//#ifdef.*?//#endif", "", content, flags=re.RegexFlag.DOTALL
-            )
+            content = re.sub(r"//#ifdef.*?//#endif", "", content, flags=re.RegexFlag.DOTALL)
             content = content.replace("//#endif", "")
             content = re.sub(r"//# *\w+ +([\w,()]+) *((?:\\\n|.)*?)\n", "", content)
 

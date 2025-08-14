@@ -6,9 +6,7 @@ from setuptools import setup
 
 def package_proj_data() -> str:
     print("Copying PROJ data to package data")
-    projdatadir = os.environ.get(
-        "PROJ_DATA", os.environ.get("PROJ_LIB", "/usr/local/share/proj")
-    )
+    projdatadir = os.environ.get("PROJ_DATA", os.environ.get("PROJ_LIB", "/usr/local/share/proj"))
     if os.path.exists(projdatadir):
         shutil.rmtree("pymeos_cffi/proj_data", ignore_errors=True)
         shutil.copytree(
@@ -18,17 +16,14 @@ def package_proj_data() -> str:
         )  # Don't copy .tiff files and their related .txt files
     else:
         raise FileNotFoundError(
-            f"PROJ data directory not found at {projdatadir}. "
-            f"Unable to generate self-contained wheel."
+            f"PROJ data directory not found at {projdatadir}. Unable to generate self-contained wheel."
         )
     return "proj_data/*"
 
 
 def package_meos_data() -> str:
     print("Copying MEOS spatial reference table to package data")
-    spatial_ref_sys_path = os.environ.get(
-        "MEOS_SPATIAL_REF_SYS_PATH", "/usr/local/share/spatial_ref_sys.csv"
-    )
+    spatial_ref_sys_path = os.environ.get("MEOS_SPATIAL_REF_SYS_PATH", "/usr/local/share/spatial_ref_sys.csv")
     shutil.rmtree("pymeos_cffi/meos_data", ignore_errors=True)
     os.makedirs("pymeos_cffi/meos_data", exist_ok=True)
     shutil.copy(

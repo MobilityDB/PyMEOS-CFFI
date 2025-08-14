@@ -1,9 +1,8 @@
 import os.path
 import sys
-from typing import List
 
 from build_pymeos_functions_modifiers import *
-from objects import conversion_map, Conversion
+from objects import Conversion, conversion_map
 
 
 class Parameter:
@@ -13,7 +12,7 @@ class Parameter:
         converted_name: str,
         ctype: str,
         ptype: str,
-        cp_conversion: Optional[str],
+        cp_conversion: str | None,
     ) -> None:
         super().__init__()
         self.name = name
@@ -23,9 +22,7 @@ class Parameter:
         self.cp_conversion = cp_conversion
 
     def is_interoperable(self):
-        return any(
-            self.ctype.startswith(x) for x in ["int", "bool", "double", "TimestampTz"]
-        )
+        return any(self.ctype.startswith(x) for x in ["int", "bool", "double", "TimestampTz"])
 
     def get_ptype_without_pointers(self):
         if self.is_interoperable():
@@ -34,14 +31,11 @@ class Parameter:
             return self.ptype
 
     def __str__(self) -> str:
-        return (
-            f"{self.name=}, {self.converted_name=}, {self.ctype=}, {self.ptype=}, "
-            f"{self.cp_conversion=}"
-        )
+        return f"{self.name=}, {self.converted_name=}, {self.ctype=}, {self.ptype=}, {self.cp_conversion=}"
 
 
 class ReturnType:
-    def __init__(self, ctype: str, ptype: str, conversion: Optional[str]) -> None:
+    def __init__(self, ctype: str, ptype: str, conversion: str | None) -> None:
         super().__init__()
         self.ctype = ctype
         self.return_type = ptype
@@ -90,6 +84,7 @@ function_modifiers = {
     "textset_make": textset_make_modifier,
     "geoset_make": array_length_remover_modifier("values", "count"),
     "tsequenceset_make_gaps": array_length_remover_modifier("instants", "count"),
+    "mi_span_span": mi_span_span_modifier,
 }
 
 # List of result function parameters in tuples of (function, parameter)
@@ -207,25 +202,19 @@ def is_output_parameter(function: str, parameter: Parameter) -> bool:
     return (function, parameter.name) in output_parameters
 
 
-def check_modifiers(functions: List[str]) -> None:
-    for func in function_modifiers.keys():
+def check_modifiers(functions: list[str]) -> None:
+    for func in function_modifiers:
         if func not in functions:
             print(f"Modifier defined for non-existent function {func}")
     for func, param in result_parameters:
         if func not in functions:
-            print(
-                f"Result parameter defined for non-existent function {func} ({param})"
-            )
+            print(f"Result parameter defined for non-existent function {func} ({param})")
     for func, param in output_parameters:
         if func not in functions:
-            print(
-                f"Output parameter defined for non-existent function {func} ({param})"
-            )
+            print(f"Output parameter defined for non-existent function {func} ({param})")
     for func, param in nullable_parameters:
         if func not in functions:
-            print(
-                f"Nullable Parameter defined for non-existent function {func} ({param})"
-            )
+            print(f"Nullable Parameter defined for non-existent function {func} ({param})")
 
 
 def remove_c_comments(code: str) -> str:
@@ -284,7 +273,7 @@ def build_pymeos_functions(header_path="builder/meos.h"):
             file.write("\n\n\n")
 
     functions = []
-    with open(functions_path, "r") as funcs:
+    with open(functions_path) as funcs:
         content = funcs.read()
         matches = list(re.finditer(r"def (\w+)\(", content))
         function_text = ""
@@ -301,27 +290,21 @@ def build_pymeos_functions(header_path="builder/meos.h"):
     check_modifiers(functions)
 
 
-def get_params(function: str, inner_params: str) -> List[Parameter]:
+def get_params(function: str, inner_params: str) -> list[Parameter]:
     if not inner_params:
         return []
-    return [
-        p
-        for p in (
-            get_param(function, param.strip()) for param in inner_params.split(",")
-        )
-        if p is not None
-    ]
+    return [p for p in (get_param(function, param.strip()) for param in inner_params.split(",")) if p is not None]
 
 
-# Creates Parameter object from a function parameter
-def get_param(function: str, inner_param: str) -> Optional[Parameter]:
+# Creates a Parameter object from a function parameter
+def get_param(function: str, inner_param: str) -> Parameter | None:
     # Split param name and type
     split = inner_param.split(" ")
 
-    # Type is everything except last word
+    # Type is everything except the last word
     param_type = " ".join(split[:-1])
 
-    # Check if parameter is pointer and fix type and name accordingly
+    # Check if the parameter is a pointer and fix type and name accordingly
     param_name = split[-1].lstrip("*")
     pointer_level = len(split[-1]) - len(param_name)
     if pointer_level > 0:
@@ -342,8 +325,7 @@ def get_param(function: str, inner_param: str) -> Optional[Parameter]:
     # Check if parameter is nullable
     nullable = is_nullable_parameter(function, param_name)
 
-    # If no conversion is needed between c and python types, use parameter name also as
-    # converted name
+    # If no conversion is needed from Python to C, use the parameter name also as converted name
     if conversion.p_to_c is None:
         # If nullable, add null check
         if nullable:
@@ -351,21 +333,19 @@ def get_param(function: str, inner_param: str) -> Optional[Parameter]:
                 param_name,
                 f"{param_name}_converted",
                 param_type,
-                f"'Optional[{conversion.p_type}]'",
-                f"{param_name}_converted = {param_name} if {param_name} is "
-                f"not None else _ffi.NULL",
+                f"{conversion.p_type} | None",
+                f"{param_name}_converted = {param_name} if {param_name} is not None else _ffi.NULL",
             )
         return Parameter(param_name, param_name, param_type, conversion.p_type, None)
 
-    # If a conversion is needed, create new name and add the conversion
+    # If a conversion is needed, create a new name and add the conversion
     if nullable:
         return Parameter(
             param_name,
             f"{param_name}_converted",
             param_type,
-            f'"Optional[{conversion.p_type}]"',
-            f"{param_name}_converted = {conversion.p_to_c(param_name)} "
-            f"if {param_name} is not None else _ffi.NULL",
+            f"{conversion.p_type} | None",
+            f"{param_name}_converted = {conversion.p_to_c(param_name)} if {param_name} is not None else _ffi.NULL",
         )
     return Parameter(
         param_name,
@@ -378,16 +358,16 @@ def get_param(function: str, inner_param: str) -> Optional[Parameter]:
 
 # Returns a conversion for a type
 def get_param_conversion(param_type: str) -> Conversion:
-    # Check if type is known
+    # Check if the type is known
     if param_type in conversion_map:
         return conversion_map[param_type]
     # Otherwise, create a new conversion
 
-    # If it's a double pointer, cast as array
+    # If it's a double pointer, cast as an array
     if param_type.endswith("**"):
         return Conversion(
             param_type,
-            f"'{param_type}'",
+            f"Annotated[list, '{param_type}']",
             lambda name: f"[_ffi.cast('{param_type[:-1]}', x) for x in {name}]",
             lambda name: name,
         )
@@ -396,7 +376,7 @@ def get_param_conversion(param_type: str) -> Conversion:
     else:
         return Conversion(
             param_type,
-            f"'{param_type}'",
+            f"Annotated[cdata, '{param_type}']",
             lambda name: f"_ffi.cast('{param_type}', {name})",
             lambda name: name,
         )
@@ -413,14 +393,12 @@ def get_return_type(inner_return_type) -> ReturnType:
             conversion.c_to_p("result") if conversion.c_to_p else None,
         )
     # Otherwise, don't transform anything
-    return ReturnType(inner_return_type, f"'{inner_return_type}'", None)
+    return ReturnType(inner_return_type, "cdata", None)
 
 
-def build_function_string(
-    function_name: str, return_type: ReturnType, parameters: List[Parameter]
-) -> str:
-    # Check if there is a result param, i.e. output parameters that are the actual
-    # product of the function, instead of  whatever the function returns (typically
+def build_function_string(function_name: str, return_type: ReturnType, parameters: list[Parameter]) -> str:
+    # Check if there is a result param, i.e., output parameters that are the actual
+    # product of the function, instead of whatever the function returns (typically
     # void or bool/int indicating the success or failure of the function)
     result_param = None
     if len(parameters) > 1 and is_result_parameter(function_name, parameters[-1]):
@@ -435,21 +413,15 @@ def build_function_string(
         out_params = [p for p in parameters if is_output_parameter(function_name, p)]
 
     # Create wrapper function parameter list
-    params = ", ".join(
-        f"{p.name}: {p.ptype}" for p in parameters if p not in out_params
-    )
+    params = ", ".join(f"{p.name}: {p.ptype}" for p in parameters if p not in out_params)
 
     # Create necessary conversions for the parameters
     param_conversions = "\n    ".join(
-        p.cp_conversion
-        for p in parameters
-        if p.cp_conversion is not None and p not in out_params
+        p.cp_conversion for p in parameters if p.cp_conversion is not None and p not in out_params
     )
 
     # Create CFFI function parameter list
-    inner_params = ", ".join(
-        pc.name if pc in out_params else pc.converted_name for pc in parameters
-    )
+    inner_params = ", ".join(pc.name if pc in out_params else pc.converted_name for pc in parameters)
 
     # Add result conversion if necessary
     result_manipulation = None
@@ -459,11 +431,12 @@ def build_function_string(
     # Initialize the function return type to the python type unless it needs no
     # conversion (where the C type gives extra information while being interoperable),
     # or the function is void
-    function_return_type = (
-        return_type.return_type
-        if return_type.conversion is not None or return_type.return_type == "None"
-        else f"'{return_type.ctype}'"
-    )
+    function_return_type = f"Annotated[{return_type.return_type}, '{return_type.ctype}']"
+    # function_return_type = (
+    #     return_type.return_type
+    #     if return_type.conversion is not None or return_type.return_type == "None"
+    #     else f"'{return_type.ctype}'"
+    # )
     # If there is a result param
     if result_param is not None:
         # Create the CFFI object to hold it
@@ -489,18 +462,14 @@ def build_function_string(
         # Otherwise, just return it normally
         else:
             result_manipulation = (
-                (result_manipulation or "")
-                + f"    return {returning_object} if {returning_object}"
-                f"!= _ffi.NULL else None\n"
-            )
+                result_manipulation or ""
+            ) + f"    return {returning_object} if {returning_object}!= _ffi.NULL else None\n"
         # Set the return type as the Python type, removing the pointer modifier if
         # necessary
         function_return_type = result_param.get_ptype_without_pointers()
     # Otherwise, return the result normally (if needed)
     elif return_type.return_type != "None":
-        result_manipulation = (
-            result_manipulation or ""
-        ) + "    return result if result != _ffi.NULL else None"
+        result_manipulation = (result_manipulation or "") + "    return result if result != _ffi.NULL else None"
 
     # For each output param
     for out_param in out_params:
@@ -512,9 +481,9 @@ def build_function_string(
         # Add it to the return statement
         result_manipulation += f", {out_param.name}[0]"
 
-    # If there are output params, wrap function return type in a Tuple
+    # If there are output params, wrap the function return type in a tuple
     if len(out_params) > 0:
-        function_return_type = f'"Tuple[{function_return_type}]"'
+        function_return_type = f"tuple[{function_return_type}]"
 
     # Add padding to param conversions
     if len(param_conversions) > 0:
@@ -527,10 +496,7 @@ def build_function_string(
 
     # Create common part of function string (note, name, parameters, return type and
     # parameter conversions).
-    base = (
-        f"{note}def {function_name}({params}) -> {function_return_type}:\n"
-        f"{param_conversions}"
-    )
+    base = f"{note}def {function_name}({params}) -> {function_return_type}:\n{param_conversions}"
     # If the function didn't return anything, just add the function call to the base
     if return_type.return_type == "None":
         function_string = f"{base}    _lib.{function_name}({inner_params})"
@@ -539,7 +505,7 @@ def build_function_string(
         function_string = f"{base}    result = _lib.{function_name}({inner_params})"
 
     # Add error handling
-    function_string += f"\n    _check_error()"
+    function_string += "\n    _check_error()"
 
     # Add whatever manipulation the result needs (maybe empty)
     if result_manipulation is not None:

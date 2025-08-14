@@ -1,14 +1,13 @@
 import logging
 import os
-import time
-
-from datetime import datetime, timedelta, date
-from typing import Any, Tuple, Optional, List
+from datetime import date, datetime, timedelta
+from typing import Annotated, Any
 
 import _meos_cffi
 import shapely.geometry as spg
+from cffi import cdata
 from dateutil.parser import parse
-from shapely import wkt, get_srid, set_srid
+from shapely import get_srid, set_srid, wkt
 from shapely.geometry.base import BaseGeometry
 
 from .enums import InterpolationType
@@ -17,9 +16,9 @@ from .errors import report_meos_exception
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
 
-_error: Optional[int] = None
-_error_level: Optional[int] = None
-_error_message: Optional[str] = None
+_error: int | None = None
+_error_level: int | None = None
+_error_message: str | None = None
 
 logger = logging.getLogger("pymeos_cffi")
 
@@ -42,34 +41,30 @@ def py_error_handler(error_level, error_code, error_msg):
     _error = error_code
     _error_level = error_level
     _error_message = _ffi.string(error_msg).decode("utf-8")
-    logger.debug(
-        f"ERROR Handler called: Level: {_error} | Code: {_error_level} | Message: {_error_message}"
-    )
+    logger.debug(f"ERROR Handler called: Level: {_error} | Code: {_error_level} | Message: {_error_message}")
 
 
-def create_pointer(object: "Any", type: str) -> "Any *":
+def create_pointer(object: "Any", type: str) -> Annotated[cdata, "Any *"]:
     return _ffi.new(f"{type} *", object)
 
 
-def get_address(value: "Any") -> "Any *":
+def get_address(value: "Any") -> Annotated[cdata, "Any *"]:
     return _ffi.addressof(value)
 
 
-def datetime_to_timestamptz(dt: datetime) -> "TimestampTz":
-    return _lib.pg_timestamptz_in(
-        dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1
-    )
+def datetime_to_timestamptz(dt: datetime) -> Annotated[int, "TimestampTz"]:
+    return _lib.pg_timestamptz_in(dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1)
 
 
-def timestamptz_to_datetime(ts: "TimestampTz") -> datetime:
+def timestamptz_to_datetime(ts: Annotated[int, "TimestampTz"]) -> datetime:
     return parse(pg_timestamptz_out(ts))
 
 
-def date_to_date_adt(dt: date) -> "DateADT":
+def date_to_date_adt(dt: date) -> Annotated[int, "DateADT"]:
     return _lib.pg_date_in(dt.strftime("%Y-%m-%d").encode("utf-8"))
 
 
-def date_adt_to_date(ts: "DateADT") -> date:
+def date_adt_to_date(ts: Annotated[int, "DateADT"]) -> date:
     return parse(pg_date_out(ts)).date()
 
 
@@ -85,14 +80,14 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def geo_to_gserialized(geom: BaseGeometry, geodetic: bool) -> "GSERIALIZED *":
+def geo_to_gserialized(geom: BaseGeometry, geodetic: bool) -> Annotated[cdata, "GSERIALIZED *"]:
     if geodetic:
         return geography_to_gserialized(geom)
     else:
         return geometry_to_gserialized(geom)
 
 
-def geometry_to_gserialized(geom: BaseGeometry) -> "GSERIALIZED *":
+def geometry_to_gserialized(geom: BaseGeometry) -> Annotated[cdata, "GSERIALIZED *"]:
     text = wkt.dumps(geom)
     if get_srid(geom) > 0:
         text = f"SRID={get_srid(geom)};{text}"
@@ -100,7 +95,7 @@ def geometry_to_gserialized(geom: BaseGeometry) -> "GSERIALIZED *":
     return gs
 
 
-def geography_to_gserialized(geom: BaseGeometry) -> "GSERIALIZED *":
+def geography_to_gserialized(geom: BaseGeometry) -> Annotated[cdata, "GSERIALIZED *"]:
     text = wkt.dumps(geom)
     if get_srid(geom) > 0:
         text = f"SRID={get_srid(geom)};{text}"
@@ -108,9 +103,7 @@ def geography_to_gserialized(geom: BaseGeometry) -> "GSERIALIZED *":
     return gs
 
 
-def gserialized_to_shapely_point(
-    geom: "const GSERIALIZED *", precision: int = 15
-) -> spg.Point:
+def gserialized_to_shapely_point(geom: "const GSERIALIZED *", precision: int = 15) -> spg.Point:
     text = geo_as_text(geom, precision)
     geometry = wkt.loads(text)
     srid = geo_srid(geom)
@@ -119,9 +112,7 @@ def gserialized_to_shapely_point(
     return geometry
 
 
-def gserialized_to_shapely_geometry(
-    geom: "const GSERIALIZED *", precision: int = 15
-) -> BaseGeometry:
+def gserialized_to_shapely_geometry(geom: "const GSERIALIZED *", precision: int = 15) -> BaseGeometry:
     text = geo_as_text(geom, precision)
     geometry = wkt.loads(text)
     srid = geo_srid(geom)
@@ -130,15 +121,15 @@ def gserialized_to_shapely_geometry(
     return geometry
 
 
-def as_tinstant(temporal: "Temporal *") -> "TInstant *":
+def as_tinstant(temporal: Annotated[cdata, "Temporal *"]) -> Annotated[cdata, "TInstant *"]:
     return _ffi.cast("TInstant *", temporal)
 
 
-def as_tsequence(temporal: "Temporal *") -> "TSequence *":
+def as_tsequence(temporal: Annotated[cdata, "Temporal *"]) -> Annotated[cdata, "TSequence *"]:
     return _ffi.cast("TSequence *", temporal)
 
 
-def as_tsequenceset(temporal: "Temporal *") -> "TSequenceSet *":
+def as_tsequenceset(temporal: Annotated[cdata, "Temporal *"]) -> Annotated[cdata, "TSequenceSet *"]:
     return _ffi.cast("TSequenceSet *", temporal)
 
 

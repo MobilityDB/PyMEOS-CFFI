@@ -1,26 +1,20 @@
 import re
-from typing import Callable, Optional
+from collections.abc import Callable
 
 
-def array_length_remover_modifier(
-    list_name: str, length_param_name: str = "count"
-) -> Callable[[str], str]:
+def array_length_remover_modifier(list_name: str, length_param_name: str = "count") -> Callable[[str], str]:
     return lambda function: function.replace(f", {length_param_name}: int", "").replace(
         f", {length_param_name}", f", len({list_name})"
     )
 
 
-def array_parameter_modifier(
-    list_name: str, length_param_name: Optional[str] = None
-) -> Callable[[str], str]:
+def array_parameter_modifier(list_name: str, length_param_name: str | None = None) -> Callable[[str], str]:
     def custom_array_modifier(function: str) -> str:
-        type_regex = list_name + r": '([\w \*]+)'"
+        type_regex = list_name + r": Annotated\[(?:(?:cdata)|(?:list)), '([\w \*]+)'\]"
         match = next(re.finditer(type_regex, function))
         whole_type = match.group(1)
         base_type = " ".join(whole_type.split(" ")[:-1])
-        function = function.replace(
-            match.group(0), f"{list_name}: 'List[{base_type}]'"
-        ).replace(
+        function = function.replace(match.group(0), f"{list_name}: 'list[{base_type}]'").replace(
             f"_ffi.cast('{whole_type}', {list_name})",
             f"_ffi.new('{base_type} []', {list_name})",
         )
@@ -36,30 +30,30 @@ def array_parameter_modifier(
 def textset_make_modifier(function: str) -> str:
     function = array_parameter_modifier("values", "count")(function)
     return function.replace("_ffi.cast('const text *', x)", "cstring2text(x)").replace(
-        "'List[const text]'", "List[str]"
+        "'list[const text]'", "list[str]"
     )
 
 
 def meos_initialize_modifier(_: str) -> str:
-    return """def meos_initialize(tz_str: "Optional[str]") -> None:
+    return """def meos_initialize(tz_str: str | None) -> None:
     if "PROJ_DATA" not in os.environ and "PROJ_LIB" not in os.environ:
         proj_dir = os.path.join(os.path.dirname(__file__), "proj_data")
         if os.path.exists(proj_dir):
             # Assume we are in a wheel and the PROJ data is in the package
             os.environ["PROJ_DATA"] = proj_dir
             os.environ["PROJ_LIB"] = proj_dir
-            
+
     _lib.meos_initialize()
-    
+
     # Check if local spatial ref system csv exists (meaning wheel installation). If it does, use it.
     wheel_path = os.path.join(
         os.path.dirname(__file__), "meos_data", "spatial_ref_sys.csv"
     )
     if os.path.exists(wheel_path):
         _lib.meos_set_spatial_ref_sys_csv(wheel_path.encode("utf-8"))
-    
+
     # Timezone is already initialized by meos_initialize, so we only need to set it if tz_str is provided
-    if tz_str is not None: 
+    if tz_str is not None:
         _lib.meos_initialize_timezone(tz_str.encode('utf-8'))
     _lib.meos_initialize_error_handler(_lib.py_error_handler)"""
 
@@ -92,9 +86,7 @@ def from_wkb_modifier(function: str, return_type: str) -> Callable[[str], str]:
 
 
 def as_wkb_modifier(function: str) -> str:
-    return function.replace(
-        "-> \"Tuple['uint8_t *', 'size_t *']\":", "-> bytes:"
-    ).replace(
+    return function.replace("-> \"Tuple['uint8_t *', 'size_t *']\":", "-> bytes:").replace(
         "return result if result != _ffi.NULL else None, size_out[0]",
         "result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None\n"
         "    return result_converted",
@@ -103,7 +95,7 @@ def as_wkb_modifier(function: str) -> str:
 
 def tstzset_make_modifier(function: str) -> str:
     return (
-        function.replace("values: int", "values: List[int]")
+        function.replace("values: int", "values: list[int]")
         .replace(", count: int", "")
         .replace(
             "values_converted = _ffi.cast('const TimestampTz *', values)",
@@ -115,7 +107,13 @@ def tstzset_make_modifier(function: str) -> str:
 
 def spanset_make_modifier(function: str) -> str:
     return (
-        function.replace("spans: 'Span *', count: int", "spans: 'List[Span *]'")
+        function.replace("spans: Annotated[cdata, 'Span *'], count: int", "spans: list[Annotated[cdata, 'Span *']]")
         .replace("_ffi.cast('Span *', spans)", "_ffi.new('Span []', spans)")
         .replace(", count", ", len(spans)")
+    )
+
+
+def mi_span_span_modifier(function: str) -> str:
+    return function.replace('-> Annotated[cdata, "Span *"]', '-> tuple[Annotated[cdata, "Span *"], int]').replace(
+        "return out_result", "return out_result, result"
     )
