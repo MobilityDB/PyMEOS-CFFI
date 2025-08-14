@@ -68,7 +68,7 @@ jobs:
           is_rc=${{ steps.check_rc.outputs.is_rc }}
 
           if [ "$is_alpha" == "true" ] || [ "$is_beta" == "true" ] || [ "$is_rc" == "true" ]; then
-            echo "Releasing an prerelease version."
+            echo "Releasing a prerelease version."
             echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
           else
             echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
@@ -211,7 +211,7 @@ jobs:
           export PACKAGE_DATA=1
           python -m cibuildwheel --output-dir wheelhouse
         env:
-          # Disable builds on musllinux
+          # Disable builds on musllinux and python 3.14
           CIBW_SKIP: "*musllinux* cp314*"
           # Disable builds in linux architectures other than x86_64
           CIBW_ARCHS_LINUX: "x86_64"
