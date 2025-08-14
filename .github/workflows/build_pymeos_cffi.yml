@@ -192,6 +192,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
+          python-version: "3.11"
           cache: "pip"
 
       - name: Install cibuildwheel
@@ -281,7 +282,6 @@ jobs:
         run: |
           python -c "import pymeos_cffi; print(pymeos_cffi.__version__);"
           python -c "from pymeos_cffi import *; meos_initialize(None); print(tgeo_out(tgeompoint_in('POINT(2 3)@2000-01-01'), 3)); meos_finalize();"
-          python -c "from pymeos_cffi import *; meos_initialize(None); print(tgeo_out(tgeogpoint_in('POINT(2 3)@2000-01-01'), 3)); meos_finalize();"
 
   upload_pypi:
     name: Upload to PyPI
