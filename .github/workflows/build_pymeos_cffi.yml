@@ -16,6 +16,7 @@ jobs:
       is_rc: ${{ steps.check_rc.outputs.is_rc }}
       is_prerelease: ${{ steps.check_prerelease.outputs.is_prerelease }}
       branch: ${{ steps.check_branch.outputs.branch }}
+      meos_branch: ${{ steps.check_branch.outputs.meos_branch }}
       version: ${{ steps.check_version.outputs.version }}
 
     steps:
@@ -90,8 +91,19 @@ jobs:
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
           branch=${raw##*/}
-          echo "branch=$branch" >> $GITHUB_OUTPUT
           echo "Branch is $branch."
+          if [ -z "$branch" ]; then
+            branch="master"
+            echo "Branch not found. Using master."
+          fi
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+          exists=$(git ls-remote https://github.com/MobilityDB/MobilityDB $branch)
+          meos_branch="master"
+          if [ -n "$exists" ]; then
+            meos_branch=$branch
+          fi
+          echo "MEOS branch is $meos_branch."
+          echo "meos_branch=$meos_branch" >> $GITHUB_OUTPUT
 
       - name: Check version
         id: check_version
@@ -169,7 +181,7 @@ jobs:
       - name: Install MEOS
         if: runner.os == 'macOS'
         run: |
-          git clone --depth 1 --branch ${{ needs.checks.outputs.branch }} https://github.com/MobilityDB/MobilityDB
+          git clone --depth 1 https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
           export MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
@@ -218,7 +230,7 @@ jobs:
             dnf -qy module disable postgresql &&
             dnf -y update &&
             dnf -y install gcc gcc-c++ make cmake postgresql16-devel proj81-devel geos39-devel gsl-devel json-c-devel &&
-            git clone --depth 1 --branch ${{ needs.checks.outputs.branch }} https://github.com/MobilityDB/MobilityDB &&
+            git clone --depth 1 --branch ${{ needs.checks.outputs.meos_branch }} https://github.com/MobilityDB/MobilityDB &&
             mkdir MobilityDB/build &&
             cd MobilityDB/build &&
             cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so &&
