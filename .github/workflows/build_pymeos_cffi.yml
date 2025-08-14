@@ -112,7 +112,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.10
           cache: "pip"
 
       - name: Setup pip
@@ -137,8 +137,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-#        os: [ ubuntu-latest, macos-13, macos-14 ]
-        os: [ ubuntu-latest, macos-14 ]
+        os: [ ubuntu-latest, macos-13, macos-14 ]
         include:
           - ld_prefix: "/usr/local"
           - os: macos-14
@@ -156,11 +155,7 @@ jobs:
 
       - name: Update brew
         if: matrix.os == 'macos-13'
-        # Necessary to avoid issue with macOS runners. See
-        # https://github.com/actions/runner-images/issues/4020
         run: |
-          brew reinstall python@3.12 || brew link --overwrite python@3.12
-          brew reinstall python@3.11 || brew link --overwrite python@3.11
           brew update
 
       - name: Get PROJ version
@@ -211,8 +206,8 @@ jobs:
           export PACKAGE_DATA=1
           python -m cibuildwheel --output-dir wheelhouse
         env:
-          # Disable builds on musllinux and python 3.14
-          CIBW_SKIP: "*musllinux* cp314*"
+          # Disable builds on musllinux and python 3.8, 3.9 and 3.14
+          CIBW_SKIP: "*musllinux* cp38* cp39* cp314*"
           # Disable builds in linux architectures other than x86_64
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_ENVIRONMENT_PASS_LINUX: PACKAGE_DATA LD_LIBRARY_PATH PROJ_DATA C_INCLUDE_PATH
@@ -246,9 +241,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
         os: [ ubuntu-latest, macos-13, macos-14 ]
-#        os: [ ubuntu-latest, macos-14 ]
 
     steps:
       - name: Checkout
