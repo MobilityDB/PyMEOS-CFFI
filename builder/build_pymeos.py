@@ -2,9 +2,18 @@ import os
 
 from cffi import FFI
 
+header_files = [
+    "meos.h",
+    "meos_catalog.h",
+    "meos_geo.h",
+    "meos_internal.h",
+    "meos_internal_geo.h",
+    "meos_npoint.h",
+]
+
 ffibuilder = FFI()
 
-with open(os.path.join(os.path.dirname(__file__), "meos.h"), "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "meos.h")) as f:
     content = f.read()
 
 ffibuilder.cdef(content)
@@ -22,7 +31,7 @@ def get_include_dirs():
 
 ffibuilder.set_source(
     "_meos_cffi",
-    '#include "meos.h"\n' '#include "meos_catalog.h"\n' '#include "meos_internal.h"',
+    "\n".join(f'#include "{h}"' for h in header_files),
     libraries=["meos"],
     library_dirs=get_library_dirs(),
     include_dirs=get_include_dirs(),

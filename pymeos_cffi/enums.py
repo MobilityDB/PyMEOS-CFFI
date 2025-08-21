@@ -1,5 +1,6 @@
-from _meos_cffi import lib as _lib
 from enum import IntEnum
+
+from _meos_cffi import lib as _lib
 
 
 class MeosType(IntEnum):

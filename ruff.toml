@@ -1,0 +1,32 @@
+line-length = 120
+indent-width = 4
+
+target-version = "py310"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[lint]
+select = [
+    # pycodestyle
+    "E", "W",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+ignore = [
+    "F405", "F403", # Allow star imports
+    "F722", # Ignore syntax errors in forward annotations to allow for MEOS types
+    "E741", # Ignore ambiguous variable names
+]
+[lint.per-file-ignores]
+"builder/templates/functions.py" = ["F821", "F401"] # Allow undefined and unused names in the function file template
