@@ -1,5 +1,7 @@
 import logging
+
 from _meos_cffi import lib as _lib
+
 from .enums import ErrorLevel
 
 logger = logging.getLogger("pymeos_cffi")

@@ -16,6 +16,7 @@ jobs:
       is_rc: ${{ steps.check_rc.outputs.is_rc }}
       is_prerelease: ${{ steps.check_prerelease.outputs.is_prerelease }}
       branch: ${{ steps.check_branch.outputs.branch }}
+      meos_branch: ${{ steps.check_branch.outputs.meos_branch }}
       version: ${{ steps.check_version.outputs.version }}
 
     steps:
@@ -29,7 +30,7 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
 
-          if [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+-alpha ]]; then
+          if [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+a[0-9]+ ]]; then
             echo "Releasing an alpha version."
             echo "is_alpha=true" >> "$GITHUB_OUTPUT"
           else
@@ -41,7 +42,7 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
 
-          if [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+-beta ]]; then
+          if [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]+ ]]; then
             echo "Releasing a beta version."
             echo "is_beta=true" >> "$GITHUB_OUTPUT"
           else
@@ -53,7 +54,7 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
 
-          if [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc ]]; then
+          if [[ $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+rc[0-9]+ ]]; then
             echo "Releasing an rc version."
             echo "is_rc=true" >> "$GITHUB_OUTPUT"
           else
@@ -68,7 +69,7 @@ jobs:
           is_rc=${{ steps.check_rc.outputs.is_rc }}
 
           if [ "$is_alpha" == "true" ] || [ "$is_beta" == "true" ] || [ "$is_rc" == "true" ]; then
-            echo "Releasing an prerelease version."
+            echo "Releasing a prerelease version."
             echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
           else
             echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
@@ -90,8 +91,19 @@ jobs:
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
           branch=${raw##*/}
-          echo "branch=$branch" >> $GITHUB_OUTPUT
           echo "Branch is $branch."
+          if [ -z "$branch" ]; then
+            branch="master"
+            echo "Branch not found. Using master."
+          fi
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+          exists=$(git ls-remote https://github.com/MobilityDB/MobilityDB $branch)
+          meos_branch="master"
+          if [ -n "$exists" ]; then
+            meos_branch=$branch
+          fi
+          echo "MEOS branch is $meos_branch."
+          echo "meos_branch=$meos_branch" >> $GITHUB_OUTPUT
 
       - name: Check version
         id: check_version
@@ -112,7 +124,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: "3.10"
           cache: "pip"
 
       - name: Setup pip
@@ -137,8 +149,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-#        os: [ ubuntu-latest, macos-13, macos-14 ]
-        os: [ ubuntu-latest, macos-14 ]
+        os: [ ubuntu-latest, macos-13, macos-14 ]
         include:
           - ld_prefix: "/usr/local"
           - os: macos-14
@@ -156,11 +167,7 @@ jobs:
 
       - name: Update brew
         if: matrix.os == 'macos-13'
-        # Necessary to avoid issue with macOS runners. See
-        # https://github.com/actions/runner-images/issues/4020
         run: |
-          brew reinstall python@3.12 || brew link --overwrite python@3.12
-          brew reinstall python@3.11 || brew link --overwrite python@3.11
           brew update
 
       - name: Get PROJ version
@@ -174,7 +181,7 @@ jobs:
       - name: Install MEOS
         if: runner.os == 'macOS'
         run: |
-          git clone --depth 1 --branch ${{ needs.checks.outputs.branch }} https://github.com/MobilityDB/MobilityDB
+          git clone --depth 1 https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
           export MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
@@ -185,10 +192,11 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
+          python-version: "3.11"
           cache: "pip"
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.22.0
+        run: python -m pip install cibuildwheel~=3.0
 
       - name: Set PROJ_DATA (macOS)
         if: runner.os == 'macOS'
@@ -211,25 +219,19 @@ jobs:
           export PACKAGE_DATA=1
           python -m cibuildwheel --output-dir wheelhouse
         env:
-          # Disable PyPy builds
-          # Disable builds on musllinux
+          # Disable builds on musllinux and python 3.8, 3.9 and 3.14
+          CIBW_SKIP: "*musllinux* cp38* cp39* cp314*"
           # Disable builds in linux architectures other than x86_64
-          CIBW_SKIP: "pp* *musllinux*"
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_ENVIRONMENT_PASS_LINUX: PACKAGE_DATA LD_LIBRARY_PATH PROJ_DATA C_INCLUDE_PATH
           CIBW_ENVIRONMENT_MACOS: >
             MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
           CIBW_BEFORE_ALL_LINUX: >
-            yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&
-            yum -y update &&
-            yum -y install gcc gcc-c++ make cmake postgresql13-devel proj81-devel geos39-devel gsl-devel &&
-            git clone --branch json-c-0.17 --depth 1 https://github.com/json-c/json-c &&
-            mkdir json-c-build &&
-            cd json-c-build &&
-            cmake ../json-c &&
-            make &&
-            make install &&
-            git clone --depth 1 --branch ${{ needs.checks.outputs.branch }} https://github.com/MobilityDB/MobilityDB &&
+            dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&
+            dnf -qy module disable postgresql &&
+            dnf -y update &&
+            dnf -y install gcc gcc-c++ make cmake postgresql16-devel proj81-devel geos39-devel gsl-devel json-c-devel &&
+            git clone --depth 1 --branch ${{ needs.checks.outputs.meos_branch }} https://github.com/MobilityDB/MobilityDB &&
             mkdir MobilityDB/build &&
             cd MobilityDB/build &&
             cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so &&
@@ -252,9 +254,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
-#        os: [ ubuntu-latest, macos-13, macos-14 ]
-        os: [ ubuntu-latest, macos-14 ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
+        os: [ ubuntu-latest, macos-13, macos-14 ]
 
     steps:
       - name: Checkout
@@ -280,7 +281,7 @@ jobs:
       - name: Run PyMEOS-CFFI check
         run: |
           python -c "import pymeos_cffi; print(pymeos_cffi.__version__);"
-          python -c "from pymeos_cffi import *; meos_initialize(None); print(tpoint_out(tgeompoint_in('POINT(2 3)@2000-01-01'), 3)); meos_finalize();"
+          python -c "from pymeos_cffi import *; meos_initialize(None); print(tgeo_out(tgeompoint_in('POINT(2 3)@2000-01-01'), 3)); meos_finalize();"
 
   upload_pypi:
     name: Upload to PyPI
