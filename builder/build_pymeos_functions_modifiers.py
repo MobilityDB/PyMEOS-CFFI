@@ -111,22 +111,31 @@ def spanset_make_modifier(function: str) -> str:
         .replace(", count", ", len(spans)")
     )
 
+
 def tpointseq_make_coords_modifier(function: str) -> str:
-    return (
-        "import numpy as np\n" +
-        function.replace("interp: 'interpType'", "linear: bool")
-        .replace("(\"const double", "(\"double")
-        .replace("xcoords)", "np.ascontiguousarray(xcoords, dtype=np.float64).ctypes.data)")
-        .replace("ycoords)", "np.ascontiguousarray(ycoords, dtype=np.float64).ctypes.data)")
-        .replace("zcoords_converted = _ffi.cast('const double *', zcoords)", "if zcoords is not None:\n"
+    return "import numpy as np\n" + function.replace(
+        "interp: 'interpType'", "linear: bool"
+    ).replace('("const double', '("double').replace(
+        "xcoords)", "np.ascontiguousarray(xcoords, dtype=np.float64).ctypes.data)"
+    ).replace(
+        "ycoords)", "np.ascontiguousarray(ycoords, dtype=np.float64).ctypes.data)"
+    ).replace(
+        "zcoords_converted = _ffi.cast('const double *', zcoords)",
+        "if zcoords is not None:\n"
         "       zcoords = np.ascontiguousarray(zcoords, dtype=np.float64)\n"
         "       zcoords_converted = _ffi.cast('double *', zcoords.ctypes.data)\n"
         "    else:\n"
-        "       zcoords_converted = _ffi.NULL")
-        .replace("interp_converted = _ffi.cast('interpType', interp)", "")
-        .replace("interp_converted", "linear")
-        .replace("times_converted = _ffi.cast('const TimestampTz *', times)", "")
-        .replace("srid_converted = _ffi.cast('int32', srid)", "")
-        .replace("times_converted", "times")
-        .replace("srid_converted", "srid")
+        "       zcoords_converted = _ffi.NULL",
+    ).replace(
+        "interp_converted = _ffi.cast('interpType', interp)", ""
+    ).replace(
+        "interp_converted", "linear"
+    ).replace(
+        "times_converted = _ffi.cast('const TimestampTz *', times)", ""
+    ).replace(
+        "srid_converted = _ffi.cast('int32', srid)", ""
+    ).replace(
+        "times_converted", "times"
+    ).replace(
+        "srid_converted", "srid"
     )
