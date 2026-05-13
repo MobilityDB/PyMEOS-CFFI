@@ -24,7 +24,7 @@ def get_defined_functions(library_path):
 
 def remove_undefined_functions(content, so_path):
     defined = get_defined_functions(so_path)
-    undefined_types = ["json_object"]
+    undefined_types = ["json_object", "GEOSContextHandle_t"]
 
     def remove_if_not_defined(m):
         function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
