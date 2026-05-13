@@ -30,8 +30,8 @@ jobs:
         id: meos_branch
         shell: bash
         run: |
-          python_version=$(grep -oP '__version__ = "\K[^"]+' pymeos_cffi/__init__.py)
-          major_minor=$(echo "$python_version" | grep -oE '^[0-9]+\.[0-9]+')
+          python_version=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' pymeos_cffi/__init__.py)
+          major_minor=$(echo "$python_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
           candidate="stable-${major_minor}"
           if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
             meos_branch=$candidate
