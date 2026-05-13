@@ -29,8 +29,11 @@ def array_parameter_modifier(list_name: str, length_param_name: str | None = Non
 
 def textset_make_modifier(function: str) -> str:
     function = array_parameter_modifier("values", "count")(function)
-    return function.replace("_ffi.cast('const text *', x)", "cstring2text(x)").replace(
-        "'list[const text]'", "list[str]"
+    return (
+        function.replace("_ffi.cast('const text *', x)", "cstring2text(x)")
+        .replace("_ffi.cast('text *', x)", "cstring2text(x)")
+        .replace("'list[const text]'", "list[str]")
+        .replace("'list[text]'", "list[str]")
     )
 
 
