@@ -80,8 +80,8 @@ def text2cstring_modifier(_: str) -> str:
 
 
 def from_wkb_modifier(function: str, return_type: str) -> Callable[[str], str]:
-    return (
-        lambda _: f"""def {function}(wkb: bytes) -> '{return_type} *':
+    return lambda _: (
+        f"""def {function}(wkb: bytes) -> '{return_type} *':
     wkb_converted = _ffi.new('uint8_t []', wkb)
     result = _lib.{function}(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None"""
