@@ -1,8 +1,33 @@
+import json
 import os.path
 import sys
 
 from build_pymeos_functions_modifiers import *
 from objects import Conversion, conversion_map
+
+# Headers PyMEOS-CFFI wraps, in the same iteration order as
+# builder/build_header.py concatenates them into builder/meos.h.  Iteration
+# order is preserved so the generated functions.py groups symbols by their
+# defining header.
+IDL_HEADER_ORDER = [
+    "meos.h",
+    "meos_catalog.h",
+    "meos_geo.h",
+    "meos_internal.h",
+    "meos_internal_geo.h",
+    "meos_npoint.h",
+]
+
+# Types declared in MEOS headers but not exposed through the CFFI cdef.
+# Mirrors builder/build_header.py's ``undefined_types`` list: functions whose
+# signatures reference these are skipped at codegen time.
+IDL_OPAQUE_TYPES = ("json_object",)
+
+
+def _references_opaque(entry: dict) -> bool:
+    if any(t in entry["returnType"]["c"] for t in IDL_OPAQUE_TYPES):
+        return True
+    return any(any(t in p["cType"] for t in IDL_OPAQUE_TYPES) for p in entry["params"])
 
 
 class Parameter:
@@ -217,35 +242,9 @@ def check_modifiers(functions: list[str]) -> None:
             print(f"Nullable Parameter defined for non-existent function {func} ({param})")
 
 
-def remove_c_comments(code: str) -> str:
-    code = re.sub(r"/\*.*?\*/", "", code, flags=re.DOTALL)
-    code = re.sub(r"//.*?$", "", code, flags=re.MULTILINE)
-    return code
-
-
-def build_pymeos_functions(header_path="builder/meos.h"):
-    with open(header_path) as f:
-        content = f.read()
-
-    # Remove C comments from the header file
-    content = remove_c_comments(content)
-
-    # Regex lines:
-    # 1st line: Match beginning of function with optional "extern", "static" and
-    #           "inline"
-    # 2nd line: Match the return type as any alphanumeric string with optional "const"
-    #           modifier (before the type) or pointer modifier (after the type)
-    # 3rd line: Match the name of the function as any alphanumeric string
-    # 4th line: Match the parameters as any sequence of alphanumeric characters, commas,
-    #           spaces and asterisks between parenthesis and end with a semicolon.
-    #           (Parameter decomposition will be performed later)
-    f_regex = (
-        r"(?<!/\* )(?:extern )?(?:static )?(?:inline )?"
-        r"(?P<returnType>(?:const )?\w+(?: \*+)?)"
-        r"\s*(?P<function>\w+)\s*"
-        r"\((?P<params>[\w\s,\*]*)\);"
-    )
-    matches = re.finditer(f_regex, "".join(content.splitlines()))
+def build_pymeos_functions(idl_path="builder/meos-idl.json"):
+    with open(idl_path) as f:
+        idl = json.load(f)
 
     file_path = os.path.dirname(__file__)
     template_path = os.path.join(file_path, "templates/functions.py")
@@ -257,20 +256,25 @@ def build_pymeos_functions(header_path="builder/meos.h"):
     functions_path = os.path.join(file_path, "../pymeos_cffi/functions.py")
     init_path = os.path.join(file_path, "../pymeos_cffi/__init__.py")
 
+    entries_by_file = {h: [] for h in IDL_HEADER_ORDER}
+    for entry in idl["functions"]:
+        if entry["file"] in entries_by_file:
+            entries_by_file[entry["file"]].append(entry)
+
     with open(functions_path, "w+") as file:
         file.write(base)
-        for match in matches:
-            named = match.groupdict()
-            function = named["function"]
-            inner_return_type = named["returnType"]
-            if function in skipped_functions:
-                continue
-            return_type = get_return_type(inner_return_type)
-            inner_params = named["params"]
-            params = get_params(function, inner_params)
-            function_string = build_function_string(function, return_type, params)
-            file.write(function_string)
-            file.write("\n\n\n")
+        for header in IDL_HEADER_ORDER:
+            for entry in entries_by_file[header]:
+                function = entry["name"]
+                if function in skipped_functions:
+                    continue
+                if _references_opaque(entry):
+                    continue
+                return_type = get_return_type(entry["returnType"]["c"])
+                params = get_params(function, entry["params"])
+                function_string = build_function_string(function, return_type, params)
+                file.write(function_string)
+                file.write("\n\n\n")
 
     functions = []
     with open(functions_path) as funcs:
@@ -290,25 +294,14 @@ def build_pymeos_functions(header_path="builder/meos.h"):
     check_modifiers(functions)
 
 
-def get_params(function: str, inner_params: str) -> list[Parameter]:
-    if not inner_params:
-        return []
-    return [p for p in (get_param(function, param.strip()) for param in inner_params.split(",")) if p is not None]
+def get_params(function: str, params: list[dict]) -> list[Parameter]:
+    return [p for p in (get_param(function, entry) for entry in params) if p is not None]
 
 
-# Creates a Parameter object from a function parameter
-def get_param(function: str, inner_param: str) -> Parameter | None:
-    # Split param name and type
-    split = inner_param.split(" ")
-
-    # Type is everything except the last word
-    param_type = " ".join(split[:-1])
-
-    # Check if the parameter is a pointer and fix type and name accordingly
-    param_name = split[-1].lstrip("*")
-    pointer_level = len(split[-1]) - len(param_name)
-    if pointer_level > 0:
-        param_type += " " + "*" * pointer_level
+# Creates a Parameter object from a meos-idl.json parameter entry
+def get_param(function: str, entry: dict) -> Parameter | None:
+    param_name = entry["name"]
+    param_type = entry["cType"]
 
     # Check if the parameter name is a reserved word and change it if necessary
     reserved_words = {"str": "string", "is": "iset", "from": "from_"}
