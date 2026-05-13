@@ -332,6 +332,12 @@ def rtree_search(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def meos_error(errlevel: int, errcode: int, format: str) -> Annotated[None, "void"]:
+    format_converted = format.encode("utf-8")
+    _lib.meos_error(errlevel, errcode, format_converted)
+    _check_error()
+
+
 def meos_errno() -> Annotated[int, "int"]:
     result = _lib.meos_errno()
     _check_error()
@@ -396,8 +402,8 @@ def meos_get_intervalstyle() -> Annotated[str, "char *"]:
     return result if result != _ffi.NULL else None
 
 
-def meos_set_spatial_ref_sys_csv(path: Annotated[_ffi.CData, "const char*"]) -> Annotated[None, "void"]:
-    path_converted = _ffi.cast("const char*", path)
+def meos_set_spatial_ref_sys_csv(path: str) -> Annotated[None, "void"]:
+    path_converted = path.encode("utf-8")
     _lib.meos_set_spatial_ref_sys_csv(path_converted)
     _check_error()
 
@@ -7057,6 +7063,13 @@ def temporal_upper_inc(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annot
     return result if result != _ffi.NULL else None
 
 
+def tfloat_avg_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[float, "double"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tfloat_avg_value(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tfloat_end_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[float, "double"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tfloat_end_value(temp_converted)
@@ -10956,6 +10969,20 @@ def tintbox_value_time_tiles(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def temptype_subtype(subtype: Annotated[_ffi.CData, "tempSubtype"]) -> Annotated[bool, "bool"]:
+    subtype_converted = _ffi.cast("tempSubtype", subtype)
+    result = _lib.temptype_subtype(subtype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temptype_subtype_all(subtype: Annotated[_ffi.CData, "tempSubtype"]) -> Annotated[bool, "bool"]:
+    subtype_converted = _ffi.cast("tempSubtype", subtype)
+    result = _lib.temptype_subtype_all(subtype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tempsubtype_name(subtype: Annotated[_ffi.CData, "tempSubtype"]) -> Annotated[str, "const char *"]:
     subtype_converted = _ffi.cast("tempSubtype", subtype)
     result = _lib.tempsubtype_name(subtype_converted)
@@ -11072,9 +11099,37 @@ def geo_basetype(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bo
     return result if result != _ffi.NULL else None
 
 
+def meos_basetype(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bool"]:
+    type_converted = _ffi.cast("meosType", type)
+    result = _lib.meos_basetype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def alphanum_basetype(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bool"]:
+    type_converted = _ffi.cast("meosType", type)
+    result = _lib.alphanum_basetype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def alphanum_temptype(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bool"]:
+    type_converted = _ffi.cast("meosType", type)
+    result = _lib.alphanum_temptype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def time_type(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bool"]:
     type_converted = _ffi.cast("meosType", type)
     result = _lib.time_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_basetype(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bool"]:
+    type_converted = _ffi.cast("meosType", type)
+    result = _lib.set_basetype(type_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -11261,6 +11316,13 @@ def temporal_type(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "b
     return result if result != _ffi.NULL else None
 
 
+def temporal_basetype(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bool"]:
+    type_converted = _ffi.cast("meosType", type)
+    result = _lib.temporal_basetype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def temptype_continuous(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bool"]:
     type_converted = _ffi.cast("meosType", type)
     result = _lib.temptype_continuous(type_converted)
@@ -11285,6 +11347,13 @@ def basetype_varlength(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[boo
 def basetype_length(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[int, "int16"]:
     type_converted = _ffi.cast("meosType", type)
     result = _lib.basetype_length(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def talphanum_type(type: Annotated[_ffi.CData, "meosType"]) -> Annotated[bool, "bool"]:
+    type_converted = _ffi.cast("meosType", type)
+    result = _lib.talphanum_type(type_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -11422,6 +11491,13 @@ def ensure_tnumber_tpoint_type(type: Annotated[_ffi.CData, "meosType"]) -> Annot
     return result if result != _ffi.NULL else None
 
 
+def geo_get_srid(g: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[int, "int32"]:
+    g_converted = _ffi.cast("const GSERIALIZED *", g)
+    result = _lib.geo_get_srid(g_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def geo_as_ewkb(
     gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str, size: Annotated[_ffi.CData, "size_t *"]
 ) -> Annotated[_ffi.CData, "uint8_t *"]:
@@ -11500,6 +11576,13 @@ def geo_out(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[str, 
     result = _lib.geo_out(gs_converted)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def geog_from_binary(wkb_bytea: str) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    wkb_bytea_converted = wkb_bytea.encode("utf-8")
+    result = _lib.geog_from_binary(wkb_bytea_converted)
+    _check_error()
     return result if result != _ffi.NULL else None
 
 
@@ -19257,6 +19340,21 @@ def tsequenceset_compact(ss: Annotated[_ffi.CData, "const TSequenceSet *"]) -> A
 
 def temporal_skiplist_make() -> Annotated[_ffi.CData, "SkipList *"]:
     result = _lib.temporal_skiplist_make()
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def skiplist_make(
+    key_size: Annotated[_ffi.CData, "size_t"],
+    value_size: Annotated[_ffi.CData, "size_t"],
+    comp_fn: Annotated[_ffi.CData, "int (*)(void *, void *)"],
+    merge_fn: Annotated[_ffi.CData, "void *(*)(void *, void *)"],
+) -> Annotated[_ffi.CData, "SkipList *"]:
+    key_size_converted = _ffi.cast("size_t", key_size)
+    value_size_converted = _ffi.cast("size_t", value_size)
+    comp_fn_converted = _ffi.cast("int (*)(void *, void *)", comp_fn)
+    merge_fn_converted = _ffi.cast("void *(*)(void *, void *)", merge_fn)
+    result = _lib.skiplist_make(key_size_converted, value_size_converted, comp_fn_converted, merge_fn_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
