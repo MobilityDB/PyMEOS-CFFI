@@ -158,9 +158,7 @@ def tbox_shift_scale_float(
     hasshift: bool,
     haswidth: bool,
 ) -> Annotated[_ffi.CData, "TBox *"]:
-    return tbox_shift_scale_value(
-        box, float_to_datum(shift), float_to_datum(width), hasshift, haswidth
-    )
+    return tbox_shift_scale_value(box, float_to_datum(shift), float_to_datum(width), hasshift, haswidth)
 
 
 def tbox_shift_scale_int(
@@ -170,9 +168,7 @@ def tbox_shift_scale_int(
     hasshift: bool,
     haswidth: bool,
 ) -> Annotated[_ffi.CData, "TBox *"]:
-    return tbox_shift_scale_value(
-        box, int_to_datum(shift), int_to_datum(width), hasshift, haswidth
-    )
+    return tbox_shift_scale_value(box, int_to_datum(shift), int_to_datum(width), hasshift, haswidth)
 
 
 # -----------------------------------------------------------------------------
