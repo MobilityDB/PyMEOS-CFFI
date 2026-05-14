@@ -38523,7 +38523,16 @@
           "cType": "const Set *",
           "canonical": "const Set *"
         }
-      ]
+      ],
+      "shape": {
+        "arrayReturn": {
+          "lengthFrom": {
+            "kind": "accessor",
+            "func": "set_num_values",
+            "arg": "s"
+          }
+        }
+      }
     },
     {
       "name": "cbuffer_union_transfn",
@@ -54900,7 +54909,16 @@
           "cType": "const Set *",
           "canonical": "const Set *"
         }
-      ]
+      ],
+      "shape": {
+        "arrayReturn": {
+          "lengthFrom": {
+            "kind": "accessor",
+            "func": "set_num_values",
+            "arg": "s"
+          }
+        }
+      }
     },
     {
       "name": "contained_pose_set",
