@@ -132,6 +132,49 @@ def as_tsequenceset(temporal: Annotated[_ffi.CData, "Temporal *"]) -> Annotated[
     return _ffi.cast("TSequenceSet *", temporal)
 
 
+def float_to_datum(value: float) -> Annotated[_ffi.CData, "Datum"]:
+    # PostgreSQL's Float8GetDatum reinterprets the 8-byte double as a Datum.
+    buf = _ffi.new("double[1]", [value])
+    return _ffi.cast("Datum *", buf)[0]
+
+
+def int_to_datum(value: int) -> Annotated[_ffi.CData, "Datum"]:
+    # Int32GetDatum / Int64GetDatum widen the integer to Datum (uintptr_t).
+    return _ffi.cast("Datum", value)
+
+
+def tbox_expand_float(box: Annotated[_ffi.CData, "const TBox *"], d: float) -> Annotated[_ffi.CData, "TBox *"]:
+    return tbox_expand_value(box, float_to_datum(d), _lib.T_FLOAT8)
+
+
+def tbox_expand_int(box: Annotated[_ffi.CData, "const TBox *"], i: int) -> Annotated[_ffi.CData, "TBox *"]:
+    return tbox_expand_value(box, int_to_datum(i), _lib.T_INT4)
+
+
+def tbox_shift_scale_float(
+    box: Annotated[_ffi.CData, "const TBox *"],
+    shift: float,
+    width: float,
+    hasshift: bool,
+    haswidth: bool,
+) -> Annotated[_ffi.CData, "TBox *"]:
+    return tbox_shift_scale_value(
+        box, float_to_datum(shift), float_to_datum(width), hasshift, haswidth
+    )
+
+
+def tbox_shift_scale_int(
+    box: Annotated[_ffi.CData, "const TBox *"],
+    shift: int,
+    width: int,
+    hasshift: bool,
+    haswidth: bool,
+) -> Annotated[_ffi.CData, "TBox *"]:
+    return tbox_shift_scale_value(
+        box, int_to_datum(shift), int_to_datum(width), hasshift, haswidth
+    )
+
+
 # -----------------------------------------------------------------------------
 # ----------------------End of manually-defined functions----------------------
 # -----------------------------------------------------------------------------
