@@ -391,7 +391,7 @@ def rtree_search(
     op_converted = _ffi.cast("RTreeSearchOp", op)
     query_converted = _ffi.cast("const void *", query)
     out_result = _ffi.new("MeosArray *")
-    result = _lib.rtree_search(rtree_converted, op_converted, query_converted, out_result)
+    _lib.rtree_search(rtree_converted, op_converted, query_converted, out_result)
     _check_error()
     return out_result if out_result != _ffi.NULL else None
 
@@ -405,7 +405,7 @@ def rtree_search_temporal(
     op_converted = _ffi.cast("RTreeSearchOp", op)
     temp_converted = _ffi.cast("const Temporal *", temp)
     out_result = _ffi.new("MeosArray *")
-    result = _lib.rtree_search_temporal(rtree_converted, op_converted, temp_converted, out_result)
+    _lib.rtree_search_temporal(rtree_converted, op_converted, temp_converted, out_result)
     _check_error()
     return out_result if out_result != _ffi.NULL else None
 
