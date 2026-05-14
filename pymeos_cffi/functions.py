@@ -13468,28 +13468,21 @@ def tpoint_as_mvtgeom(
     extent: Annotated[_ffi.CData, "int32_t"],
     buffer: Annotated[_ffi.CData, "int32_t"],
     clip_geom: bool,
-    gsarr: Annotated[list, "GSERIALIZED **"],
-    timesarr: Annotated[list, "int64 **"],
-) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[
+    Annotated[bool, "bool"], Annotated[list, "GSERIALIZED **"], Annotated[list, "int64 *"], Annotated[_ffi.CData, "int"]
+]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     bounds_converted = _ffi.cast("const STBox *", bounds)
     extent_converted = _ffi.cast("int32_t", extent)
     buffer_converted = _ffi.cast("int32_t", buffer)
-    gsarr_converted = [_ffi.cast("GSERIALIZED *", x) for x in gsarr]
-    timesarr_converted = [_ffi.cast("int64 *", x) for x in timesarr]
+    gsarr = _ffi.new("GSERIALIZED **")
+    timesarr = _ffi.new("int64 **")
     count = _ffi.new("int *")
     result = _lib.tpoint_as_mvtgeom(
-        temp_converted,
-        bounds_converted,
-        extent_converted,
-        buffer_converted,
-        clip_geom,
-        gsarr_converted,
-        timesarr_converted,
-        count,
+        temp_converted, bounds_converted, extent_converted, buffer_converted, clip_geom, gsarr, timesarr, count
     )
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return result if result != _ffi.NULL else None, gsarr[0], timesarr[0], count[0]
 
 
 def tpoint_tfloat_to_geomeas(
