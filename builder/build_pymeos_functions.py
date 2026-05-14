@@ -16,6 +16,9 @@ IDL_HEADER_ORDER = [
     "meos_internal.h",
     "meos_internal_geo.h",
     "meos_npoint.h",
+    "meos_cbuffer.h",
+    "meos_pose.h",
+    "meos_rgeo.h",
 ]
 
 # Types declared in MEOS headers but not exposed through the CFFI cdef.
