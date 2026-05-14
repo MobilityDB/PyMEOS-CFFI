@@ -98,11 +98,36 @@ jobs:
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           python -c "
+          import inspect
           import pymeos_cffi
-          from pymeos_cffi import meos_initialize, meos_finalize
-          meos_initialize('UTC')
-          # Confirm a representative C function resolves
-          assert callable(pymeos_cffi.tstzspan_make), 'tstzspan_make missing'
+          from pymeos_cffi import meos_initialize, meos_finalize, tstzspan_make
+
+          # Nullable args: meos_initialize accepts None for tz_str.
+          meos_initialize(None)
           meos_finalize()
-          print('PyMEOS CFFI build + smoke test OK on ${{ matrix.os }}')
+          meos_initialize('UTC')
+
+          # Confirm a representative C function resolves.
+          assert callable(tstzspan_make), 'tstzspan_make missing'
+
+          # Shape-driven regenerated wrappers expose specific signatures
+          # that did not exist before the codegen migrated to meos-idl.json
+          # shape entries.  Reflect on the signatures rather than calling
+          # them with hand-rolled values; this catches the cases that
+          # depend on the consolidation (output_parameters, nullable,
+          # named outputs, output arrays).
+          import pymeos_cffi.functions as f
+          assert callable(f.tpoint_as_mvtgeom), 'tpoint_as_mvtgeom missing'
+          sig = inspect.signature(f.tpoint_as_mvtgeom)
+          # gsarr / timesarr were missing from the previous output_parameters
+          # set, which made them appear as user-facing list args; after the
+          # consolidation they are output parameters and must NOT appear in
+          # the wrapper's parameter list.
+          for forbidden in ('gsarr', 'timesarr'):
+              assert forbidden not in sig.parameters, (
+                  f'tpoint_as_mvtgeom unexpectedly takes {forbidden} as input'
+              )
+
+          meos_finalize()
+          print('PyMEOS CFFI build + shape smoke test OK on ${{ matrix.os }}')
           "
