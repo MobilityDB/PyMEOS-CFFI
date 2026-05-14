@@ -150,15 +150,15 @@ def _load_shape_pairs(idl: dict) -> None:
     for entry in idl["functions"]:
         sh = entry.get("shape", {})
         name = entry["name"]
+        # arrayReturn.lengthFrom={"kind":"param","name":...} marks the named
+        # parameter as an output count.  It applies to both plain
+        # ``T *foo(..., int *count)`` returns and to the split-family which
+        # additionally lists outputArrays parallel to the primary return.
+        length = sh.get("arrayReturn", {}).get("lengthFrom")
+        if length and length.get("kind") == "param":
+            output_parameters.add((name, length["name"]))
         for oa in sh.get("outputArrays", []):
             output_parameters.add((name, oa["param"]))
-            # Most outputArrays come with an implicit count companion; the
-            # PyMEOS-CFFI auto-detect handles ``count`` ending in ``*'`` but
-            # split-family declarations carry the count explicitly via the
-            # arrayReturn.lengthFrom={"kind":"param","name":...} sibling.
-            length = sh.get("arrayReturn", {}).get("lengthFrom")
-            if length and length.get("kind") == "param":
-                output_parameters.add((name, length["name"]))
         for nm in sh.get("nullable", []):
             nullable_parameters.add((name, nm))
 
