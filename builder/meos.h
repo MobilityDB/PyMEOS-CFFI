@@ -1788,7 +1788,7 @@ extern bool ensure_timespanset_type(MeosType type);
 extern bool temporal_type(MeosType type);
 /* extern bool temporal_basetype(MeosType type);  (undefined) */
 
-extern bool temptype_continuous(MeosType type);
+extern bool temptype_supports_linear(MeosType type);
 extern bool basetype_byvalue(MeosType type);
 extern bool basetype_varlength(MeosType type);
 extern int16 meostype_length(MeosType type);
@@ -3274,15 +3274,11 @@ extern Temporal **tnumber_value_time_split(const Temporal *temp, Datum size, con
 
 //#include <proj.h>
 
-//#include <geos_c.h>
-
 //#include <meos.h>
 //#include <meos_geo.h>
 //#include <meos_internal.h>
 
 extern PJ_CONTEXT *proj_get_context(void);
-
-/* extern GEOSContextHandle_t geos_get_context(void);  (undefined type GEOSContextHandle_t) */
 
 extern Datum datum_geo_round(Datum value, Datum size);
 extern GSERIALIZED *point_round(const GSERIALIZED *gs, int maxdd);
@@ -3565,204 +3561,204 @@ typedef struct Cbuffer Cbuffer;
   //#else
    
 
-/* extern char *cbuffer_as_ewkt(const Cbuffer *cb, int maxdd);  (undefined) */
-/* extern char *cbuffer_as_hexwkb(const Cbuffer *cb, uint8_t variant, size_t *size);  (undefined) */
-/* extern char *cbuffer_as_text(const Cbuffer *cb, int maxdd);  (undefined) */
-/* extern uint8_t *cbuffer_as_wkb(const Cbuffer *cb, uint8_t variant, size_t *size_out);  (undefined) */
-/* extern Cbuffer *cbuffer_from_hexwkb(const char *hexwkb);  (undefined) */
-/* extern Cbuffer *cbuffer_from_wkb(const uint8_t *wkb, size_t size);  (undefined) */
-/* extern Cbuffer *cbuffer_in(const char *str);  (undefined) */
-/* extern char *cbuffer_out(const Cbuffer *cb, int maxdd);  (undefined) */
+extern char *cbuffer_as_ewkt(const Cbuffer *cb, int maxdd);
+extern char *cbuffer_as_hexwkb(const Cbuffer *cb, uint8_t variant, size_t *size);
+extern char *cbuffer_as_text(const Cbuffer *cb, int maxdd);
+extern uint8_t *cbuffer_as_wkb(const Cbuffer *cb, uint8_t variant, size_t *size_out);
+extern Cbuffer *cbuffer_from_hexwkb(const char *hexwkb);
+extern Cbuffer *cbuffer_from_wkb(const uint8_t *wkb, size_t size);
+extern Cbuffer *cbuffer_in(const char *str);
+extern char *cbuffer_out(const Cbuffer *cb, int maxdd);
 
-/* extern Cbuffer *cbuffer_copy(const Cbuffer *cb);  (undefined) */
-/* extern Cbuffer *cbuffer_make(const GSERIALIZED *point, double radius);  (undefined) */
+extern Cbuffer *cbuffer_copy(const Cbuffer *cb);
+extern Cbuffer *cbuffer_make(const GSERIALIZED *point, double radius);
 
-/* extern GSERIALIZED *cbuffer_to_geom(const Cbuffer *cb);  (undefined) */
-/* extern STBox *cbuffer_to_stbox(const Cbuffer *cb);  (undefined) */
-/* extern GSERIALIZED *cbufferarr_to_geom(const Cbuffer **cbarr, int count);  (undefined) */
-/* extern Cbuffer *geom_to_cbuffer(const GSERIALIZED *gs);  (undefined) */
+extern GSERIALIZED *cbuffer_to_geom(const Cbuffer *cb);
+extern STBox *cbuffer_to_stbox(const Cbuffer *cb);
+extern GSERIALIZED *cbufferarr_to_geom(const Cbuffer **cbarr, int count);
+extern Cbuffer *geom_to_cbuffer(const GSERIALIZED *gs);
 
-/* extern uint32 cbuffer_hash(const Cbuffer *cb);  (undefined) */
-/* extern uint64 cbuffer_hash_extended(const Cbuffer *cb, uint64 seed);  (undefined) */
-/* extern GSERIALIZED *cbuffer_point(const Cbuffer *cb);  (undefined) */
-/* extern double cbuffer_radius(const Cbuffer *cb);  (undefined) */
+extern uint32 cbuffer_hash(const Cbuffer *cb);
+extern uint64 cbuffer_hash_extended(const Cbuffer *cb, uint64 seed);
+extern GSERIALIZED *cbuffer_point(const Cbuffer *cb);
+extern double cbuffer_radius(const Cbuffer *cb);
 
-/* extern Cbuffer *cbuffer_round(const Cbuffer *cb, int maxdd);  (undefined) */
-/* extern Cbuffer **cbufferarr_round(const Cbuffer **cbarr, int count, int maxdd);  (undefined) */
+extern Cbuffer *cbuffer_round(const Cbuffer *cb, int maxdd);
+extern Cbuffer **cbufferarr_round(const Cbuffer **cbarr, int count, int maxdd);
 
-/* extern void cbuffer_set_srid(Cbuffer *cb, int32_t srid);  (undefined) */
-/* extern int32_t cbuffer_srid(const Cbuffer *cb);  (undefined) */
-/* extern Cbuffer *cbuffer_transform(const Cbuffer *cb, int32_t srid);  (undefined) */
-/* extern Cbuffer *cbuffer_transform_pipeline(const Cbuffer *cb, const char *pipelinestr, int32_t srid, bool is_forward);  (undefined) */
+extern void cbuffer_set_srid(Cbuffer *cb, int32_t srid);
+extern int32_t cbuffer_srid(const Cbuffer *cb);
+extern Cbuffer *cbuffer_transform(const Cbuffer *cb, int32_t srid);
+extern Cbuffer *cbuffer_transform_pipeline(const Cbuffer *cb, const char *pipelinestr, int32_t srid, bool is_forward);
 
-/* extern int contains_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern int covers_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern int disjoint_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern int dwithin_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2, double dist);  (undefined) */
-/* extern int intersects_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern int touches_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
+extern int contains_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);
+extern int covers_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);
+extern int disjoint_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);
+extern int dwithin_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2, double dist);
+extern int intersects_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);
+extern int touches_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);
 
-/* extern STBox *cbuffer_tstzspan_to_stbox(const Cbuffer *cb, const Span *s);  (undefined) */
-/* extern STBox *cbuffer_timestamptz_to_stbox(const Cbuffer *cb, TimestampTz t);  (undefined) */
+extern STBox *cbuffer_tstzspan_to_stbox(const Cbuffer *cb, const Span *s);
+extern STBox *cbuffer_timestamptz_to_stbox(const Cbuffer *cb, TimestampTz t);
 
-/* extern double distance_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern double distance_cbuffer_geo(const Cbuffer *cb, const GSERIALIZED *gs);  (undefined) */
-/* extern double distance_cbuffer_stbox(const Cbuffer *cb, const STBox *box);  (undefined) */
-/* extern double nad_cbuffer_stbox(const Cbuffer *cb, const STBox *box);  (undefined) */
+extern double distance_cbuffer_cbuffer(const Cbuffer *cb1, const Cbuffer *cb2);
+extern double distance_cbuffer_geo(const Cbuffer *cb, const GSERIALIZED *gs);
+extern double distance_cbuffer_stbox(const Cbuffer *cb, const STBox *box);
+extern double nad_cbuffer_stbox(const Cbuffer *cb, const STBox *box);
 
-/* extern int cbuffer_cmp(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern bool cbuffer_eq(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern bool cbuffer_ge(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern bool cbuffer_gt(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern bool cbuffer_le(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern bool cbuffer_lt(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern bool cbuffer_ne(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern bool cbuffer_nsame(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
-/* extern bool cbuffer_same(const Cbuffer *cb1, const Cbuffer *cb2);  (undefined) */
+extern int cbuffer_cmp(const Cbuffer *cb1, const Cbuffer *cb2);
+extern bool cbuffer_eq(const Cbuffer *cb1, const Cbuffer *cb2);
+extern bool cbuffer_ge(const Cbuffer *cb1, const Cbuffer *cb2);
+extern bool cbuffer_gt(const Cbuffer *cb1, const Cbuffer *cb2);
+extern bool cbuffer_le(const Cbuffer *cb1, const Cbuffer *cb2);
+extern bool cbuffer_lt(const Cbuffer *cb1, const Cbuffer *cb2);
+extern bool cbuffer_ne(const Cbuffer *cb1, const Cbuffer *cb2);
+extern bool cbuffer_nsame(const Cbuffer *cb1, const Cbuffer *cb2);
+extern bool cbuffer_same(const Cbuffer *cb1, const Cbuffer *cb2);
 
-/* extern Set *cbufferset_in(const char *str);  (undefined) */
-/* extern char *cbufferset_out(const Set *s, int maxdd);  (undefined) */
+extern Set *cbufferset_in(const char *str);
+extern char *cbufferset_out(const Set *s, int maxdd);
 
-/* extern Set *cbufferset_make(Cbuffer **values, int count);  (undefined) */
+extern Set *cbufferset_make(Cbuffer **values, int count);
 
-/* extern Set *cbuffer_to_set(const Cbuffer *cb);  (undefined) */
+extern Set *cbuffer_to_set(const Cbuffer *cb);
 
-/* extern Cbuffer *cbufferset_end_value(const Set *s);  (undefined) */
-/* extern Cbuffer *cbufferset_start_value(const Set *s);  (undefined) */
-/* extern bool cbufferset_value_n(const Set *s, int n, Cbuffer **result);  (undefined) */
-/* extern Cbuffer **cbufferset_values(const Set *s);  (undefined) */
+extern Cbuffer *cbufferset_end_value(const Set *s);
+extern Cbuffer *cbufferset_start_value(const Set *s);
+extern bool cbufferset_value_n(const Set *s, int n, Cbuffer **result);
+extern Cbuffer **cbufferset_values(const Set *s);
 
-/* extern Set *cbuffer_union_transfn(Set *state, const Cbuffer *cb);  (undefined) */
-/* extern bool contained_cbuffer_set(const Cbuffer *cb, const Set *s);  (undefined) */
-/* extern bool contains_set_cbuffer(const Set *s, Cbuffer *cb);  (undefined) */
-/* extern Set *intersection_cbuffer_set(const Cbuffer *cb, const Set *s);  (undefined) */
-/* extern Set *intersection_set_cbuffer(const Set *s, const Cbuffer *cb);  (undefined) */
-/* extern Set *minus_cbuffer_set(const Cbuffer *cb, const Set *s);  (undefined) */
-/* extern Set *minus_set_cbuffer(const Set *s, const Cbuffer *cb);  (undefined) */
-/* extern Set *union_cbuffer_set(const Cbuffer *cb, const Set *s);  (undefined) */
-/* extern Set *union_set_cbuffer(const Set *s, const Cbuffer *cb);  (undefined) */
+extern Set *cbuffer_union_transfn(Set *state, const Cbuffer *cb);
+extern bool contained_cbuffer_set(const Cbuffer *cb, const Set *s);
+extern bool contains_set_cbuffer(const Set *s, Cbuffer *cb);
+extern Set *intersection_cbuffer_set(const Cbuffer *cb, const Set *s);
+extern Set *intersection_set_cbuffer(const Set *s, const Cbuffer *cb);
+extern Set *minus_cbuffer_set(const Cbuffer *cb, const Set *s);
+extern Set *minus_set_cbuffer(const Set *s, const Cbuffer *cb);
+extern Set *union_cbuffer_set(const Cbuffer *cb, const Set *s);
+extern Set *union_set_cbuffer(const Set *s, const Cbuffer *cb);
 
-/* extern Temporal *tcbuffer_in(const char *str);  (undefined) */
+extern Temporal *tcbuffer_in(const char *str);
 
-/* extern Temporal *tcbuffer_make(const Temporal *tpoint, const Temporal *tfloat);  (undefined) */
+extern Temporal *tcbuffer_make(const Temporal *tpoint, const Temporal *tfloat);
 
-/* extern Set *tcbuffer_points(const Temporal *temp);  (undefined) */
-/* extern Set *tcbuffer_radius(const Temporal *temp);  (undefined) */
-/* extern GSERIALIZED *tcbuffer_trav_area(const Temporal *temp, bool merge_union);  (undefined) */
+extern Set *tcbuffer_points(const Temporal *temp);
+extern Set *tcbuffer_radius(const Temporal *temp);
+extern GSERIALIZED *tcbuffer_trav_area(const Temporal *temp, bool merge_union);
 
-/* extern Temporal *tcbuffer_to_tfloat(const Temporal *temp);  (undefined) */
-/* extern Temporal *tcbuffer_to_tgeompoint(const Temporal *temp);  (undefined) */
-/* extern Temporal *tgeometry_to_tcbuffer(const Temporal *temp);  (undefined) */
+extern Temporal *tcbuffer_to_tfloat(const Temporal *temp);
+extern Temporal *tcbuffer_to_tgeompoint(const Temporal *temp);
+extern Temporal *tgeometry_to_tcbuffer(const Temporal *temp);
 
-/* extern Temporal *tcbuffer_expand(const Temporal *temp, double dist);  (undefined) */
+extern Temporal *tcbuffer_expand(const Temporal *temp, double dist);
 
-/* extern Temporal *tcbuffer_at_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *tcbuffer_at_geom(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tcbuffer_at_stbox(const Temporal *temp, const STBox *box, bool border_inc);  (undefined) */
-/* extern Temporal *tcbuffer_minus_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *tcbuffer_minus_geom(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tcbuffer_minus_stbox(const Temporal *temp, const STBox *box, bool border_inc);  (undefined) */
+extern Temporal *tcbuffer_at_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *tcbuffer_at_geom(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tcbuffer_at_stbox(const Temporal *temp, const STBox *box, bool border_inc);
+extern Temporal *tcbuffer_minus_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *tcbuffer_minus_geom(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tcbuffer_minus_stbox(const Temporal *temp, const STBox *box, bool border_inc);
 
-/* extern Temporal *tdistance_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *tdistance_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tdistance_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern double nad_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern double nad_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern double nad_tcbuffer_stbox(const Temporal *temp, const STBox *box);  (undefined) */
-/* extern double nad_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern TInstant *nai_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern TInstant *nai_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern TInstant *nai_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern GSERIALIZED *shortestline_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern GSERIALIZED *shortestline_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern GSERIALIZED *shortestline_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tdistance_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *tdistance_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tdistance_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern double nad_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern double nad_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern double nad_tcbuffer_stbox(const Temporal *temp, const STBox *box);
+extern double nad_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern TInstant *nai_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern TInstant *nai_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern TInstant *nai_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern GSERIALIZED *shortestline_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern GSERIALIZED *shortestline_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern GSERIALIZED *shortestline_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
 
-/* extern int always_eq_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern int always_eq_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int always_eq_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int always_ne_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern int always_ne_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int always_ne_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int ever_eq_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern int ever_eq_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int ever_eq_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int ever_ne_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern int ever_ne_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int ever_ne_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern int always_eq_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern int always_eq_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int always_eq_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern int always_ne_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern int always_ne_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int always_ne_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern int ever_eq_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern int ever_eq_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int ever_eq_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern int ever_ne_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern int ever_ne_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int ever_ne_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
 
-/* extern Temporal *teq_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern Temporal *teq_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *tne_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern Temporal *tne_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
+extern Temporal *teq_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern Temporal *teq_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *tne_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern Temporal *tne_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
 
-/* extern int acontains_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern int acontains_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern int acontains_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int acontains_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int acovers_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern int acovers_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern int acovers_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int acovers_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int adisjoint_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int adisjoint_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int adisjoint_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int adwithin_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs, double dist);  (undefined) */
-/* extern int adwithin_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb, double dist);  (undefined) */
-/* extern int adwithin_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2, double dist);  (undefined) */
-/* extern int aintersects_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int aintersects_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int aintersects_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int atouches_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int atouches_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int atouches_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int econtains_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern int econtains_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int econtains_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int ecovers_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern int ecovers_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int ecovers_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int ecovers_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int edisjoint_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int edisjoint_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int edwithin_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs, double dist);  (undefined) */
-/* extern int edwithin_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb, double dist);  (undefined) */
-/* extern int edwithin_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2, double dist);  (undefined) */
-/* extern int eintersects_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int eintersects_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int eintersects_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int etouches_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int etouches_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern int etouches_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern int acontains_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern int acontains_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);
+extern int acontains_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int acontains_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int acovers_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern int acovers_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);
+extern int acovers_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int acovers_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int adisjoint_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int adisjoint_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int adisjoint_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern int adwithin_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs, double dist);
+extern int adwithin_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb, double dist);
+extern int adwithin_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2, double dist);
+extern int aintersects_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int aintersects_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int aintersects_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern int atouches_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int atouches_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int atouches_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern int econtains_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern int econtains_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int econtains_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int ecovers_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern int ecovers_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int ecovers_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int ecovers_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern int edisjoint_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int edisjoint_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int edwithin_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs, double dist);
+extern int edwithin_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb, double dist);
+extern int edwithin_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2, double dist);
+extern int eintersects_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int eintersects_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int eintersects_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern int etouches_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int etouches_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern int etouches_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
 
-/* extern Temporal *tcontains_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern Temporal *tcontains_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern Temporal *tcontains_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tcontains_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *tcontains_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern Temporal *tcovers_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern Temporal *tcovers_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern Temporal *tcovers_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tcovers_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *tcovers_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern Temporal *tdwithin_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp, double dist);  (undefined) */
-/* extern Temporal *tdwithin_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs, double dist);  (undefined) */
-/* extern Temporal *tdwithin_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb, double dist);  (undefined) */
-/* extern Temporal *tdwithin_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2, double dist);  (undefined) */
-/* extern Temporal *tdisjoint_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern Temporal *tdisjoint_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern Temporal *tdisjoint_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tdisjoint_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *tdisjoint_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern Temporal *tintersects_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern Temporal *tintersects_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern Temporal *tintersects_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tintersects_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *tintersects_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern Temporal *ttouches_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern Temporal *ttouches_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *ttouches_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);  (undefined) */
-/* extern Temporal *ttouches_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);  (undefined) */
-/* extern Temporal *ttouches_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tcontains_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern Temporal *tcontains_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *tcontains_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tcontains_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *tcontains_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *tcovers_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern Temporal *tcovers_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *tcovers_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tcovers_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *tcovers_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *tdwithin_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp, double dist);
+extern Temporal *tdwithin_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs, double dist);
+extern Temporal *tdwithin_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb, double dist);
+extern Temporal *tdwithin_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2, double dist);
+extern Temporal *tdisjoint_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern Temporal *tdisjoint_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *tdisjoint_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tdisjoint_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *tdisjoint_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *tintersects_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern Temporal *tintersects_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *tintersects_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tintersects_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *tintersects_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *ttouches_geo_tcbuffer(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *ttouches_tcbuffer_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *ttouches_cbuffer_tcbuffer(const Cbuffer *cb, const Temporal *temp);
+extern Temporal *ttouches_tcbuffer_cbuffer(const Temporal *temp, const Cbuffer *cb);
+extern Temporal *ttouches_tcbuffer_tcbuffer(const Temporal *temp1, const Temporal *temp2);
 
  
 //-------------------- meos_pose.h --------------------
@@ -3782,129 +3778,129 @@ typedef struct Pose Pose;
   //#else
   
 
-/* extern char *pose_as_ewkt(const Pose *pose, int maxdd);  (undefined) */
-/* extern char *pose_as_hexwkb(const Pose *pose, uint8_t variant, size_t *size);  (undefined) */
-/* extern char *pose_as_text(const Pose *pose, int maxdd);  (undefined) */
-/* extern uint8_t *pose_as_wkb(const Pose *pose, uint8_t variant, size_t *size_out);  (undefined) */
-/* extern Pose *pose_from_wkb(const uint8_t *wkb, size_t size);  (undefined) */
-/* extern Pose *pose_from_hexwkb(const char *hexwkb);  (undefined) */
-/* extern Pose *pose_in(const char *str);  (undefined) */
-/* extern char *pose_out(const Pose *pose, int maxdd);  (undefined) */
+extern char *pose_as_ewkt(const Pose *pose, int maxdd);
+extern char *pose_as_hexwkb(const Pose *pose, uint8_t variant, size_t *size);
+extern char *pose_as_text(const Pose *pose, int maxdd);
+extern uint8_t *pose_as_wkb(const Pose *pose, uint8_t variant, size_t *size_out);
+extern Pose *pose_from_wkb(const uint8_t *wkb, size_t size);
+extern Pose *pose_from_hexwkb(const char *hexwkb);
+extern Pose *pose_in(const char *str);
+extern char *pose_out(const Pose *pose, int maxdd);
 
-/* extern Pose *pose_copy(const Pose *pose);  (undefined) */
-/* extern Pose *pose_make_2d(double x, double y, double theta, int32_t srid);  (undefined) */
-/* extern Pose *pose_make_3d(double x, double y, double z, double W, double X, double Y, double Z, int32_t srid);  (undefined) */
-/* extern Pose *pose_make_point2d(const GSERIALIZED *gs, double theta);  (undefined) */
-/* extern Pose *pose_make_point3d(const GSERIALIZED *gs, double W, double X, double Y, double Z);  (undefined) */
+extern Pose *pose_copy(const Pose *pose);
+extern Pose *pose_make_2d(double x, double y, double theta, int32_t srid);
+extern Pose *pose_make_3d(double x, double y, double z, double W, double X, double Y, double Z, int32_t srid);
+extern Pose *pose_make_point2d(const GSERIALIZED *gs, double theta);
+extern Pose *pose_make_point3d(const GSERIALIZED *gs, double W, double X, double Y, double Z);
 
-/* extern GSERIALIZED *pose_to_point(const Pose *pose);  (undefined) */
-/* extern STBox *pose_to_stbox(const Pose *pose);  (undefined) */
+extern GSERIALIZED *pose_to_point(const Pose *pose);
+extern STBox *pose_to_stbox(const Pose *pose);
 
-/* extern uint32 pose_hash(const Pose *pose);  (undefined) */
-/* extern uint64 pose_hash_extended(const Pose *pose, uint64 seed);  (undefined) */
-/* extern double *pose_orientation(const Pose *pose);  (undefined) */
-/* extern double pose_rotation(const Pose *pose);  (undefined) */
+extern uint32 pose_hash(const Pose *pose);
+extern uint64 pose_hash_extended(const Pose *pose, uint64 seed);
+extern double *pose_orientation(const Pose *pose);
+extern double pose_rotation(const Pose *pose);
 
-/* extern Pose *pose_round(const Pose *pose, int maxdd);  (undefined) */
-/* extern Pose **posearr_round(const Pose **posearr, int count, int maxdd);  (undefined) */
+extern Pose *pose_round(const Pose *pose, int maxdd);
+extern Pose **posearr_round(const Pose **posearr, int count, int maxdd);
 
-/* extern void pose_set_srid(Pose *pose, int32_t srid);  (undefined) */
-/* extern int32_t pose_srid(const Pose *pose);  (undefined) */
-/* extern Pose *pose_transform(const Pose *pose, int32_t srid);  (undefined) */
-/* extern Pose *pose_transform_pipeline(const Pose *pose, const char *pipelinestr, int32_t srid, bool is_forward);  (undefined) */
+extern void pose_set_srid(Pose *pose, int32_t srid);
+extern int32_t pose_srid(const Pose *pose);
+extern Pose *pose_transform(const Pose *pose, int32_t srid);
+extern Pose *pose_transform_pipeline(const Pose *pose, const char *pipelinestr, int32_t srid, bool is_forward);
 
-/* extern STBox *pose_tstzspan_to_stbox(const Pose *pose, const Span *s);  (undefined) */
-/* extern STBox *pose_timestamptz_to_stbox(const Pose *pose, TimestampTz t);  (undefined) */
+extern STBox *pose_tstzspan_to_stbox(const Pose *pose, const Span *s);
+extern STBox *pose_timestamptz_to_stbox(const Pose *pose, TimestampTz t);
 
-/* extern double distance_pose_geo(const Pose *pose, const GSERIALIZED *gs);  (undefined) */
-/* extern double distance_pose_pose(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern double distance_pose_stbox(const Pose *pose, const STBox *box);  (undefined) */
+extern double distance_pose_geo(const Pose *pose, const GSERIALIZED *gs);
+extern double distance_pose_pose(const Pose *pose1, const Pose *pose2);
+extern double distance_pose_stbox(const Pose *pose, const STBox *box);
 
-/* extern int pose_cmp(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern bool pose_eq(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern bool pose_ge(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern bool pose_gt(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern bool pose_le(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern bool pose_lt(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern bool pose_ne(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern bool pose_nsame(const Pose *pose1, const Pose *pose2);  (undefined) */
-/* extern bool pose_same(const Pose *pose1, const Pose *pose2);  (undefined) */
+extern int pose_cmp(const Pose *pose1, const Pose *pose2);
+extern bool pose_eq(const Pose *pose1, const Pose *pose2);
+extern bool pose_ge(const Pose *pose1, const Pose *pose2);
+extern bool pose_gt(const Pose *pose1, const Pose *pose2);
+extern bool pose_le(const Pose *pose1, const Pose *pose2);
+extern bool pose_lt(const Pose *pose1, const Pose *pose2);
+extern bool pose_ne(const Pose *pose1, const Pose *pose2);
+extern bool pose_nsame(const Pose *pose1, const Pose *pose2);
+extern bool pose_same(const Pose *pose1, const Pose *pose2);
 
-/* extern Set *poseset_in(const char *str);  (undefined) */
-/* extern char *poseset_out(const Set *s, int maxdd);  (undefined) */
+extern Set *poseset_in(const char *str);
+extern char *poseset_out(const Set *s, int maxdd);
 
-/* extern Set *poseset_make(const Pose **values, int count);  (undefined) */
+extern Set *poseset_make(const Pose **values, int count);
 
-/* extern Set *pose_to_set(const Pose *pose);  (undefined) */
+extern Set *pose_to_set(const Pose *pose);
 
-/* extern Pose *poseset_end_value(const Set *s);  (undefined) */
-/* extern Pose *poseset_start_value(const Set *s);  (undefined) */
-/* extern bool poseset_value_n(const Set *s, int n, Pose **result);  (undefined) */
-/* extern Pose **poseset_values(const Set *s);  (undefined) */
+extern Pose *poseset_end_value(const Set *s);
+extern Pose *poseset_start_value(const Set *s);
+extern bool poseset_value_n(const Set *s, int n, Pose **result);
+extern Pose **poseset_values(const Set *s);
 
-/* extern bool contained_pose_set(const Pose *pose, const Set *s);  (undefined) */
-/* extern bool contains_set_pose(const Set *s, Pose *pose);  (undefined) */
-/* extern Set *intersection_pose_set(const Pose *pose, const Set *s);  (undefined) */
-/* extern Set *intersection_set_pose(const Set *s, const Pose *pose);  (undefined) */
-/* extern Set *minus_pose_set(const Pose *pose, const Set *s);  (undefined) */
-/* extern Set *minus_set_pose(const Set *s, const Pose *pose);  (undefined) */
-/* extern Set *pose_union_transfn(Set *state, const Pose *pose);  (undefined) */
-/* extern Set *union_pose_set(const Pose *pose, const Set *s);  (undefined) */
-/* extern Set *union_set_pose(const Set *s, const Pose *pose);  (undefined) */
+extern bool contained_pose_set(const Pose *pose, const Set *s);
+extern bool contains_set_pose(const Set *s, Pose *pose);
+extern Set *intersection_pose_set(const Pose *pose, const Set *s);
+extern Set *intersection_set_pose(const Set *s, const Pose *pose);
+extern Set *minus_pose_set(const Pose *pose, const Set *s);
+extern Set *minus_set_pose(const Set *s, const Pose *pose);
+extern Set *pose_union_transfn(Set *state, const Pose *pose);
+extern Set *union_pose_set(const Pose *pose, const Set *s);
+extern Set *union_set_pose(const Set *s, const Pose *pose);
 
 Temporal *tpose_in(const char *str);
 
-/* extern Temporal *tpose_make(const Temporal *tpoint, const Temporal *tradius);  (undefined) */
-/* extern Temporal *tpose_to_tpoint(const Temporal *temp);  (undefined) */
+extern Temporal *tpose_make(const Temporal *tpoint, const Temporal *tradius);
+extern Temporal *tpose_to_tpoint(const Temporal *temp);
 
-/* extern Pose *tpose_end_value(const Temporal *temp);  (undefined) */
-/* extern Set *tpose_points(const Temporal *temp);  (undefined) */
+extern Pose *tpose_end_value(const Temporal *temp);
+extern Set *tpose_points(const Temporal *temp);
 
-/* extern Temporal *tpose_rotation(const Temporal *temp);  (undefined) */
-/* extern Pose *tpose_start_value(const Temporal *temp);  (undefined) */
-/* extern GSERIALIZED *tpose_trajectory(const Temporal *temp);  (undefined) */
-/* extern bool tpose_value_at_timestamptz(const Temporal *temp, TimestampTz t, bool strict, Pose **value);  (undefined) */
-/* extern bool tpose_value_n(const Temporal *temp, int n, Pose **result);  (undefined) */
-/* extern Pose **tpose_values(const Temporal *temp, int *count);  (undefined) */
+extern Temporal *tpose_rotation(const Temporal *temp);
+extern Pose *tpose_start_value(const Temporal *temp);
+extern GSERIALIZED *tpose_trajectory(const Temporal *temp);
+extern bool tpose_value_at_timestamptz(const Temporal *temp, TimestampTz t, bool strict, Pose **value);
+extern bool tpose_value_n(const Temporal *temp, int n, Pose **result);
+extern Pose **tpose_values(const Temporal *temp, int *count);
 
-/* extern Temporal *tpose_at_geom(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tpose_at_stbox(const Temporal *temp, const STBox *box, bool border_inc);  (undefined) */
-/* extern Temporal *tpose_at_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern Temporal *tpose_minus_geom(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tpose_minus_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern Temporal *tpose_minus_stbox(const Temporal *temp, const STBox *box, bool border_inc);  (undefined) */
+extern Temporal *tpose_at_geom(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tpose_at_stbox(const Temporal *temp, const STBox *box, bool border_inc);
+extern Temporal *tpose_at_pose(const Temporal *temp, const Pose *pose);
+extern Temporal *tpose_minus_geom(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tpose_minus_pose(const Temporal *temp, const Pose *pose);
+extern Temporal *tpose_minus_stbox(const Temporal *temp, const STBox *box, bool border_inc);
 
-/* extern Temporal *tdistance_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern Temporal *tdistance_tpose_point(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tdistance_tpose_tpose(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern double nad_tpose_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern double nad_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern double nad_tpose_stbox(const Temporal *temp, const STBox *box);  (undefined) */
-/* extern double nad_tpose_tpose(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern TInstant *nai_tpose_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern TInstant *nai_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern TInstant *nai_tpose_tpose(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern GSERIALIZED *shortestline_tpose_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern GSERIALIZED *shortestline_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern GSERIALIZED *shortestline_tpose_tpose(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tdistance_tpose_pose(const Temporal *temp, const Pose *pose);
+extern Temporal *tdistance_tpose_point(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tdistance_tpose_tpose(const Temporal *temp1, const Temporal *temp2);
+extern double nad_tpose_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern double nad_tpose_pose(const Temporal *temp, const Pose *pose);
+extern double nad_tpose_stbox(const Temporal *temp, const STBox *box);
+extern double nad_tpose_tpose(const Temporal *temp1, const Temporal *temp2);
+extern TInstant *nai_tpose_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern TInstant *nai_tpose_pose(const Temporal *temp, const Pose *pose);
+extern TInstant *nai_tpose_tpose(const Temporal *temp1, const Temporal *temp2);
+extern GSERIALIZED *shortestline_tpose_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern GSERIALIZED *shortestline_tpose_pose(const Temporal *temp, const Pose *pose);
+extern GSERIALIZED *shortestline_tpose_tpose(const Temporal *temp1, const Temporal *temp2);
 
-/* extern int always_eq_pose_tpose(const Pose *pose, const Temporal *temp);  (undefined) */
-/* extern int always_eq_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern int always_eq_tpose_tpose(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int always_ne_pose_tpose(const Pose *pose, const Temporal *temp);  (undefined) */
-/* extern int always_ne_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern int always_ne_tpose_tpose(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int ever_eq_pose_tpose(const Pose *pose, const Temporal *temp);  (undefined) */
-/* extern int ever_eq_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern int ever_eq_tpose_tpose(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int ever_ne_pose_tpose(const Pose *pose, const Temporal *temp);  (undefined) */
-/* extern int ever_ne_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern int ever_ne_tpose_tpose(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern int always_eq_pose_tpose(const Pose *pose, const Temporal *temp);
+extern int always_eq_tpose_pose(const Temporal *temp, const Pose *pose);
+extern int always_eq_tpose_tpose(const Temporal *temp1, const Temporal *temp2);
+extern int always_ne_pose_tpose(const Pose *pose, const Temporal *temp);
+extern int always_ne_tpose_pose(const Temporal *temp, const Pose *pose);
+extern int always_ne_tpose_tpose(const Temporal *temp1, const Temporal *temp2);
+extern int ever_eq_pose_tpose(const Pose *pose, const Temporal *temp);
+extern int ever_eq_tpose_pose(const Temporal *temp, const Pose *pose);
+extern int ever_eq_tpose_tpose(const Temporal *temp1, const Temporal *temp2);
+extern int ever_ne_pose_tpose(const Pose *pose, const Temporal *temp);
+extern int ever_ne_tpose_pose(const Temporal *temp, const Pose *pose);
+extern int ever_ne_tpose_tpose(const Temporal *temp1, const Temporal *temp2);
 
-/* extern Temporal *teq_pose_tpose(const Pose *pose, const Temporal *temp);  (undefined) */
-/* extern Temporal *teq_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
-/* extern Temporal *tne_pose_tpose(const Pose *pose, const Temporal *temp);  (undefined) */
-/* extern Temporal *tne_tpose_pose(const Temporal *temp, const Pose *pose);  (undefined) */
+extern Temporal *teq_pose_tpose(const Pose *pose, const Temporal *temp);
+extern Temporal *teq_tpose_pose(const Temporal *temp, const Pose *pose);
+extern Temporal *tne_pose_tpose(const Pose *pose, const Temporal *temp);
+extern Temporal *tne_tpose_pose(const Temporal *temp, const Pose *pose);
 
  
 //-------------------- meos_rgeo.h --------------------
@@ -3919,97 +3915,83 @@ Temporal *tpose_in(const char *str);
   //#else
   
 
-/* extern char *trgeo_out(const Temporal *temp);  (undefined) */
+extern char *trgeo_out(const Temporal *temp);
 
-/* extern TInstant *trgeoinst_make(const GSERIALIZED *geom, const Pose *pose, TimestampTz t);  (undefined) */
-/* extern Temporal *geo_tpose_to_trgeo(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
+extern TInstant *trgeoinst_make(const GSERIALIZED *geom, const Pose *pose, TimestampTz t);
+extern Temporal *geo_tpose_to_trgeo(const GSERIALIZED *gs, const Temporal *temp);
 
-/* extern Temporal *trgeo_to_tpose(const Temporal *temp);  (undefined) */
-/* extern Temporal *trgeo_to_tpoint(const Temporal *temp);  (undefined) */
+extern Temporal *trgeo_to_tpose(const Temporal *temp);
+extern Temporal *trgeo_to_tpoint(const Temporal *temp);
 
-/* extern TInstant *trgeo_end_instant(const Temporal *temp);  (undefined) */
-/* extern TSequence *trgeo_end_sequence(const Temporal *temp);  (undefined) */
-/* extern GSERIALIZED *trgeo_end_value(const Temporal *temp);  (undefined) */
-/* extern GSERIALIZED *trgeo_geom(const Temporal *temp);  (undefined) */
-/* extern TInstant *trgeo_instant_n(const Temporal *temp, int n);  (undefined) */
-/* extern TInstant **trgeo_instants(const Temporal *temp, int *count);  (undefined) */
+extern TInstant *trgeo_end_instant(const Temporal *temp);
+extern TSequence *trgeo_end_sequence(const Temporal *temp);
+extern GSERIALIZED *trgeo_end_value(const Temporal *temp);
+extern GSERIALIZED *trgeo_geom(const Temporal *temp);
+extern TInstant *trgeo_instant_n(const Temporal *temp, int n);
+extern TInstant **trgeo_instants(const Temporal *temp, int *count);
 /* extern Set *trgeo_points(const Temporal *temp);  (undefined) */
 /* extern Temporal *trgeo_rotation(const Temporal *temp);  (undefined) */
 /* extern TSequence **trgeo_segments(const Temporal *temp, int *count);  (undefined) */
-/* extern TSequence *trgeo_sequence_n(const Temporal *temp, int i);  (undefined) */
-/* extern TSequence **trgeo_sequences(const Temporal *temp, int *count);  (undefined) */
-/* extern TInstant *trgeo_start_instant(const Temporal *temp);  (undefined) */
-/* extern TSequence *trgeo_start_sequence(const Temporal *temp);  (undefined) */
-/* extern GSERIALIZED *trgeo_start_value(const Temporal *temp);  (undefined) */
-/* extern bool trgeo_value_n(const Temporal *temp, int n, GSERIALIZED **result);  (undefined) */
+extern TSequence *trgeo_sequence_n(const Temporal *temp, int i);
+extern TSequence **trgeo_sequences(const Temporal *temp, int *count);
+extern TInstant *trgeo_start_instant(const Temporal *temp);
+extern TSequence *trgeo_start_sequence(const Temporal *temp);
+extern GSERIALIZED *trgeo_start_value(const Temporal *temp);
+extern bool trgeo_value_n(const Temporal *temp, int n, GSERIALIZED **result);
 /* extern GSERIALIZED *trgeo_traversed_area(const Temporal *temp, bool unary_union);  (undefined) */
-/* extern Temporal *trgeo_centroid(const Temporal *temp);  (undefined) */
-/* extern GSERIALIZED *trgeo_convex_hull(const Temporal *temp);  (undefined) */
-/* extern Temporal *trgeo_body_point_trajectory(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
 
-/* extern Temporal *trgeo_append_tinstant(Temporal *temp, const TInstant *inst, interpType interp, double maxdist, const Interval *maxt, bool expand);  (undefined) */
-/* extern Temporal *trgeo_append_tsequence(Temporal *temp, const TSequence *seq, bool expand);  (undefined) */
-/* extern Temporal *trgeo_delete_timestamptz(const Temporal *temp, TimestampTz t, bool connect);  (undefined) */
-/* extern Temporal *trgeo_delete_tstzset(const Temporal *temp, const Set *s, bool connect);  (undefined) */
-/* extern Temporal *trgeo_delete_tstzspan(const Temporal *temp, const Span *s, bool connect);  (undefined) */
-/* extern Temporal *trgeo_delete_tstzspanset(const Temporal *temp, const SpanSet *ss, bool connect);  (undefined) */
-/* extern Temporal *trgeo_round(const Temporal *temp, int maxdd);  (undefined) */
-/* extern Temporal *trgeo_set_interp(const Temporal *temp, interpType interp);  (undefined) */
-/* extern TInstant *trgeo_to_tinstant(const Temporal *temp);  (undefined) */
+extern Temporal *trgeo_append_tinstant(Temporal *temp, const TInstant *inst, interpType interp, double maxdist, const Interval *maxt, bool expand);
+extern Temporal *trgeo_append_tsequence(Temporal *temp, const TSequence *seq, bool expand);
+extern Temporal *trgeo_delete_timestamptz(const Temporal *temp, TimestampTz t, bool connect);
+extern Temporal *trgeo_delete_tstzset(const Temporal *temp, const Set *s, bool connect);
+extern Temporal *trgeo_delete_tstzspan(const Temporal *temp, const Span *s, bool connect);
+extern Temporal *trgeo_delete_tstzspanset(const Temporal *temp, const SpanSet *ss, bool connect);
+extern Temporal *trgeo_round(const Temporal *temp, int maxdd);
+extern Temporal *trgeo_set_interp(const Temporal *temp, interpType interp);
+extern TInstant *trgeo_to_tinstant(const Temporal *temp);
 
-/* extern Temporal *trgeo_after_timestamptz(const Temporal *temp, TimestampTz t, bool strict);  (undefined) */
-/* extern Temporal *trgeo_before_timestamptz(const Temporal *temp, TimestampTz t, bool strict);  (undefined) */
+extern Temporal *trgeo_after_timestamptz(const Temporal *temp, TimestampTz t, bool strict);
+extern Temporal *trgeo_before_timestamptz(const Temporal *temp, TimestampTz t, bool strict);
 
-/* extern Temporal *trgeo_restrict_value(const Temporal *temp, Datum value, bool atfunc);  (undefined) */
-/* extern Temporal *trgeo_restrict_values(const Temporal *temp, const Set *s, bool atfunc);  (undefined) */
+extern Temporal *trgeo_restrict_value(const Temporal *temp, Datum value, bool atfunc);
+extern Temporal *trgeo_restrict_values(const Temporal *temp, const Set *s, bool atfunc);
 
-/* extern Temporal *trgeo_restrict_timestamptz(const Temporal *temp, TimestampTz t, bool atfunc);  (undefined) */
-/* extern Temporal *trgeo_restrict_tstzset(const Temporal *temp, const Set *s, bool atfunc);  (undefined) */
-/* extern Temporal *trgeo_restrict_tstzspan(const Temporal *temp, const Span *s, bool atfunc);  (undefined) */
-/* extern Temporal *trgeo_restrict_tstzspanset(const Temporal *temp, const SpanSet *ss, bool atfunc);  (undefined) */
+extern Temporal *trgeo_restrict_timestamptz(const Temporal *temp, TimestampTz t, bool atfunc);
+extern Temporal *trgeo_restrict_tstzset(const Temporal *temp, const Set *s, bool atfunc);
+extern Temporal *trgeo_restrict_tstzspan(const Temporal *temp, const Span *s, bool atfunc);
+extern Temporal *trgeo_restrict_tstzspanset(const Temporal *temp, const SpanSet *ss, bool atfunc);
 
-/* extern Temporal *trgeo_at_geom(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *trgeo_minus_geom(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *trgeo_at_stbox(const Temporal *temp, const STBox *box, bool border_inc);  (undefined) */
-/* extern Temporal *trgeo_minus_stbox(const Temporal *temp, const STBox *box, bool border_inc);  (undefined) */
-
-/* extern Temporal *tdistance_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tdistance_trgeo_tpoint(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern Temporal *tdistance_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tdistance_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tdistance_trgeo_tpoint(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *tdistance_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);
 /* extern double nad_stbox_trgeo(const STBox *box, const Temporal *temp);  (undefined) */
-/* extern double nad_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern double nad_trgeo_stbox(const Temporal *temp, const STBox *box);  (undefined) */
-/* extern double nad_trgeo_tpoint(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern double nad_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern TInstant *nai_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern TInstant *nai_trgeo_tpoint(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern TInstant *nai_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern GSERIALIZED *shortestline_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern GSERIALIZED *shortestline_trgeo_tpoint(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern GSERIALIZED *shortestline_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern double nad_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern double nad_trgeo_stbox(const Temporal *temp, const STBox *box);
+extern double nad_trgeo_tpoint(const Temporal *temp1, const Temporal *temp2);
+extern double nad_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);
+extern TInstant *nai_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern TInstant *nai_trgeo_tpoint(const Temporal *temp1, const Temporal *temp2);
+extern TInstant *nai_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);
+extern GSERIALIZED *shortestline_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern GSERIALIZED *shortestline_trgeo_tpoint(const Temporal *temp1, const Temporal *temp2);
+extern GSERIALIZED *shortestline_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);
 
-/* extern double trgeo_hausdorff_distance(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern double trgeo_frechet_distance(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern double trgeo_dyntimewarp_distance(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern Match *trgeo_frechet_path(const Temporal *temp1, const Temporal *temp2, int *count);  (undefined) */
-/* extern Match *trgeo_dyntimewarp_path(const Temporal *temp1, const Temporal *temp2, int *count);  (undefined) */
-
-/* extern int always_eq_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern int always_eq_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int always_eq_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int always_ne_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern int always_ne_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int always_ne_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int ever_eq_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern int ever_eq_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int ever_eq_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern int ever_ne_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern int ever_ne_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern int ever_ne_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);  (undefined) */
-/* extern Temporal *teq_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern Temporal *teq_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
-/* extern Temporal *tne_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);  (undefined) */
-/* extern Temporal *tne_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);  (undefined) */
+extern int always_eq_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);
+extern int always_eq_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int always_eq_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);
+extern int always_ne_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);
+extern int always_ne_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int always_ne_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);
+extern int ever_eq_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);
+extern int ever_eq_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int ever_eq_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);
+extern int ever_ne_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);
+extern int ever_ne_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern int ever_ne_trgeo_trgeo(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *teq_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *teq_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tne_geo_trgeo(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *tne_trgeo_geo(const Temporal *temp, const GSERIALIZED *gs);
 
  
 
