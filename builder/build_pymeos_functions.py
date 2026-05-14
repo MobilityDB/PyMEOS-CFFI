@@ -112,7 +112,23 @@ function_modifiers = {
     "mi_span_span": mi_span_span_modifier,
 }
 
-# List of result function parameters in tuples of (function, parameter)
+# Function-parameter facts the codegen needs sit in the IDL itself, under
+# each function's ``shape`` key (populated from MEOS-API's meta/meos-meta.json
+# at IDL-generation time).  The catalog has three flavours we consume:
+#
+#   shape.outputArrays  -> (function, param) is an extra Python return.  The
+#                          5 trailing _value_at_timestamptz functions stay
+#                          local because their ergonomic (out-param becomes
+#                          the primary return when the bool succeeds) is
+#                          PyMEOS-CFFI-specific.
+#   shape.nullable      -> (function, param) accepts None.
+#   shape.namedOutputs  -> (function, param) is an out-param without the
+#                          canonical result/value name.
+#
+# The hardcoded sets below were emptied by 2026-05-14 once
+# meta/meos-meta.json carried every entry; result_parameters is kept because
+# the override is PyMEOS-CFFI-specific.
+
 result_parameters = {
     ("tbool_value_at_timestamptz", "value"),
     ("ttext_value_at_timestamptz", "value"),
@@ -121,89 +137,27 @@ result_parameters = {
     ("tgeo_value_at_timestamptz", "value"),
 }
 
-# List of output function parameters in tuples of (function, parameter).
-# All parameters named result are assumed to be output parameters, and it is
-# not necessary to list them here.
-output_parameters = {
-    ("temporal_time_split", "time_bins"),
-    ("temporal_time_split", "count"),
-    ("tint_value_split", "bins"),
-    ("tint_value_split", "count"),
-    ("tfloat_value_split", "bins"),
-    ("tfloat_value_split", "count"),
-    ("tint_value_time_split", "value_bins"),
-    ("tint_value_time_split", "time_bins"),
-    ("tint_value_time_split", "count"),
-    ("tfloat_value_time_split", "value_bins"),
-    ("tfloat_value_time_split", "time_bins"),
-    ("tfloat_value_time_split", "count"),
-    ("tgeo_space_split", "space_bins"),
-    ("tgeo_space_split", "count"),
-    ("tgeo_space_time_split", "space_bins"),
-    ("tgeo_space_time_split", "time_bins"),
-    ("tgeo_space_time_split", "count"),
-    ("tbox_as_hexwkb", "size"),
-    ("stbox_as_hexwkb", "size"),
-    ("tintbox_value_time_tiles", "count"),
-    ("tfloatbox_value_time_tiles", "count"),
-    ("stbox_space_time_tiles", "count"),
-}
+# Populated from IDL shape entries at parse time; see ``_load_shape_pairs``.
+output_parameters: set[tuple[str, str]] = set()
+nullable_parameters: set[tuple[str, str]] = set()
 
-# List of nullable function parameters in tuples of (function, parameter)
-nullable_parameters = {
-    ("meos_initialize", "tz_str"),
-    ("meos_set_intervalstyle", "extra"),
-    ("temporal_append_tinstant", "maxt"),
-    ("temporal_as_mfjson", "srs"),
-    ("tstzspan_shift_scale", "shift"),
-    ("tstzspan_shift_scale", "duration"),
-    ("tstzset_shift_scale", "shift"),
-    ("tstzset_shift_scale", "duration"),
-    ("tstzspanset_shift_scale", "shift"),
-    ("tstzspanset_shift_scale", "duration"),
-    ("temporal_shift_scale_time", "shift"),
-    ("temporal_shift_scale_time", "duration"),
-    ("tbox_make", "p"),
-    ("tbox_make", "s"),
-    ("stbox_make", "p"),
-    ("stbox_shift_scale_time", "shift"),
-    ("stbox_shift_scale_time", "duration"),
-    ("temporal_tcount_transfn", "state"),
-    ("temporal_extent_transfn", "p"),
-    ("tnumber_extent_transfn", "box"),
-    ("tspatial_extent_transfn", "box"),
-    ("tbool_tand_transfn", "state"),
-    ("tbool_tor_transfn", "state"),
-    ("tbox_shift_scale_time", "shift"),
-    ("tbox_shift_scale_time", "duration"),
-    ("tint_tmin_transfn", "state"),
-    ("tfloat_tmin_transfn", "state"),
-    ("tint_tmax_transfn", "state"),
-    ("tfloat_tmax_transfn", "state"),
-    ("tint_tsum_transfn", "state"),
-    ("tfloat_tsum_transfn", "state"),
-    ("tnumber_tavg_transfn", "state"),
-    ("ttext_tmin_transfn", "state"),
-    ("ttext_tmax_transfn", "state"),
-    ("temporal_tcount_transfn", "interval"),
-    ("timestamptz_tcount_transfn", "interval"),
-    ("tstzset_tcount_transfn", "interval"),
-    ("tstzspan_tcount_transfn", "interval"),
-    ("tstzspanset_tcount_transfn", "interval"),
-    ("timestamptz_extent_transfn", "p"),
-    ("timestamptz_tcount_transfn", "state"),
-    ("tstzset_tcount_transfn", "state"),
-    ("tstzspan_tcount_transfn", "state"),
-    ("tstzspanset_tcount_transfn", "state"),
-    ("stbox_space_time_tiles", "duration"),
-    ("tintbox_value_time_tiles", "xorigin"),
-    ("tintbox_value_time_tiles", "torigin"),
-    ("tfloatbox_value_time_tiles", "xorigin"),
-    ("tfloatbox_value_time_tiles", "torigin"),
-    ("stbox_make", "s"),
-    ("tsequenceset_make_gaps", "maxt"),
-    ("geo_as_geojson", "srs"),
-}
+
+def _load_shape_pairs(idl: dict) -> None:
+    """Populate output_parameters / nullable_parameters from IDL shape data."""
+    for entry in idl["functions"]:
+        sh = entry.get("shape", {})
+        name = entry["name"]
+        for oa in sh.get("outputArrays", []):
+            output_parameters.add((name, oa["param"]))
+            # Most outputArrays come with an implicit count companion; the
+            # PyMEOS-CFFI auto-detect handles ``count`` ending in ``*'`` but
+            # split-family declarations carry the count explicitly via the
+            # arrayReturn.lengthFrom={"kind":"param","name":...} sibling.
+            length = sh.get("arrayReturn", {}).get("lengthFrom")
+            if length and length.get("kind") == "param":
+                output_parameters.add((name, length["name"]))
+        for nm in sh.get("nullable", []):
+            nullable_parameters.add((name, nm))
 
 
 # Checks if parameter in function is nullable
@@ -245,6 +199,7 @@ def check_modifiers(functions: list[str]) -> None:
 def build_pymeos_functions(idl_path="builder/meos-idl.json"):
     with open(idl_path) as f:
         idl = json.load(f)
+    _load_shape_pairs(idl)
 
     file_path = os.path.dirname(__file__)
     template_path = os.path.join(file_path, "templates/functions.py")

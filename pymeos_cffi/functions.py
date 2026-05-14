@@ -13468,29 +13468,27 @@ def tpoint_as_mvtgeom(
     extent: Annotated[_ffi.CData, "int32_t"],
     buffer: Annotated[_ffi.CData, "int32_t"],
     clip_geom: bool,
-    gsarr: Annotated[list, "GSERIALIZED **"],
-    timesarr: Annotated[list, "int64 **"],
     count: Annotated[_ffi.CData, "int *"],
-) -> Annotated[bool, "bool"]:
+) -> tuple[Annotated[bool, "bool"], Annotated[list, "GSERIALIZED **"], Annotated[list, "int64 *"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     bounds_converted = _ffi.cast("const STBox *", bounds)
     extent_converted = _ffi.cast("int32_t", extent)
     buffer_converted = _ffi.cast("int32_t", buffer)
-    gsarr_converted = [_ffi.cast("GSERIALIZED *", x) for x in gsarr]
-    timesarr_converted = [_ffi.cast("int64 *", x) for x in timesarr]
     count_converted = _ffi.cast("int *", count)
+    gsarr = _ffi.new("GSERIALIZED **")
+    timesarr = _ffi.new("int64 **")
     result = _lib.tpoint_as_mvtgeom(
         temp_converted,
         bounds_converted,
         extent_converted,
         buffer_converted,
         clip_geom,
-        gsarr_converted,
-        timesarr_converted,
+        gsarr,
+        timesarr,
         count_converted,
     )
     _check_error()
-    return result if result != _ffi.NULL else None
+    return result if result != _ffi.NULL else None, gsarr[0], timesarr[0]
 
 
 def tpoint_tfloat_to_geomeas(
