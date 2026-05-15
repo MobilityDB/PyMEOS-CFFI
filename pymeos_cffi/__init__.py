@@ -1818,6 +1818,8 @@ __all__ = [
     "nad_tgeo_geo",
     "nad_tgeo_stbox",
     "nad_tgeo_tgeo",
+    "mindistance_tgeo_tgeo",
+    "tgeoarr_tgeoarr_mindist",
     "nai_tgeo_geo",
     "nai_tgeo_tgeo",
     "shortestline_tgeo_geo",

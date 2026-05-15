@@ -15380,6 +15380,26 @@ def nad_tgeo_tgeo(
     return result if result != _ffi.NULL else None
 
 
+def mindistance_tgeo_tgeo(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"], threshold: float
+) -> Annotated[float, "double"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.mindistance_tgeo_tgeo(temp1_converted, temp2_converted, threshold)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeoarr_tgeoarr_mindist(
+    arr1: Annotated[list, "Temporal **"], count1: int, arr2: Annotated[list, "Temporal **"], count2: int
+) -> Annotated[float, "double"]:
+    arr1_converted = [_ffi.cast("Temporal *", x) for x in arr1]
+    arr2_converted = [_ffi.cast("Temporal *", x) for x in arr2]
+    result = _lib.tgeoarr_tgeoarr_mindist(arr1_converted, count1, arr2_converted, count2)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def nai_tgeo_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[_ffi.CData, "TInstant *"]:

@@ -36842,6 +36842,61 @@
       ]
     },
     {
+      "name": "mindistance_tgeo_tgeo",
+      "file": "meos_geo.h",
+      "returnType": {
+        "c": "double",
+        "canonical": "double"
+      },
+      "params": [
+        {
+          "name": "temp1",
+          "cType": "const Temporal *",
+          "canonical": "const Temporal *"
+        },
+        {
+          "name": "temp2",
+          "cType": "const Temporal *",
+          "canonical": "const Temporal *"
+        },
+        {
+          "name": "threshold",
+          "cType": "double",
+          "canonical": "double"
+        }
+      ]
+    },
+    {
+      "name": "tgeoarr_tgeoarr_mindist",
+      "file": "meos_geo.h",
+      "returnType": {
+        "c": "double",
+        "canonical": "double"
+      },
+      "params": [
+        {
+          "name": "arr1",
+          "cType": "Temporal **",
+          "canonical": "Temporal **"
+        },
+        {
+          "name": "count1",
+          "cType": "int",
+          "canonical": "int"
+        },
+        {
+          "name": "arr2",
+          "cType": "Temporal **",
+          "canonical": "Temporal **"
+        },
+        {
+          "name": "count2",
+          "cType": "int",
+          "canonical": "int"
+        }
+      ]
+    },
+    {
       "name": "nai_tgeo_geo",
       "file": "meos_geo.h",
       "returnType": {
