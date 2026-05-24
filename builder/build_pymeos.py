@@ -9,6 +9,9 @@ header_files = [
     "meos_internal.h",
     "meos_internal_geo.h",
     "meos_npoint.h",
+    "meos_cbuffer.h",
+    "meos_pose.h",
+    "meos_rgeo.h",
 ]
 
 ffibuilder = FFI()

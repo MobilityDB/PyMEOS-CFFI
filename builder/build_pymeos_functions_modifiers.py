@@ -119,6 +119,11 @@ def spanset_make_modifier(function: str) -> str:
 
 
 def mi_span_span_modifier(function: str) -> str:
-    return function.replace(
-        '-> Annotated[_ffi.CData, "Span *"]', '-> tuple[Annotated[_ffi.CData, "Span *"], int]'
-    ).replace("return out_result", "return out_result, result")
+    return (
+        function.replace(
+            '-> Annotated[_ffi.CData, "Span *"]',
+            '-> tuple[Annotated[_ffi.CData, "Span *"], int]',
+        )
+        .replace("_lib.mi_span_span(", "result = _lib.mi_span_span(")
+        .replace("return out_result", "return out_result, result")
+    )

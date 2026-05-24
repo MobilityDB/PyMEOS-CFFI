@@ -11,6 +11,9 @@ header_files = [
     "meos_internal.h",
     "meos_internal_geo.h",
     "meos_npoint.h",
+    "meos_cbuffer.h",
+    "meos_pose.h",
+    "meos_rgeo.h",
 ]
 
 
@@ -22,12 +25,27 @@ def get_defined_functions(library_path):
     return defined
 
 
+# Internal memory-layout accessors that meos_internal.h declares BOTH as an
+# extern function AND a function-like macro. They are exported symbols, but the
+# macro definition wins in the cffi set_source compilation unit, so the wrapper
+# expands the macro (e.g. SET_VAL_N -> PointerGetDatum, which is not in the MEOS
+# ABI) and fails to link. They are not part of the binding's public surface.
+macro_aliased_functions = {
+    "SET_BBOX_PTR", "SET_OFFSETS_PTR", "SET_VAL_N", "SPANSET_SP_N",
+    "TSEQUENCE_OFFSETS_PTR", "TSEQUENCE_INST_N",
+    "TSEQUENCESET_OFFSETS_PTR", "TSEQUENCESET_SEQ_N",
+}
+
+
 def remove_undefined_functions(content, so_path):
     defined = get_defined_functions(so_path)
     undefined_types = ["json_object", "GEOSContextHandle_t"]
 
     def remove_if_not_defined(m):
         function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
+        if function in macro_aliased_functions:
+            print(f"Removing macro-aliased internal accessor: {function}")
+            return f"/* {m.group(0)}  (macro-aliased internal accessor) */"
         if function in defined or (sys.platform == "darwin" and ("_" + function) in defined):
             for t in undefined_types:
                 if t in m.group(0):
