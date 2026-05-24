@@ -16,6 +16,9 @@ IDL_HEADER_ORDER = [
     "meos_internal.h",
     "meos_internal_geo.h",
     "meos_npoint.h",
+    "meos_cbuffer.h",
+    "meos_pose.h",
+    "meos_rgeo.h",
 ]
 
 # Types declared in MEOS headers but not exposed through the CFFI cdef.
@@ -147,15 +150,15 @@ def _load_shape_pairs(idl: dict) -> None:
     for entry in idl["functions"]:
         sh = entry.get("shape", {})
         name = entry["name"]
+        # arrayReturn.lengthFrom={"kind":"param","name":...} marks the named
+        # parameter as an output count.  It applies to both plain
+        # ``T *foo(..., int *count)`` returns and to the split-family which
+        # additionally lists outputArrays parallel to the primary return.
+        length = sh.get("arrayReturn", {}).get("lengthFrom")
+        if length and length.get("kind") == "param":
+            output_parameters.add((name, length["name"]))
         for oa in sh.get("outputArrays", []):
             output_parameters.add((name, oa["param"]))
-            # Most outputArrays come with an implicit count companion; the
-            # PyMEOS-CFFI auto-detect handles ``count`` ending in ``*'`` but
-            # split-family declarations carry the count explicitly via the
-            # arrayReturn.lengthFrom={"kind":"param","name":...} sibling.
-            length = sh.get("arrayReturn", {}).get("lengthFrom")
-            if length and length.get("kind") == "param":
-                output_parameters.add((name, length["name"]))
         for nm in sh.get("nullable", []):
             nullable_parameters.add((name, nm))
 
@@ -447,12 +450,18 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     # Create common part of function string (note, name, parameters, return type and
     # parameter conversions).
     base = f"{note}def {function_name}({params}) -> {function_return_type}:\n{param_conversions}"
-    # If the function didn't return anything, just add the function call to the base
-    if return_type.return_type == "None":
-        function_string = f"{base}    _lib.{function_name}({inner_params})"
-    # Otherwise, store the result in a variable
-    else:
+    # Most codegen paths don't need the C-level return value: void returns
+    # discard it outright, and result_param wrappers route the value back
+    # through out_result with the only consumer being the bool-guard.  Drop
+    # the assignment in those cases so ruff does not flag ``result`` as
+    # unused.
+    keep_result_assign = return_type.return_type != "None" and (
+        result_param is None or return_type.return_type == "bool"
+    )
+    if keep_result_assign:
         function_string = f"{base}    result = _lib.{function_name}({inner_params})"
+    else:
+        function_string = f"{base}    _lib.{function_name}({inner_params})"
 
     # Add error handling
     function_string += "\n    _check_error()"

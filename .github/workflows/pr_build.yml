@@ -64,7 +64,7 @@ jobs:
           if [ "${{ runner.os }}" = "macOS" ]; then
             export MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
           fi
-          cmake .. -DMEOS=ON -DCMAKE_BUILD_TYPE=Release \
+          cmake .. -DMEOS=ON -DCBUFFER=ON -DPOSE=ON -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
           make -j
           sudo make install
