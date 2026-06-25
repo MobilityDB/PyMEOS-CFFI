@@ -1,0 +1,32 @@
+# USER-APPROVED-PIN-WRITE — creating PyMEOS-CFFI's first pin manifest (user 2026-06-25,
+#   per-binding generator policy rollout). New file in the PyMEOS-CFFI repo, NOT a mutation
+#   of MobilityDB's pin tooling.
+#
+# PyMEOS-CFFI pin — THE canonical, dependency-ordered fold manifest (per-binding policy).
+#
+# PyMEOS-CFFI is the low-level CFFI layer that PyMEOS (the OO layer, separate repo) sits on.
+# `master` (c986237) predates the meos-idl.json-driven codegen, which lives in the open stack.
+# (policy: generator-per-binding-canonical-policy)
+#
+# SCOPE: PyMEOS-CFFI owns its generator IN-REPO at `builder/` — `build_pymeos_functions.py`
+# reads the vendored `builder/meos-idl.json` and generates `pymeos_cffi/functions.py`.
+#
+# Format:  <PR#> <branch>            # role.   '?' = membership/order UNCONFIRMED.
+# base = current origin/master. Verified ancestry (git merge-base, this turn): #19 (17 commits
+# over master) CONTAINS #18; #17 is NOT an ancestor of #19.
+
+# ── WAVE 0 — FRONTIER (the codegen-driven 1.4 surface) ──
+19    bump/meos-1.4                          # THE frontier: bump PyMEOS-CFFI to MEOS 1.4.
+                                            #   17 commits over master; CONTAINS #18.
+
+# ── predecessors ──
+18    refactor/codegen-meos-idl              # drive functions.py codegen from meos-idl.json. ANCESTOR of #19.
+?17   bump/meos-1.3                          # regenerate against MEOS 1.3 stable + PR build validation.
+                                            #   NOT an ancestor of #19 — verify its unique content (CI/build validation)
+                                            #   is forward-ported onto the frontier, then close.
+
+# ════════════════════════════════════════════════════════════════════════════════════
+# DISPOSITION (committer review): land #19 (carries #18); forward-port #17's unique CI/build
+# validation onto the frontier then close #17. Triage external #16 (add-from-arrays2)
+# separately. PAIRED LAYER: PyMEOS (the OO layer) has its own manifest + GENERATION.md.
+# ════════════════════════════════════════════════════════════════════════════════════
