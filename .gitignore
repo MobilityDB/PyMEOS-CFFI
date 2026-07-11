@@ -20,3 +20,8 @@ sandbox.ipynb
 
 # scratch dir for tools/refresh-from-master.sh (cloned MEOS-API + provisioned MEOS)
 .meos-chain/
+
+# Derived MEOS catalog (generated in CI from MobilityDB via MEOS-API run.py,
+# never committed) and the CFFI cdef header projected from it.
+builder/meos-idl.json
+builder/meos.h
