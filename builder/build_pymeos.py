@@ -19,14 +19,28 @@ with open(os.path.join(os.path.dirname(__file__), "meos.h")) as f:
 ffibuilder.cdef(content)
 
 
-def get_library_dirs():
-    paths = ["/usr/local/lib", "/opt/homebrew/lib"]
+# A MEOS install prefix may be supplied out of band so the extension can be built
+# against a MEOS that is not on the default system paths (e.g. a scratch prefix used
+# by tools/refresh-from-master.sh). MEOS_PREFIX adds <prefix>/lib and <prefix>/include;
+# MEOS_LIB_DIR / MEOS_INCLUDE_DIR override a single dir. Unset => unchanged behaviour.
+def _search_dirs(single_env, subdir, defaults):
+    paths = []
+    explicit = os.environ.get(single_env)
+    if explicit:
+        paths.append(explicit)
+    prefix = os.environ.get("MEOS_PREFIX")
+    if prefix:
+        paths.append(os.path.join(prefix, subdir))
+    paths.extend(defaults)
     return [path for path in paths if os.path.exists(path)]
+
+
+def get_library_dirs():
+    return _search_dirs("MEOS_LIB_DIR", "lib", ["/usr/local/lib", "/opt/homebrew/lib"])
 
 
 def get_include_dirs():
-    paths = ["/usr/local/include", "/opt/homebrew/include"]
-    return [path for path in paths if os.path.exists(path)]
+    return _search_dirs("MEOS_INCLUDE_DIR", "include", ["/usr/local/include", "/opt/homebrew/include"])
 
 
 ffibuilder.set_source(
