@@ -1,0 +1,79 @@
+#
+# Keeps the committed CFFI surface (builder/meos.h, pymeos_cffi/functions.py and
+# pymeos_cffi/__init__.py) tracking the MEOS line this package pins.
+#
+# PyMEOS-CFFI pins a released MEOS: its package __version__ (X.Y) maps to the
+# MobilityDB stable-X.Y branch — the same rule build_pymeos_cffi.yml uses to pick
+# the MEOS it builds against. So the committed surface must always equal a fresh
+# derivation from that branch. build_header.py needs the installed headers and
+# libmeos (it runs nm to drop undefined symbols), so this provisions libmeos and
+# regenerates from it rather than from a bare catalog.
+#
+# On a schedule (and on demand) this re-derives the surface and
+# peter-evans/create-pull-request opens a PR only when it actually drifted (it
+# no-ops on a clean tree). The normal build + ruff CI then gates the refresh PR
+# like any other change.
+#
+name: Refresh the CFFI surface from MobilityDB stable-1.3
+
+on:
+  schedule:
+    # Daily; the stable-1.3 line rarely changes the derived surface more than once a day.
+    - cron: '23 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: meos-surface-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Keep this ref in step with pymeos_cffi/__init__.py __version__ (X.Y => stable-X.Y).
+      # The 1.3 line exposes npoint among the optional families (not cbuffer/pose).
+      - name: Provision libmeos + catalog at stable-1.3
+        id: provision
+        uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
+        with:
+          mobilitydb-ref: stable-1.3
+          build-libmeos: "true"
+          families: "-DNPOINT=ON"
+
+      - name: Regenerate the CFFI surface from the provisioned MEOS
+        run: |
+          python3 -m pip install --upgrade pip ruff
+          PREFIX="${{ steps.provision.outputs.libmeos-prefix }}"
+          cp "${{ steps.provision.outputs.catalog-path }}" builder/meos-idl.json
+          python3 builder/build_header.py "$PREFIX/include" "$PREFIX/lib/libmeos.so"
+          python3 builder/build_pymeos_functions.py
+          ruff format pymeos_cffi/functions.py pymeos_cffi/__init__.py
+
+      # Opens a PR only if the surface drifted. PRs opened with the default
+      # GITHUB_TOKEN do NOT trigger workflow runs; supply a PAT in the
+      # MEOS_AUTOBUMP_TOKEN secret to get build + ruff CI on the refresh PR. Falls
+      # back to GITHUB_TOKEN (PR opens but must be re-triggered manually) when unset.
+      - name: Open a refresh PR if the surface drifted
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.MEOS_AUTOBUMP_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: tooling/refresh-cffi-surface
+          base: master
+          add-paths: |
+            builder/meos.h
+            pymeos_cffi/functions.py
+            pymeos_cffi/__init__.py
+          commit-message: "Regenerate the CFFI surface from MobilityDB stable-1.3"
+          title: "Regenerate the CFFI surface from MobilityDB stable-1.3"
+          body: |
+            The committed CFFI surface drifted from a fresh derivation against the
+            MobilityDB stable-1.3 line this package pins; this regenerates it.
+
+            Opened by the `Refresh the CFFI surface from MobilityDB stable-1.3` workflow.
+          delete-branch: true
