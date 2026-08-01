@@ -29,8 +29,11 @@ def array_parameter_modifier(list_name: str, length_param_name: str | None = Non
 
 def textset_make_modifier(function: str) -> str:
     function = array_parameter_modifier("values", "count")(function)
-    return function.replace("_ffi.cast('const text *', x)", "cstring2text(x)").replace(
-        "'list[const text]'", "list[str]"
+    return (
+        function.replace("_ffi.cast('const text *', x)", "cstring2text(x)")
+        .replace("_ffi.cast('text *', x)", "cstring2text(x)")
+        .replace("'list[const text]'", "list[str]")
+        .replace("'list[text]'", "list[str]")
     )
 
 
@@ -77,8 +80,8 @@ def text2cstring_modifier(_: str) -> str:
 
 
 def from_wkb_modifier(function: str, return_type: str) -> Callable[[str], str]:
-    return (
-        lambda _: f"""def {function}(wkb: bytes) -> '{return_type} *':
+    return lambda _: (
+        f"""def {function}(wkb: bytes) -> '{return_type} *':
     wkb_converted = _ffi.new('uint8_t []', wkb)
     result = _lib.{function}(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None"""

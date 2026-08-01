@@ -197,7 +197,9 @@ def is_result_parameter(function: str, parameter: Parameter) -> bool:
 def is_output_parameter(function: str, parameter: Parameter) -> bool:
     if parameter.name.endswith("_out"):
         return True
-    if parameter.name == "count" and parameter.ptype.endswith("*'"):
+    # ``int *count`` is the canonical trailing-output pattern that returns
+    # an array's length; auto-detect it on name + raw ctype.
+    if parameter.name == "count" and parameter.ctype == "int *":
         return True
     return (function, parameter.name) in output_parameters
 

@@ -1,0 +1,108 @@
+name: PR build validation
+
+on:
+  pull_request:
+    branches: [master, "stable-[0-9]+.[0-9]+"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build PyMEOS CFFI on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-13, macos-14]
+        include:
+          - ld_prefix: "/usr/local"
+          - os: macos-14
+            ld_prefix: "/opt/homebrew"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Derive MEOS branch from package version
+        id: meos_branch
+        shell: bash
+        run: |
+          python_version=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' pymeos_cffi/__init__.py)
+          major_minor=$(echo "$python_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
+          candidate="stable-${major_minor}"
+          if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
+            meos_branch=$candidate
+          else
+            meos_branch="master"
+          fi
+          echo "Package version $python_version => MEOS branch $meos_branch"
+          echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Install MEOS build deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake postgresql-server-dev-16 \
+            libproj-dev libgeos-dev libgsl-dev libjson-c-dev
+
+      - name: Install MEOS build deps (macOS)
+        if: runner.os == 'macOS'
+        uses: tecolicom/actions-use-homebrew-tools@v1
+        with:
+          tools: cmake libpq proj json-c gsl geos
+
+      - name: Build and install MEOS
+        shell: bash
+        run: |
+          git clone --depth 1 --branch ${{ steps.meos_branch.outputs.meos_branch }} \
+            https://github.com/MobilityDB/MobilityDB
+          mkdir MobilityDB/build
+          cd MobilityDB/build
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            export MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
+          fi
+          cmake .. -DMEOS=ON -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
+          make -j
+          sudo make install
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build cffi setuptools
+
+      - name: Build sdist
+        run: |
+          python -m build -s
+          ls -l dist
+
+      - name: Install from sdist
+        shell: bash
+        run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
+          pip install dist/pymeos_cffi-*.tar.gz
+
+      - name: Smoke-test CFFI binding
+        shell: bash
+        run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
+          python -c "
+          import pymeos_cffi
+          from pymeos_cffi import meos_initialize, meos_finalize
+          meos_initialize('UTC')
+          # Confirm a representative C function resolves
+          assert callable(pymeos_cffi.tstzspan_make), 'tstzspan_make missing'
+          meos_finalize()
+          print('PyMEOS CFFI build + smoke test OK on ${{ matrix.os }}')
+          "
