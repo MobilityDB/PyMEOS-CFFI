@@ -17,3 +17,6 @@ dist
 
 sandbox.py
 sandbox.ipynb
+
+# scratch dir for tools/refresh-from-master.sh (cloned MEOS-API + provisioned MEOS)
+.meos-chain/
