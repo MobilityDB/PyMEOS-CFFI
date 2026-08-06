@@ -84,6 +84,7 @@ function_modifiers = {
     "textset_make": textset_make_modifier,
     "geoset_make": array_length_remover_modifier("values", "count"),
     "tsequenceset_make_gaps": array_length_remover_modifier("instants", "count"),
+    "tpointseq_make_coords": tpointseq_make_coords_modifier
     "mi_span_span": mi_span_span_modifier,
 }
 
