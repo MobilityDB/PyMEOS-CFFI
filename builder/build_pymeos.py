@@ -1,15 +1,16 @@
+import json
 import os
 
 from cffi import FFI
 
-header_files = [
-    "meos.h",
-    "meos_catalog.h",
-    "meos_geo.h",
-    "meos_internal.h",
-    "meos_internal_geo.h",
-    "meos_npoint.h",
-]
+# The MEOS public headers to #include in the compiled extension, derived from
+# the catalog's own ``file`` field so a new family header rides in with the
+# next catalog refresh — no hand-maintained list. The PostgreSQL-compat headers
+# (pg_*.h, pgtypes.h) are pulled transitively by meos.h.
+with open(os.path.join(os.path.dirname(__file__), "meos-idl.json")) as f:
+    _idl = json.load(f)
+_files = {e["file"] for e in _idl["functions"] + _idl["structs"]}
+header_files = sorted(f for f in _files if f.startswith("meos"))
 
 ffibuilder = FFI()
 
@@ -40,8 +41,38 @@ def get_library_dirs():
 
 
 def get_include_dirs():
-    return _search_dirs("MEOS_INCLUDE_DIR", "include", ["/usr/local/include", "/opt/homebrew/include"])
+    # The optional families expose external library types through their own
+    # headers (H3's h3api.h, raster's GDAL, PROJ), so those include paths sit
+    # among the defaults; _search_dirs drops the ones that do not exist.
+    return _search_dirs(
+        "MEOS_INCLUDE_DIR",
+        "include",
+        [
+            "/usr/local/include",
+            "/opt/homebrew/include",
+            "/usr/include/h3",
+            "/usr/include/gdal",
+            "/usr/include/proj",
+        ],
+    )
 
+
+# Compile the MEOS headers with every optional family enabled, matching the
+# all-families libmeos and the catalog it is derived from — the declarations
+# guarded by ``#if <FAMILY>`` are otherwise preprocessed out and diverge from
+# the catalog. In sync with MobilityDB CMakeLists.txt's ``if(ALL)`` loop.
+ALL_FAMILIES = (
+    "ARROW",
+    "CBUFFER",
+    "H3",
+    "JSON",
+    "NPOINT",
+    "POINTCLOUD",
+    "POSE",
+    "QUADBIN",
+    "RASTER",
+    "RGEO",
+)
 
 ffibuilder.set_source(
     "_meos_cffi",
@@ -49,6 +80,7 @@ ffibuilder.set_source(
     libraries=["meos"],
     library_dirs=get_library_dirs(),
     include_dirs=get_include_dirs(),
+    define_macros=[("MEOS", "1")] + [(f, "1") for f in ALL_FAMILIES],
 )
 
 if __name__ == "__main__":  # not when running with setuptools

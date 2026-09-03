@@ -10,18 +10,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build PyMEOS CFFI on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-13, macos-14]
-        include:
-          - ld_prefix: "/usr/local"
-          - os: macos-14
-            ld_prefix: "/opt/homebrew"
-
+  # Derive the MEOS catalog ONCE from a single MobilityDB commit via the shared
+  # provision-meos action (the same derivation JMEOS / Spark / GoMEOS consume),
+  # build + install the all-families libmeos, and validate the Linux wheel. The
+  # catalog is the single source of truth the CFFI cdef header is projected
+  # from — no MEOS header is parsed in this repository. The generated catalog is
+  # uploaded so the macOS builds reuse it (it is OS-independent).
+  linux:
+    name: Provision catalog + build PyMEOS CFFI (Linux, all families)
+    runs-on: ubuntu-latest
+    outputs:
+      meos_branch: ${{ steps.meos_branch.outputs.meos_branch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,30 +40,96 @@ jobs:
           echo "Package version $python_version => MEOS branch $meos_branch"
           echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
 
-      - name: Install MEOS build deps (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake postgresql-server-dev-16 \
-            libproj-dev libgeos-dev libgsl-dev libjson-c-dev
-
-      - name: Install MEOS build deps (macOS)
-        if: runner.os == 'macOS'
-        uses: tecolicom/actions-use-homebrew-tools@v1
+      - name: Provision MEOS (catalog + all-families libmeos)
+        id: provision
+        uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
         with:
-          tools: cmake libpq proj json-c gsl geos
+          mobilitydb-ref: ${{ steps.meos_branch.outputs.meos_branch }}
+          build-libmeos: "true"
 
-      - name: Build and install MEOS
+      - name: Stage the derived catalog for the cdef generator
+        run: cp "${{ steps.provision.outputs.catalog-path }}" builder/meos-idl.json
+
+      - name: Upload the derived catalog for the macOS builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: meos-idl
+          path: builder/meos-idl.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build cffi setuptools
+
+      - name: Project the CFFI cdef header from the catalog
+        run: python builder/build_header.py builder/meos-idl.json /usr/local/lib/libmeos.so builder/meos.h
+
+      - name: Build sdist
+        run: |
+          python -m build -s
+          ls -l dist
+
+      - name: Install from sdist
         shell: bash
         run: |
-          git clone --depth 1 --branch ${{ steps.meos_branch.outputs.meos_branch }} \
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+          pip install dist/pymeos_cffi-*.tar.gz
+
+      - name: Smoke-test CFFI binding
+        shell: bash
+        env:
+          PYMEOS_SMOKE_OS: ubuntu-latest
+        run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+          python builder/smoke_test.py
+
+  # macOS reuses the OS-independent catalog derived on Linux (provision-meos is
+  # Linux-only) and builds the all-families libmeos from the same pinned commit.
+  # The header is then projected from that catalog and the wheel validated — no
+  # MEOS header is parsed here either.
+  macos:
+    name: Build PyMEOS CFFI on ${{ matrix.os }} (all families)
+    needs: linux
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13, macos-14]
+        include:
+          - ld_prefix: "/usr/local"
+          - os: macos-14
+            ld_prefix: "/opt/homebrew"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download the derived catalog
+        uses: actions/download-artifact@v4
+        with:
+          name: meos-idl
+          path: builder
+
+      - name: Install MEOS build deps (macOS)
+        uses: tecolicom/actions-use-homebrew-tools@v1
+        with:
+          tools: cmake libpq proj json-c gsl geos h3 gdal
+
+      - name: Build and install the all-families MEOS
+        shell: bash
+        run: |
+          git clone --depth 1 --branch ${{ needs.linux.outputs.meos_branch }} \
             https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
-          if [ "${{ runner.os }}" = "macOS" ]; then
-            export MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
-          fi
-          cmake .. -DMEOS=ON -DCMAKE_BUILD_TYPE=Release \
+          export MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
+          cmake .. -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
           make -j
           sudo make install
@@ -80,6 +145,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build cffi setuptools
 
+      - name: Project the CFFI cdef header from the catalog
+        run: python builder/build_header.py builder/meos-idl.json ${{ matrix.ld_prefix }}/lib/libmeos.dylib builder/meos.h
+
       - name: Build sdist
         run: |
           python -m build -s
@@ -88,51 +156,13 @@ jobs:
       - name: Install from sdist
         shell: bash
         run: |
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           pip install dist/pymeos_cffi-*.tar.gz
 
       - name: Smoke-test CFFI binding
         shell: bash
+        env:
+          PYMEOS_SMOKE_OS: ${{ matrix.os }}
         run: |
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
-          python -c "
-          import inspect
-          import pymeos_cffi
-          from pymeos_cffi import meos_initialize, meos_finalize, tstzspan_make
-          import pymeos_cffi.functions as f
-
-          # Shape-driven assertions, evaluated before any MEOS runtime state
-          # is initialised so a misbehaving wrapper cannot mask itself
-          # behind a crash inside meos_finalize.
-          assert callable(tstzspan_make), 'tstzspan_make missing'
-          assert callable(f.tpoint_as_mvtgeom), 'tpoint_as_mvtgeom missing'
-
-          # gsarr / timesarr were missing from the previous output_parameters
-          # set, which made them appear as user-facing list args; after the
-          # consolidation they are output parameters and must NOT appear in
-          # the wrapper's parameter list.
-          sig = inspect.signature(f.tpoint_as_mvtgeom)
-          for forbidden in ('gsarr', 'timesarr'):
-              assert forbidden not in sig.parameters, (
-                  f'tpoint_as_mvtgeom unexpectedly takes {forbidden} as input'
-              )
-
-          # shape.nullable for meos_initialize.tz_str surfaces as a typed
-          # Optional in the wrapper; verify the annotation rather than
-          # calling because cycling through finalize() can hit known MEOS
-          # global-state quirks unrelated to the codegen.
-          ms_sig = inspect.signature(meos_initialize)
-          tz_param = ms_sig.parameters.get('tz_str')
-          assert tz_param is not None, 'meos_initialize lost tz_str arg'
-          assert 'None' in str(tz_param.annotation), (
-              f'tz_str annotation does not allow None: {tz_param.annotation}'
-          )
-
-          # Live initialisation check: just verify the standard happy-path
-          # cycle works on the configured timezone.
-          meos_initialize('UTC')
-          meos_finalize()
-          print('PyMEOS CFFI build + shape smoke test OK on ${{ matrix.os }}')
-          "
+          python builder/smoke_test.py
