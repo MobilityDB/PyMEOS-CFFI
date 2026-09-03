@@ -1,8 +1,33 @@
+import json
 import os.path
 import sys
 
 from build_pymeos_functions_modifiers import *
 from objects import Conversion, conversion_map
+
+# Headers PyMEOS-CFFI wraps, in the same iteration order as
+# builder/build_header.py concatenates them into builder/meos.h.  Iteration
+# order is preserved so the generated functions.py groups symbols by their
+# defining header.
+IDL_HEADER_ORDER = [
+    "meos.h",
+    "meos_catalog.h",
+    "meos_geo.h",
+    "meos_internal.h",
+    "meos_internal_geo.h",
+    "meos_npoint.h",
+]
+
+# Types declared in MEOS headers but not exposed through the CFFI cdef.
+# Mirrors builder/build_header.py's ``undefined_types`` list: functions whose
+# signatures reference these are skipped at codegen time.
+IDL_OPAQUE_TYPES = ("json_object",)
+
+
+def _references_opaque(entry: dict) -> bool:
+    if any(t in entry["returnType"]["c"] for t in IDL_OPAQUE_TYPES):
+        return True
+    return any(any(t in p["cType"] for t in IDL_OPAQUE_TYPES) for p in entry["params"])
 
 
 class Parameter:
@@ -87,7 +112,23 @@ function_modifiers = {
     "mi_span_span": mi_span_span_modifier,
 }
 
-# List of result function parameters in tuples of (function, parameter)
+# Function-parameter facts the codegen needs sit in the IDL itself, under
+# each function's ``shape`` key (populated from MEOS-API's meta/meos-meta.json
+# at IDL-generation time).  The catalog has three flavours we consume:
+#
+#   shape.outputArrays  -> (function, param) is an extra Python return.  The
+#                          5 trailing _value_at_timestamptz functions stay
+#                          local because their ergonomic (out-param becomes
+#                          the primary return when the bool succeeds) is
+#                          PyMEOS-CFFI-specific.
+#   shape.nullable      -> (function, param) accepts None.
+#   shape.namedOutputs  -> (function, param) is an out-param without the
+#                          canonical result/value name.
+#
+# The hardcoded sets below were emptied by 2026-05-14 once
+# meta/meos-meta.json carried every entry; result_parameters is kept because
+# the override is PyMEOS-CFFI-specific.
+
 result_parameters = {
     ("tbool_value_at_timestamptz", "value"),
     ("ttext_value_at_timestamptz", "value"),
@@ -96,89 +137,27 @@ result_parameters = {
     ("tgeo_value_at_timestamptz", "value"),
 }
 
-# List of output function parameters in tuples of (function, parameter).
-# All parameters named result are assumed to be output parameters, and it is
-# not necessary to list them here.
-output_parameters = {
-    ("temporal_time_split", "time_bins"),
-    ("temporal_time_split", "count"),
-    ("tint_value_split", "bins"),
-    ("tint_value_split", "count"),
-    ("tfloat_value_split", "bins"),
-    ("tfloat_value_split", "count"),
-    ("tint_value_time_split", "value_bins"),
-    ("tint_value_time_split", "time_bins"),
-    ("tint_value_time_split", "count"),
-    ("tfloat_value_time_split", "value_bins"),
-    ("tfloat_value_time_split", "time_bins"),
-    ("tfloat_value_time_split", "count"),
-    ("tgeo_space_split", "space_bins"),
-    ("tgeo_space_split", "count"),
-    ("tgeo_space_time_split", "space_bins"),
-    ("tgeo_space_time_split", "time_bins"),
-    ("tgeo_space_time_split", "count"),
-    ("tbox_as_hexwkb", "size"),
-    ("stbox_as_hexwkb", "size"),
-    ("tintbox_value_time_tiles", "count"),
-    ("tfloatbox_value_time_tiles", "count"),
-    ("stbox_space_time_tiles", "count"),
-}
+# Populated from IDL shape entries at parse time; see ``_load_shape_pairs``.
+output_parameters: set[tuple[str, str]] = set()
+nullable_parameters: set[tuple[str, str]] = set()
 
-# List of nullable function parameters in tuples of (function, parameter)
-nullable_parameters = {
-    ("meos_initialize", "tz_str"),
-    ("meos_set_intervalstyle", "extra"),
-    ("temporal_append_tinstant", "maxt"),
-    ("temporal_as_mfjson", "srs"),
-    ("tstzspan_shift_scale", "shift"),
-    ("tstzspan_shift_scale", "duration"),
-    ("tstzset_shift_scale", "shift"),
-    ("tstzset_shift_scale", "duration"),
-    ("tstzspanset_shift_scale", "shift"),
-    ("tstzspanset_shift_scale", "duration"),
-    ("temporal_shift_scale_time", "shift"),
-    ("temporal_shift_scale_time", "duration"),
-    ("tbox_make", "p"),
-    ("tbox_make", "s"),
-    ("stbox_make", "p"),
-    ("stbox_shift_scale_time", "shift"),
-    ("stbox_shift_scale_time", "duration"),
-    ("temporal_tcount_transfn", "state"),
-    ("temporal_extent_transfn", "p"),
-    ("tnumber_extent_transfn", "box"),
-    ("tspatial_extent_transfn", "box"),
-    ("tbool_tand_transfn", "state"),
-    ("tbool_tor_transfn", "state"),
-    ("tbox_shift_scale_time", "shift"),
-    ("tbox_shift_scale_time", "duration"),
-    ("tint_tmin_transfn", "state"),
-    ("tfloat_tmin_transfn", "state"),
-    ("tint_tmax_transfn", "state"),
-    ("tfloat_tmax_transfn", "state"),
-    ("tint_tsum_transfn", "state"),
-    ("tfloat_tsum_transfn", "state"),
-    ("tnumber_tavg_transfn", "state"),
-    ("ttext_tmin_transfn", "state"),
-    ("ttext_tmax_transfn", "state"),
-    ("temporal_tcount_transfn", "interval"),
-    ("timestamptz_tcount_transfn", "interval"),
-    ("tstzset_tcount_transfn", "interval"),
-    ("tstzspan_tcount_transfn", "interval"),
-    ("tstzspanset_tcount_transfn", "interval"),
-    ("timestamptz_extent_transfn", "p"),
-    ("timestamptz_tcount_transfn", "state"),
-    ("tstzset_tcount_transfn", "state"),
-    ("tstzspan_tcount_transfn", "state"),
-    ("tstzspanset_tcount_transfn", "state"),
-    ("stbox_space_time_tiles", "duration"),
-    ("tintbox_value_time_tiles", "xorigin"),
-    ("tintbox_value_time_tiles", "torigin"),
-    ("tfloatbox_value_time_tiles", "xorigin"),
-    ("tfloatbox_value_time_tiles", "torigin"),
-    ("stbox_make", "s"),
-    ("tsequenceset_make_gaps", "maxt"),
-    ("geo_as_geojson", "srs"),
-}
+
+def _load_shape_pairs(idl: dict) -> None:
+    """Populate output_parameters / nullable_parameters from IDL shape data."""
+    for entry in idl["functions"]:
+        sh = entry.get("shape", {})
+        name = entry["name"]
+        for oa in sh.get("outputArrays", []):
+            output_parameters.add((name, oa["param"]))
+            # Most outputArrays come with an implicit count companion; the
+            # PyMEOS-CFFI auto-detect handles ``count`` ending in ``*'`` but
+            # split-family declarations carry the count explicitly via the
+            # arrayReturn.lengthFrom={"kind":"param","name":...} sibling.
+            length = sh.get("arrayReturn", {}).get("lengthFrom")
+            if length and length.get("kind") == "param":
+                output_parameters.add((name, length["name"]))
+        for nm in sh.get("nullable", []):
+            nullable_parameters.add((name, nm))
 
 
 # Checks if parameter in function is nullable
@@ -219,35 +198,10 @@ def check_modifiers(functions: list[str]) -> None:
             print(f"Nullable Parameter defined for non-existent function {func} ({param})")
 
 
-def remove_c_comments(code: str) -> str:
-    code = re.sub(r"/\*.*?\*/", "", code, flags=re.DOTALL)
-    code = re.sub(r"//.*?$", "", code, flags=re.MULTILINE)
-    return code
-
-
-def build_pymeos_functions(header_path="builder/meos.h"):
-    with open(header_path) as f:
-        content = f.read()
-
-    # Remove C comments from the header file
-    content = remove_c_comments(content)
-
-    # Regex lines:
-    # 1st line: Match beginning of function with optional "extern", "static" and
-    #           "inline"
-    # 2nd line: Match the return type as any alphanumeric string with optional "const"
-    #           modifier (before the type) or pointer modifier (after the type)
-    # 3rd line: Match the name of the function as any alphanumeric string
-    # 4th line: Match the parameters as any sequence of alphanumeric characters, commas,
-    #           spaces and asterisks between parenthesis and end with a semicolon.
-    #           (Parameter decomposition will be performed later)
-    f_regex = (
-        r"(?<!/\* )(?:extern )?(?:static )?(?:inline )?"
-        r"(?P<returnType>(?:const )?\w+(?: \*+)?)"
-        r"\s*(?P<function>\w+)\s*"
-        r"\((?P<params>[\w\s,\*]*)\);"
-    )
-    matches = re.finditer(f_regex, "".join(content.splitlines()))
+def build_pymeos_functions(idl_path="builder/meos-idl.json"):
+    with open(idl_path) as f:
+        idl = json.load(f)
+    _load_shape_pairs(idl)
 
     file_path = os.path.dirname(__file__)
     template_path = os.path.join(file_path, "templates/functions.py")
@@ -259,20 +213,25 @@ def build_pymeos_functions(header_path="builder/meos.h"):
     functions_path = os.path.join(file_path, "../pymeos_cffi/functions.py")
     init_path = os.path.join(file_path, "../pymeos_cffi/__init__.py")
 
+    entries_by_file = {h: [] for h in IDL_HEADER_ORDER}
+    for entry in idl["functions"]:
+        if entry["file"] in entries_by_file:
+            entries_by_file[entry["file"]].append(entry)
+
     with open(functions_path, "w+") as file:
         file.write(base)
-        for match in matches:
-            named = match.groupdict()
-            function = named["function"]
-            inner_return_type = named["returnType"]
-            if function in skipped_functions:
-                continue
-            return_type = get_return_type(inner_return_type)
-            inner_params = named["params"]
-            params = get_params(function, inner_params)
-            function_string = build_function_string(function, return_type, params)
-            file.write(function_string)
-            file.write("\n\n\n")
+        for header in IDL_HEADER_ORDER:
+            for entry in entries_by_file[header]:
+                function = entry["name"]
+                if function in skipped_functions:
+                    continue
+                if _references_opaque(entry):
+                    continue
+                return_type = get_return_type(entry["returnType"]["c"])
+                params = get_params(function, entry["params"])
+                function_string = build_function_string(function, return_type, params)
+                file.write(function_string)
+                file.write("\n\n\n")
 
     functions = []
     with open(functions_path) as funcs:
@@ -292,25 +251,14 @@ def build_pymeos_functions(header_path="builder/meos.h"):
     check_modifiers(functions)
 
 
-def get_params(function: str, inner_params: str) -> list[Parameter]:
-    if not inner_params:
-        return []
-    return [p for p in (get_param(function, param.strip()) for param in inner_params.split(",")) if p is not None]
+def get_params(function: str, params: list[dict]) -> list[Parameter]:
+    return [p for p in (get_param(function, entry) for entry in params) if p is not None]
 
 
-# Creates a Parameter object from a function parameter
-def get_param(function: str, inner_param: str) -> Parameter | None:
-    # Split param name and type
-    split = inner_param.split(" ")
-
-    # Type is everything except the last word
-    param_type = " ".join(split[:-1])
-
-    # Check if the parameter is a pointer and fix type and name accordingly
-    param_name = split[-1].lstrip("*")
-    pointer_level = len(split[-1]) - len(param_name)
-    if pointer_level > 0:
-        param_type += " " + "*" * pointer_level
+# Creates a Parameter object from a meos-idl.json parameter entry
+def get_param(function: str, entry: dict) -> Parameter | None:
+    param_name = entry["name"]
+    param_type = entry["cType"]
 
     # Check if the parameter name is a reserved word and change it if necessary
     reserved_words = {"str": "string", "is": "iset", "from": "from_"}
