@@ -30,8 +30,8 @@ def array_parameter_modifier(list_name: str, length_param_name: str | None = Non
 def textset_make_modifier(function: str) -> str:
     function = array_parameter_modifier("values", "count")(function)
     return (
-        function.replace("_ffi.cast('const text *', x)", "cstring2text(x)")
-        .replace("_ffi.cast('text *', x)", "cstring2text(x)")
+        function.replace("_ffi.cast('const text *', x)", "cstring_to_text(x)")
+        .replace("_ffi.cast('text *', x)", "cstring_to_text(x)")
         .replace("'list[const text]'", "list[str]")
         .replace("'list[text]'", "list[str]")
     )
@@ -65,16 +65,16 @@ def remove_error_check_modifier(function: str) -> str:
     return function.replace("    _check_error()\n", "")
 
 
-def cstring2text_modifier(_: str) -> str:
-    return """def cstring2text(cstring: str) -> 'text *':
+def cstring_to_text_modifier(_: str) -> str:
+    return """def cstring_to_text(cstring: str) -> 'text *':
     cstring_converted = cstring.encode('utf-8')
-    result = _lib.cstring2text(cstring_converted)
+    result = _lib.cstring_to_text(cstring_converted)
     return result"""
 
 
-def text2cstring_modifier(_: str) -> str:
-    return """def text2cstring(textptr: 'text *') -> str:
-    result = _lib.text2cstring(textptr)
+def text_to_cstring_modifier(_: str) -> str:
+    return """def text_to_cstring(textptr: 'text *') -> str:
+    result = _lib.text_to_cstring(textptr)
     result = _ffi.string(result).decode('utf-8')
     return result"""
 
