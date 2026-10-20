@@ -15,6 +15,7 @@ every layout against the installed library at compile time.
 """
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -47,28 +48,9 @@ typedef float float4;
 typedef void (*error_handler_fn)(int, int, const char *);
 """
 
-# The gsl random-number generator and the PROJ context are reached only through
-# their own boundary; reproduce the hand-written opaque declarations verbatim.
-PREAMBLE = """typedef struct
-  {
-    const char *name;
-    unsigned long int max;
-    unsigned long int min;
-    size_t size;
-    void (*set) (void *state, unsigned long int seed);
-    unsigned long int (*get) (void *state);
-    double (*get_double) (void *state);
-  }
-gsl_rng_type;
-
-typedef struct
-  {
-    const gsl_rng_type * type;
-    void *state;
-  }
-gsl_rng;
-
-struct pj_ctx;
+# The PROJ context is reached only through its own boundary; reproduce the
+# hand-written opaque declaration verbatim.
+PREAMBLE = """struct pj_ctx;
 typedef struct pj_ctx PJ_CONTEXT;
 """
 
@@ -121,7 +103,7 @@ _BASE_NAMES = {
     "float4",
     "error_handler_fn",
 }
-_PREAMBLE_NAMES = {"gsl_rng", "gsl_rng_type", "PJ_CONTEXT"}
+_PREAMBLE_NAMES = {"PJ_CONTEXT"}
 
 # Internal memory-layout accessors that meos_internal.h declares BOTH as an
 # extern function AND a function-like macro. The macro wins in the set_source
@@ -175,14 +157,19 @@ def _member_decl(ctype: str, name: str) -> str:
 
 
 class Emitter:
-    def __init__(self, idl: dict, defined: set[str]):
-        self.structs = idl["structs"]
-        self.enums = idl["enums"]
-        self.macros = idl.get("macros", [])
-        self.functions = idl["functions"]
+    def __init__(self, idl: dict, defined: set[str], installed: set[str] | None = None):
+        # Third-party code MobilityDB vendors (pgpointcloud's pc_api.h and
+        # hashtable.h, PostgreSQL's numeric) is flagged ``vendored`` by the
+        # catalog and is not MEOS surface: its functions and enums stay out, and
+        # a vendored struct a MEOS function names becomes an opaque handle.
+        self.structs = [s for s in idl["structs"] if not s.get("vendored")]
+        self.enums = [e for e in idl["enums"] if not e.get("vendored")]
+        self.macros = [m for m in idl.get("macros", []) if not m.get("vendored")]
+        self.functions = [f for f in idl["functions"] if not f.get("vendored")]
         self.struct_names = {s["name"] for s in self.structs}
         self.enum_names = {e["name"] for e in self.enums}
         self.defined = defined
+        self.installed = installed
         # External types the catalog references but does not define. Split by
         # how they are used: a value-typed one is a pointer / function-pointer
         # typedef (e.g. Numeric = NumericData *) → declare as a void pointer; a
@@ -207,20 +194,53 @@ class Emitter:
         else:
             self.opaque_value.add(base)
 
-    # -- structs: every MEOS type is an opaque handle at the CFFI boundary
-    # (like JMEOS's ``Pointer`` mapping). CFFI resolves each layout from the
-    # real headers ``set_source`` ``#include``s, so no fields are declared here
-    # and Python never reaches into a struct — it only passes the handle back to
-    # MEOS. This also sidesteps reproducing external field types (ArrowArray,
-    # NumericData, …) the catalog does not carry a layout for.
+    # -- structs: a concrete MEOS struct is a partial struct whose catalog
+    # fields are declared and closed by ``...;``, so CFFI takes the real
+    # layout from the headers ``set_source`` ``#include``s and Python reads the
+    # fields (``temptype``, ``Interval.day``, ``STBox.srid`` …) by name. A field
+    # is declared when its type is a scalar, an enum, or a MEOS struct already
+    # declared by value; pointer, flexible-array and external-typed fields stay
+    # behind the ``...;``, which CFFI allows to cover any undeclared member.
+    def _field_declarable(self, ctype: str, laid_out: set[str]) -> bool:
+        if "*" in ctype or "(" in ctype or "[]" in ctype:
+            return False
+        base = _base_name(ctype)
+        return base in _KNOWN_C or base in _BASE_NAMES or base in self.enum_names or base in laid_out
+
+    def _struct_order(self) -> list[dict]:
+        # A struct embedding another by value (TBox holds two Span) comes after
+        # it; otherwise the catalog order is kept.
+        by_name = {s["name"]: s for s in self.structs}
+        done: set[str] = set()
+        order: list[dict] = []
+
+        def visit(s: dict) -> None:
+            if s["name"] in done:
+                return
+            done.add(s["name"])
+            for f in s["fields"]:
+                dep = by_name.get(_base_name(f["cType"]))
+                if dep is not None and "*" not in f["cType"]:
+                    visit(dep)
+            order.append(s)
+
+        for s in self.structs:
+            visit(s)
+        return order
+
     def emit_structs(self) -> str:
         out = []
-        for s in self.structs:
+        laid_out: set[str] = set()
+        for s in self._struct_order():
             if s["fields"] and s["file"].startswith("meos"):
-                # A concrete MEOS struct whose real layout is in the headers
-                # set_source #includes: CFFI fills it (partial struct) and it can
-                # even be passed / returned by value.
-                out.append(f"typedef struct {{ ...; }} {s['name']};")
+                fields = [
+                    f"  {_member_decl(f['cType'], f['name'])};"
+                    for f in s["fields"]
+                    if f.get("name") and self._field_declarable(f["cType"], laid_out)
+                ]
+                body = "\n".join(fields + ["  ...;"])
+                out.append(f"typedef struct {{\n{body}\n}} {s['name']};")
+                laid_out.add(s["name"])
             else:
                 # Forward-declared / opaque MEOS struct (Cbuffer, SkipList …) or
                 # an external ABI struct from a non-MEOS header (ArrowArray,
@@ -252,6 +272,11 @@ class Emitter:
             return "macro-aliased internal accessor"
         if name not in self.defined and ("_" + name) not in self.defined:
             return "undefined"
+        if self.installed is not None and fn["file"] not in self.installed:
+            # Exported by libmeos but declared in a header the install leaves
+            # behind (the internal pgtypes.h umbrella): the compiled unit sees
+            # no prototype, so C would call it as returning int.
+            return f"header {fn['file']} not installed"
         sig = fn["returnType"]["c"] + " " + " ".join(p["cType"] for p in fn["params"])
         for t in UNDEFINED_TYPES:
             if t in sig:
@@ -322,14 +347,28 @@ def get_defined_functions(library_path: str) -> set[str]:
     return {line.split(" ")[-1] for line in output.splitlines() if " T " in line}
 
 
+def get_installed_headers(library_path: str) -> set[str] | None:
+    """The header names installed beside the library (``<prefix>/include``)."""
+    include_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(library_path))), "include")
+    if not os.path.isdir(include_dir):
+        return None
+    return {f for _, _, files in os.walk(include_dir) for f in files if f.endswith(".h")}
+
+
 def build_header_file(idl_path="builder/meos-idl.json", so_path=None, destination_path="builder/meos.h"):
     with open(idl_path) as f:
         idl = json.load(f)
-    # With the library at hand, keep only the functions it actually defines;
-    # without it, keep every catalog function, since CI always builds it.
-    defined = get_defined_functions(so_path) if so_path else {fn["name"] for fn in idl["functions"]}
+    # With the library at hand, keep only the functions it actually defines and
+    # whose header its prefix installs; without it, keep every catalog function,
+    # since CI always builds it.
+    if so_path:
+        defined = get_defined_functions(so_path)
+        installed = get_installed_headers(so_path)
+    else:
+        defined = {fn["name"] for fn in idl["functions"]}
+        installed = None
     with open(destination_path, "w") as f:
-        f.write(Emitter(idl, defined).generate())
+        f.write(Emitter(idl, defined, installed).generate())
 
 
 if __name__ == "__main__":
