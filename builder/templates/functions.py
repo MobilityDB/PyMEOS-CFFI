@@ -52,19 +52,19 @@ def get_address(value: "Any") -> Annotated[_ffi.CData, "Any *"]:
 
 
 def datetime_to_timestamptz(dt: datetime) -> Annotated[int, "TimestampTz"]:
-    return _lib.pg_timestamptz_in(dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1)
+    return _lib.timestamptz_in(dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1)
 
 
 def timestamptz_to_datetime(ts: Annotated[int, "TimestampTz"]) -> datetime:
-    return parse(pg_timestamptz_out(ts))
+    return parse(timestamptz_out(ts))
 
 
 def date_to_date_adt(dt: date) -> Annotated[int, "DateADT"]:
-    return _lib.pg_date_in(dt.strftime("%Y-%m-%d").encode("utf-8"))
+    return _lib.date_in(dt.strftime("%Y-%m-%d").encode("utf-8"))
 
 
 def date_adt_to_date(ts: Annotated[int, "DateADT"]) -> date:
-    return parse(pg_date_out(ts)).date()
+    return parse(date_out(ts)).date()
 
 
 def timedelta_to_interval(td: timedelta) -> Any:

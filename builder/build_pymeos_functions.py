@@ -1,5 +1,6 @@
 import json
 import os.path
+import re
 import shutil
 import subprocess
 import sys
@@ -7,32 +8,16 @@ import sys
 from build_pymeos_functions_modifiers import *
 from objects import Conversion, conversion_map
 
-# Headers PyMEOS-CFFI wraps, in the same iteration order as
-# builder/build_header.py concatenates them into builder/meos.h.  Iteration
-# order is preserved so the generated functions.py groups symbols by their
-# defining header.
-IDL_HEADER_ORDER = [
-    "meos.h",
-    "meos_catalog.h",
-    "meos_geo.h",
-    "meos_internal.h",
-    "meos_internal_geo.h",
-    "meos_npoint.h",
-    "meos_cbuffer.h",
-    "meos_pose.h",
-    "meos_rgeo.h",
-]
-
-# Types declared in MEOS headers but not exposed through the CFFI cdef.
-# Mirrors builder/build_header.py's ``undefined_types`` list: functions whose
-# signatures reference these are skipped at codegen time.
-IDL_OPAQUE_TYPES = ("json_object",)
+# The wrappers project exactly the functions the CFFI cdef declares: build_header.py
+# emits builder/meos.h from the same catalog, keeping the functions libmeos defines and
+# whose types cross the CFFI boundary, so functions.py follows it rather than a list of
+# headers. Catalog order is kept, which groups the wrappers by defining header.
+_CDEF_FUNCTION = re.compile(r"^extern .*?\b(\w+)\(", re.MULTILINE)
 
 
-def _references_opaque(entry: dict) -> bool:
-    if any(t in entry["returnType"]["c"] for t in IDL_OPAQUE_TYPES):
-        return True
-    return any(any(t in p["cType"] for t in IDL_OPAQUE_TYPES) for p in entry["params"])
+def cdef_functions(header_path: str) -> set[str]:
+    with open(header_path) as f:
+        return set(_CDEF_FUNCTION.findall(f.read()))
 
 
 class Parameter:
@@ -91,8 +76,8 @@ function_notes = {}
 function_modifiers = {
     "meos_initialize": meos_initialize_modifier,
     "meos_finalize": remove_error_check_modifier,
-    "cstring2text": cstring2text_modifier,
-    "text2cstring": text2cstring_modifier,
+    "cstring_to_text": cstring_to_text_modifier,
+    "text_to_cstring": text_to_cstring_modifier,
     "spanset_make": spanset_make_modifier,
     "temporal_from_wkb": from_wkb_modifier("temporal_from_wkb", "Temporal"),
     "set_from_wkb": from_wkb_modifier("set_from_wkb", "Set"),
@@ -161,6 +146,10 @@ def _load_shape_pairs(idl: dict) -> None:
             output_parameters.add((name, length["name"]))
         for oa in sh.get("outputArrays", []):
             output_parameters.add((name, oa["param"]))
+        # outParams lists every parameter the function writes through for its
+        # caller (an output geometry array, an output box, a value_n result).
+        for param in sh.get("outParams", []):
+            output_parameters.add((name, param))
         for nm in sh.get("nullable", []):
             nullable_parameters.add((name, nm))
 
@@ -203,7 +192,7 @@ def check_modifiers(functions: list[str]) -> None:
             print(f"Nullable Parameter defined for non-existent function {func} ({param})")
 
 
-def build_pymeos_functions(idl_path="builder/meos-idl.json"):
+def build_pymeos_functions(idl_path="builder/meos-idl.json", header_path="builder/meos.h"):
     with open(idl_path) as f:
         idl = json.load(f)
     _load_shape_pairs(idl)
@@ -218,25 +207,18 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json"):
     functions_path = os.path.join(file_path, "../pymeos_cffi/functions.py")
     init_path = os.path.join(file_path, "../pymeos_cffi/__init__.py")
 
-    entries_by_file = {h: [] for h in IDL_HEADER_ORDER}
-    for entry in idl["functions"]:
-        if entry["file"] in entries_by_file:
-            entries_by_file[entry["file"]].append(entry)
-
+    declared = cdef_functions(header_path)
     with open(functions_path, "w+") as file:
         file.write(base)
-        for header in IDL_HEADER_ORDER:
-            for entry in entries_by_file[header]:
-                function = entry["name"]
-                if function in skipped_functions:
-                    continue
-                if _references_opaque(entry):
-                    continue
-                return_type = get_return_type(entry["returnType"]["c"])
-                params = get_params(function, entry["params"])
-                function_string = build_function_string(function, return_type, params)
-                file.write(function_string)
-                file.write("\n\n\n")
+        for entry in idl["functions"]:
+            function = entry["name"]
+            if function not in declared or function in skipped_functions:
+                continue
+            return_type = get_return_type(entry["returnType"]["c"])
+            params = get_params(function, entry["params"])
+            function_string = build_function_string(function, return_type, params)
+            file.write(function_string)
+            file.write("\n\n\n")
 
     functions = []
     with open(functions_path) as funcs:
@@ -438,19 +420,22 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     elif return_type.return_type != "None":
         result_manipulation = (result_manipulation or "") + "    return result if result != _ffi.NULL else None"
 
-    # For each output param
+    # For each output param, create the CFFI object to hold it
     for out_param in out_params:
-        # Create the CFFI object to hold it
         param_conversions += f"\n    {out_param.name} = _ffi.new('{out_param.ctype}')"
-        # Add its type to the return type of the function, removing the pointer modifier
-        # if necessary
-        function_return_type += ", " + out_param.get_ptype_without_pointers()
-        # Add it to the return statement
-        result_manipulation += f", {out_param.name}[0]"
+    out_types = [p.get_ptype_without_pointers() for p in out_params]
+    out_values = [f"{p.name}[0]" for p in out_params]
 
-    # If there are output params, wrap the function return type in a tuple
-    if len(out_params) > 0:
-        function_return_type = f"tuple[{function_return_type}]"
+    if out_params and result_manipulation is None:
+        # A void function answers only through its output params, so they alone
+        # are returned
+        function_return_type = out_types[0] if len(out_types) == 1 else f"tuple[{', '.join(out_types)}]"
+        result_manipulation = "    return " + ", ".join(out_values)
+    elif out_params:
+        # Otherwise they go along with the result, removing the pointer modifier
+        # from their types if necessary
+        function_return_type = f"tuple[{', '.join([function_return_type] + out_types)}]"
+        result_manipulation += "".join(f", {value}" for value in out_values)
 
     # Add padding to param conversions
     if len(param_conversions) > 0:
