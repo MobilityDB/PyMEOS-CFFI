@@ -1,22 +1,26 @@
 import json
 import os
+import re
 
 from cffi import FFI
 
-# The MEOS public headers to #include in the compiled extension, derived from
-# the catalog's own ``file`` field so a new family header rides in with the
-# next catalog refresh — no hand-maintained list. The PostgreSQL-compat headers
-# (pg_*.h, pgtypes.h) are pulled transitively by meos.h.
-with open(os.path.join(os.path.dirname(__file__), "meos-idl.json")) as f:
+# The headers to #include in the compiled extension: the defining header of
+# every function the cdef (builder/meos.h) declares, and of every MEOS struct,
+# both read from the catalog's own ``file`` field so a new family header rides
+# in with the next catalog refresh — no hand-maintained list. Each cdef
+# function thereby has its prototype in the compiled unit.
+_builder_dir = os.path.dirname(__file__)
+with open(os.path.join(_builder_dir, "meos-idl.json")) as f:
     _idl = json.load(f)
-_files = {e["file"] for e in _idl["functions"] + _idl["structs"]}
-header_files = sorted(f for f in _files if f.startswith("meos"))
+with open(os.path.join(_builder_dir, "meos.h")) as f:
+    content = f.read()
+_declared = set(re.findall(r"^extern .*?\b(\w+)\(", content, re.MULTILINE))
+_files = {e["file"] for e in _idl["functions"] if e["name"] in _declared}
+_files |= {e["file"] for e in _idl["structs"] if e["file"].startswith("meos")}
+# meos.h first: the other headers build on the types it declares.
+header_files = sorted(_files, key=lambda h: (h != "meos.h", h))
 
 ffibuilder = FFI()
-
-with open(os.path.join(os.path.dirname(__file__), "meos.h")) as f:
-    content = f.read()
-
 ffibuilder.cdef(content)
 
 
@@ -83,6 +87,9 @@ ffibuilder.set_source(
     library_dirs=get_library_dirs(),
     include_dirs=get_include_dirs(),
     define_macros=[("MEOS", "1")] + [(f, "1") for f in ALL_FAMILIES],
+    # A cdef function the #included headers do not declare would be called as
+    # returning int, truncating every 64-bit result; refuse to build instead.
+    extra_compile_args=["-Werror=implicit-function-declaration"],
 )
 
 if __name__ == "__main__":  # not when running with setuptools
