@@ -5799,11 +5799,11 @@ def tbox_as_hexwkb(
 ) -> tuple[Annotated[str, "char *"], Annotated[_ffi.CData, "size_t *"]]:
     box_converted = _ffi.cast("const TBox *", box)
     variant_converted = _ffi.cast("uint8_t", variant)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tbox_as_hexwkb(box_converted, variant_converted, size_out)
+    size = _ffi.new("size_t *")
+    result = _lib.tbox_as_hexwkb(box_converted, variant_converted, size)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None, size_out[0]
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def tbox_as_wkb(
@@ -10713,11 +10713,11 @@ def temporal_time_split(
     temp_converted = _ffi.cast("const Temporal *", temp)
     duration_converted = _ffi.cast("const Interval *", duration)
     torigin_converted = _ffi.cast("TimestampTz", torigin)
-    bins = _ffi.new("TimestampTz **")
+    time_bins = _ffi.new("TimestampTz **")
     count = _ffi.new("int *")
-    result = _lib.temporal_time_split(temp_converted, duration_converted, torigin_converted, bins, count)
+    result = _lib.temporal_time_split(temp_converted, duration_converted, torigin_converted, time_bins, count)
     _check_error()
-    return result if result != _ffi.NULL else None, bins[0], count[0]
+    return result if result != _ffi.NULL else None, time_bins[0], count[0]
 
 
 def tfloat_time_boxes(
@@ -12448,11 +12448,11 @@ def stbox_as_hexwkb(
 ) -> tuple[Annotated[str, "char *"], Annotated[_ffi.CData, "size_t *"]]:
     box_converted = _ffi.cast("const STBox *", box)
     variant_converted = _ffi.cast("uint8_t", variant)
-    size_out = _ffi.new("size_t *")
-    result = _lib.stbox_as_hexwkb(box_converted, variant_converted, size_out)
+    size = _ffi.new("size_t *")
+    result = _lib.stbox_as_hexwkb(box_converted, variant_converted, size)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None, size_out[0]
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def stbox_as_wkb(
@@ -17634,11 +17634,11 @@ def tinstant_values_p(
 
 
 def tnumber_set_span(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "Span *"]
+    temp: Annotated[_ffi.CData, "const Temporal *"], span: Annotated[_ffi.CData, "Span *"]
 ) -> Annotated[None, "void"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("Span *", s)
-    _lib.tnumber_set_span(temp_converted, s_converted)
+    span_converted = _ffi.cast("Span *", span)
+    _lib.tnumber_set_span(temp_converted, span_converted)
     _check_error()
 
 

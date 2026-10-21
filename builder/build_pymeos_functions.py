@@ -1,5 +1,7 @@
 import json
 import os.path
+import shutil
+import subprocess
 import sys
 
 from build_pymeos_functions_modifiers import *
@@ -248,7 +250,19 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json"):
     with open(init_path, "w+") as init:
         init.write(init_text)
 
+    format_generated([functions_path, init_path])
     check_modifiers(functions)
+
+
+def format_generated(paths: list[str]) -> None:
+    """Format the generated surface with ruff, the formatter the lint workflow checks, so
+    a regeneration -- by hand, by tools/refresh.conf or by the scheduled refresh -- is
+    ruff-clean as written: the generated signatures run past the line length until ruff
+    folds them. Runs the tool as #get_defined_functions of build_header.py runs nm, a
+    failure raising, since an unformatted surface fails the lint workflow."""
+    ruff = shutil.which("ruff")
+    command = [ruff] if ruff else [sys.executable, "-m", "ruff"]
+    subprocess.check_call(command + ["format", "--quiet", *paths])
 
 
 def get_params(function: str, params: list[dict]) -> list[Parameter]:
