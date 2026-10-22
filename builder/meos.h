@@ -945,7 +945,7 @@ extern TimestampTz timestamptz_get_bin(TimestampTz t, const Interval *duration, 
 extern Span *tstzspan_bins(const Span *s, const Interval *duration, TimestampTz origin, int *count);
 extern Span *tstzspanset_bins(const SpanSet *ss, const Interval *duration, TimestampTz torigin, int *count);
 
-extern char *tbox_as_hexwkb(const TBox *box, uint8_t variant, size_t *size);
+extern char *tbox_as_hexwkb(const TBox *box, uint8_t variant, size_t *size_out);
 extern uint8_t *tbox_as_wkb(const TBox *box, uint8_t variant, size_t *size_out);
 extern TBox *tbox_from_hexwkb(const char *hexwkb);
 extern TBox *tbox_from_wkb(const uint8_t *wkb, size_t size);
@@ -1536,7 +1536,7 @@ extern Match *temporal_frechet_path(const Temporal *temp1, const Temporal *temp2
 extern double temporal_hausdorff_distance(const Temporal *temp1, const Temporal *temp2);
 
 extern Span *temporal_time_bins(const Temporal *temp, const Interval *duration, TimestampTz origin, int *count);
-extern Temporal **temporal_time_split(const Temporal *temp, const Interval *duration, TimestampTz torigin, TimestampTz **time_bins, int *count);
+extern Temporal **temporal_time_split(const Temporal *temp, const Interval *duration, TimestampTz torigin, TimestampTz **bins, int *count);
 extern TBox *tfloat_time_boxes(const Temporal *temp, const Interval *duration, TimestampTz torigin, int *count);
 extern Span *tfloat_value_bins(const Temporal *temp, double vsize, double vorigin, int *count);
 extern TBox *tfloat_value_boxes(const Temporal *temp, double vsize, double vorigin, int *count);
@@ -2282,7 +2282,7 @@ extern int32_t spatialset_srid(const Set *s);
 extern Set *spatialset_transform(const Set *s, int32_t srid);
 extern Set *spatialset_transform_pipeline(const Set *s, const char *pipelinestr, int32_t srid, bool is_forward);
 
-extern char *stbox_as_hexwkb(const STBox *box, uint8_t variant, size_t *size);
+extern char *stbox_as_hexwkb(const STBox *box, uint8_t variant, size_t *size_out);
 extern uint8_t *stbox_as_wkb(const STBox *box, uint8_t variant, size_t *size_out);
 extern STBox *stbox_from_hexwkb(const char *hexwkb);
 extern STBox *stbox_from_wkb(const uint8_t *wkb, size_t size);
@@ -3013,7 +3013,7 @@ extern Datum tinstant_value_p(const TInstant *inst);
 extern Datum tinstant_value(const TInstant *inst);
 extern bool tinstant_value_at_timestamptz(const TInstant *inst, TimestampTz t, Datum *result);
 extern Datum *tinstant_values_p(const TInstant *inst, int *count);
-extern void tnumber_set_span(const Temporal *temp, Span *span);
+extern void tnumber_set_span(const Temporal *temp, Span *s);
 extern SpanSet *tnumberinst_valuespans(const TInstant *inst);
 extern double tnumberseq_avg_val(const TSequence *seq);
 extern SpanSet *tnumberseq_valuespans(const TSequence *seq);
