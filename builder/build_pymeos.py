@@ -68,16 +68,16 @@ def get_include_dirs():
 # guarded by ``#if <FAMILY>`` are otherwise preprocessed out and diverge from
 # the catalog. In sync with MobilityDB CMakeLists.txt's ``if(ALL)`` loop.
 ALL_FAMILIES = (
-    "ARROW",
     "CBUFFER",
     "H3",
     "JSON",
     "NPOINT",
     "POINTCLOUD",
     "POSE",
+    "RGEO",
     "QUADBIN",
     "RASTER",
-    "RGEO",
+    "S2CELL",
 )
 
 ffibuilder.set_source(
