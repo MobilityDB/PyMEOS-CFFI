@@ -3,11 +3,20 @@ name: PR build validation
 on:
   pull_request:
     branches: [master, "stable-[0-9]+.[0-9]+"]
+  # A push run validates the merged branch and saves the Homebrew cache under its ref,
+  # the one a pull request into it restores; a cache a pull request saves is its own.
+  push:
+    branches: [master, "stable-[0-9]+.[0-9]+"]
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+# The macOS builds read this run's artifacts and jobs while they wait for the catalog.
+permissions:
+  actions: read
+  contents: read
 
 jobs:
   # Derive the MEOS catalog ONCE from a single MobilityDB commit via the shared
@@ -75,8 +84,13 @@ jobs:
           python -m build -s
           ls -l dist
 
+      # The generated extension is thin call glue, so the validation build compiles it
+      # at -O0, about four times faster than the interpreter's -O2. Release wheels keep
+      # the interpreter's optimisation.
       - name: Install from sdist
         shell: bash
+        env:
+          CFLAGS: "-O0"
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
           pip install dist/pymeos_cffi-*.tar.gz
@@ -90,12 +104,13 @@ jobs:
           python builder/smoke_test.py
 
   # macOS reuses the OS-independent catalog derived on Linux (provision-meos is
-  # Linux-only) and builds the all-families libmeos from the same pinned commit.
-  # The header is then projected from that catalog and the wheel validated — no
-  # MEOS header is parsed here either.
+  # Linux-only) and builds the all-families libmeos from the same MobilityDB commit.
+  # It runs beside the Linux job: the Homebrew tools and the libmeos build need no
+  # catalog, so the job fetches it once its library is installed and the Linux job
+  # has uploaded it. The header is then projected from that catalog and the
+  # wheel validated — no MEOS header is parsed here either.
   macos:
     name: Build PyMEOS CFFI on ${{ matrix.os }} (all families)
-    needs: linux
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -110,11 +125,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download the derived catalog
-        uses: actions/download-artifact@v4
-        with:
-          name: meos-idl
-          path: builder
+      - name: Derive MEOS branch from package version
+        id: meos_branch
+        shell: bash
+        run: |
+          python_version=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' pymeos_cffi/__init__.py)
+          major_minor=$(echo "$python_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
+          candidate="stable-${major_minor}"
+          if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
+            meos_branch=$candidate
+          else
+            meos_branch="master"
+          fi
+          echo "Package version $python_version => MEOS branch $meos_branch"
+          echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
 
       - name: Install MEOS build deps (macOS)
         uses: tecolicom/actions-use-homebrew-tools@v1
@@ -124,7 +148,7 @@ jobs:
       - name: Build and install the all-families MEOS
         shell: bash
         run: |
-          git clone --depth 1 --branch ${{ needs.linux.outputs.meos_branch }} \
+          git clone --depth 1 --branch ${{ steps.meos_branch.outputs.meos_branch }} \
             https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
@@ -134,6 +158,44 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
           make -j"$(sysctl -n hw.ncpu)"
           sudo make install
+
+      # The Linux job uploads the catalog right after deriving it. A Linux job that ends
+      # without it fails this job at once rather than at the time limit.
+      - name: Wait for the derived catalog
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run="repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          for attempt in $(seq 1 90); do
+            found=$(gh api "$run/artifacts" --jq '[.artifacts[] | select(.name == "meos-idl")] | length')
+            [ "$found" -ge 1 ] && exit 0
+            linux=$(gh api "$run/jobs" --jq '[.jobs[] | select(.name | startswith("Provision catalog")) | .status][0]')
+            if [ "$linux" = "completed" ]; then
+              echo "::error::the Linux job completed without uploading the meos-idl catalog"
+              exit 1
+            fi
+            sleep 20
+          done
+          echo "::error::the meos-idl catalog is not uploaded after 30 minutes"
+          exit 1
+
+      - name: Download the derived catalog
+        uses: actions/download-artifact@v4
+        with:
+          name: meos-idl
+          path: builder
+
+      - name: Check the catalog and the library come from one MobilityDB commit
+        shell: bash
+        run: |
+          catalog=$(python3 -c "import json; print(json.load(open('builder/meos-idl.json'))['sourceCommit'])")
+          library=$(git -C MobilityDB rev-parse HEAD)
+          echo "catalog $catalog, libmeos $library"
+          if [ "$catalog" != "$library" ]; then
+            echo "::error::the catalog is derived from MobilityDB $catalog and libmeos is built from $library"
+            exit 1
+          fi
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -156,6 +218,8 @@ jobs:
 
       - name: Install from sdist
         shell: bash
+        env:
+          CFLAGS: "-O0"
         run: |
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           pip install dist/pymeos_cffi-*.tar.gz
