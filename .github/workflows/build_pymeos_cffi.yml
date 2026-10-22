@@ -15,8 +15,7 @@ jobs:
       is_beta: ${{ steps.check_beta.outputs.is_beta }}
       is_rc: ${{ steps.check_rc.outputs.is_rc }}
       is_prerelease: ${{ steps.check_prerelease.outputs.is_prerelease }}
-      branch: ${{ steps.check_branch.outputs.branch }}
-      meos_branch: ${{ steps.check_branch.outputs.meos_branch }}
+      meos_branch: ${{ steps.meos_branch.outputs.meos_branch }}
       version: ${{ steps.check_version.outputs.version }}
 
     steps:
@@ -86,23 +85,18 @@ jobs:
             exit 1
           fi
 
-      - name: Check branch name
-        id: check_branch
+      - name: Derive MEOS branch from package version
+        id: meos_branch
         run: |
-          raw=$(git branch -r --contains ${{ github.ref }})
-          branch=${raw##*/}
-          echo "Branch is $branch."
-          if [ -z "$branch" ]; then
-            branch="master"
-            echo "Branch not found. Using master."
+          tag_version=${GITHUB_REF#refs/tags/v}
+          major_minor=$(echo "$tag_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
+          candidate="stable-${major_minor}"
+          if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
+            meos_branch=$candidate
+          else
+            meos_branch="master"
           fi
-          echo "branch=$branch" >> $GITHUB_OUTPUT
-          exists=$(git ls-remote https://github.com/MobilityDB/MobilityDB $branch)
-          meos_branch="master"
-          if [ -n "$exists" ]; then
-            meos_branch=$branch
-          fi
-          echo "MEOS branch is $meos_branch."
+          echo "Package version $tag_version => MEOS branch $meos_branch"
           echo "meos_branch=$meos_branch" >> $GITHUB_OUTPUT
 
       - name: Check version
