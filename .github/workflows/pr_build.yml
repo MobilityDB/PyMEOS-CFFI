@@ -62,7 +62,8 @@ jobs:
           mkdir MobilityDB/build
           cd MobilityDB/build
           if [ "${{ runner.os }}" = "macOS" ]; then
-            export MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
+            # The Homebrew libraries it links are built for the runner's macOS.
+            export MACOSX_DEPLOYMENT_TARGET="$(sw_vers -productVersion | cut -d. -f1).0"
           fi
           cmake .. -DMEOS=ON -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}

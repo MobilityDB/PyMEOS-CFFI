@@ -164,6 +164,12 @@ jobs:
         run: |
           brew update
 
+      # The Homebrew libraries the wheel bundles are built for the runner's macOS.
+      - name: Set the macOS deployment target
+        if: runner.os == 'macOS'
+        run: |
+          echo "MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion | cut -d. -f1).0" >> $GITHUB_ENV
+
       - name: Get PROJ version
         id: proj_version
         if: runner.os == 'macOS'
@@ -178,7 +184,6 @@ jobs:
           git clone --depth 1 --branch ${{ needs.checks.outputs.meos_branch }} https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
-          export MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
           cmake .. -DMEOS=on
           make -j
           sudo make install
@@ -218,8 +223,6 @@ jobs:
           # Disable builds in linux architectures other than x86_64
           CIBW_ARCHS_LINUX: "x86_64"
           CIBW_ENVIRONMENT_PASS_LINUX: PACKAGE_DATA LD_LIBRARY_PATH PROJ_DATA C_INCLUDE_PATH
-          CIBW_ENVIRONMENT_MACOS: >
-            MACOSX_DEPLOYMENT_TARGET="${{ matrix.os == 'macos-14' && 14 || 13.6 }}"
           CIBW_BEFORE_ALL_LINUX: >
             dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&
             dnf -qy module disable postgresql &&
