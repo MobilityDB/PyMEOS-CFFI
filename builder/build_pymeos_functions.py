@@ -100,7 +100,7 @@ result_parameters = {
 # All parameters named result are assumed to be output parameters, and it is
 # not necessary to list them here.
 output_parameters = {
-    ("temporal_time_split", "time_bins"),
+    ("temporal_time_split", "bins"),
     ("temporal_time_split", "count"),
     ("tint_value_split", "bins"),
     ("tint_value_split", "count"),
@@ -117,8 +117,6 @@ output_parameters = {
     ("tgeo_space_time_split", "space_bins"),
     ("tgeo_space_time_split", "time_bins"),
     ("tgeo_space_time_split", "count"),
-    ("tbox_as_hexwkb", "size"),
-    ("stbox_as_hexwkb", "size"),
     ("tintbox_value_time_tiles", "count"),
     ("tfloatbox_value_time_tiles", "count"),
     ("stbox_space_time_tiles", "count"),
