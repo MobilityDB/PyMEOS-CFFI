@@ -35,6 +35,8 @@ class Parameter:
         self.ctype = ctype
         self.ptype = ptype
         self.cp_conversion = cp_conversion
+        # A length taken from the array it counts is not a Python argument (#apply_input_arrays).
+        self.derived = False
 
     def is_interoperable(self):
         return any(self.ctype.startswith(x) for x in ["int", "bool", "double", "TimestampTz"])
@@ -78,27 +80,12 @@ function_modifiers = {
     "meos_finalize": remove_error_check_modifier,
     "cstring_to_text": cstring_to_text_modifier,
     "text_to_cstring": text_to_cstring_modifier,
-    "spanset_make": spanset_make_modifier,
-    "temporal_from_wkb": from_wkb_modifier("temporal_from_wkb", "Temporal"),
-    "set_from_wkb": from_wkb_modifier("set_from_wkb", "Set"),
-    "span_from_wkb": from_wkb_modifier("span_from_wkb", "Span"),
-    "spanset_from_wkb": from_wkb_modifier("spanset_from_wkb", "SpanSet"),
-    "tbox_from_wkb": from_wkb_modifier("tbox_from_wkb", "TBOX"),
-    "stbox_from_wkb": from_wkb_modifier("stbox_from_wkb", "STBOX"),
     "temporal_as_wkb": as_wkb_modifier,
     "set_as_wkb": as_wkb_modifier,
     "span_as_wkb": as_wkb_modifier,
     "spanset_as_wkb": as_wkb_modifier,
     "tbox_as_wkb": as_wkb_modifier,
     "stbox_as_wkb": as_wkb_modifier,
-    "tstzset_make": tstzset_make_modifier,
-    "dateset_make": array_parameter_modifier("values", "count"),
-    "intset_make": array_parameter_modifier("values", "count"),
-    "bigintset_make": array_parameter_modifier("values", "count"),
-    "floatset_make": array_parameter_modifier("values", "count"),
-    "textset_make": textset_make_modifier,
-    "geoset_make": array_length_remover_modifier("values", "count"),
-    "tsequenceset_make_gaps": array_length_remover_modifier("instants", "count"),
     "mi_span_span": mi_span_span_modifier,
 }
 
@@ -138,11 +125,14 @@ def _load_shape_pairs(idl: dict) -> None:
         sh = entry.get("shape", {})
         name = entry["name"]
         # arrayReturn.lengthFrom={"kind":"param","name":...} marks the named
-        # parameter as an output count.  It applies to both plain
-        # ``T *foo(..., int *count)`` returns and to the split-family which
-        # additionally lists outputArrays parallel to the primary return.
+        # parameter as an output count when MEOS writes it through a pointer.  It
+        # applies to both plain ``T *foo(..., int *count)`` returns and to the
+        # split-family which additionally lists outputArrays parallel to the
+        # primary return.  A count taken by value is the length of an input array
+        # the return matches, as in ``stboxarr_round(boxarr, count, maxdd)``.
         length = sh.get("arrayReturn", {}).get("lengthFrom")
-        if length and length.get("kind") == "param":
+        ctypes = {p["name"]: p["cType"] for p in entry["params"]}
+        if length and length.get("kind") == "param" and ctypes.get(length["name"], "").rstrip().endswith("*"):
             output_parameters.add((name, length["name"]))
         for oa in sh.get("outputArrays", []):
             output_parameters.add((name, oa["param"]))
@@ -196,6 +186,7 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json", header_path="builde
     with open(idl_path) as f:
         idl = json.load(f)
     _load_shape_pairs(idl)
+    struct_names = {s["name"] for s in idl["structs"]}
 
     file_path = os.path.dirname(__file__)
     template_path = os.path.join(file_path, "templates/functions.py")
@@ -216,6 +207,8 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json", header_path="builde
                 continue
             return_type = get_return_type(entry["returnType"]["c"])
             params = get_params(function, entry["params"])
+            if entry["api"] == "public":
+                apply_input_arrays(params, entry.get("shape", {}).get("inputArrays", []), struct_names)
             function_string = build_function_string(function, return_type, params)
             file.write(function_string)
             file.write("\n\n\n")
@@ -248,6 +241,70 @@ def format_generated(paths: list[str]) -> None:
     ruff = shutil.which("ruff")
     command = [ruff] if ruff else [sys.executable, "-m", "ruff"]
     subprocess.check_call(command + ["format", "--quiet", *paths])
+
+
+def apply_input_arrays(params: list[Parameter], input_arrays: list[dict], struct_names: set[str]) -> None:
+    """Turn each array the catalog's ``shape.inputArrays`` names into one Python list.
+
+    MEOS takes an array as a pointer plus the parameter its ``lengthFrom`` names; Python
+    takes the list, whose length is the count. Arrays sharing one count are read in
+    parallel, so each must be as long as the first of them, as the array readers of
+    MEOS.NET's tools/objectgen.py state. An array of ``uint8_t`` is ``bytes``. Each
+    element converts as #get_param_conversion converts a scalar argument of its type,
+    a pointer element is cast to it, and a struct element is the struct itself, as
+    PyMEOS passes ``span._inner[0]``. CFFI builds the C array from the list for the call, of
+    the element type the cdef declares. Only a public function's arrays are lists: an
+    internal one such as ``tsequence_make_free`` frees the array it is given, which
+    must then be MEOS's own and not one CFFI builds for the call."""
+    by_name = {p.name: p for p in params}
+    first_of_count: dict[str, str] = {}
+    for array in input_arrays:
+        param = by_name.get(array["param"])
+        length = by_name.get(array["lengthFrom"]["name"])
+        if param is None or length is None:
+            continue
+        name = param.name
+        element = array["element"]["c"]
+        nullable = param.ptype.endswith("| None")
+        first = first_of_count.setdefault(length.name, name)
+
+        if element == "uint8_t":
+            ptype = "bytes"
+            value = f"_ffi.new('uint8_t []', {name})"
+        else:
+            conversion = conversion_map.get(element)
+            if element.endswith("*") and (conversion is None or conversion.p_to_c is None):
+                item_type = f"Annotated[_ffi.CData, '{element}']"
+                item = f"_ffi.cast('{element}', x)"
+            elif element in struct_names:
+                item_type = f"Annotated[_ffi.CData, '{element}']"
+                item = None
+            elif conversion is not None:
+                item_type = conversion.p_type
+                item = conversion.p_to_c("x") if conversion.p_to_c else None
+            else:
+                item_type = f"Annotated[int, '{element}']"
+                item = None
+            ptype = f"list[{item_type}]"
+            value = f"[{item} for x in {name}]" if item else name
+
+        checks = []
+        if name != first:
+            guard = f"{name} is not None and " if nullable else ""
+            checks.append(
+                f"if {guard}len({name}) != len({first}):\n"
+                f"        raise ValueError('{name} and {first} must have the same length')"
+            )
+        if nullable:
+            ptype += " | None"
+            value += f" if {name} is not None else _ffi.NULL"
+        param.ptype = ptype
+        param.converted_name = f"{name}_converted"
+        param.cp_conversion = "\n    ".join([*checks, f"{name}_converted = {value}"])
+
+        length.derived = True
+        length.converted_name = f"len({first})"
+        length.cp_conversion = None
 
 
 def get_params(function: str, params: list[dict]) -> list[Parameter]:
@@ -362,7 +419,7 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         out_params = [p for p in parameters if is_output_parameter(function_name, p)]
 
     # Create wrapper function parameter list
-    params = ", ".join(f"{p.name}: {p.ptype}" for p in parameters if p not in out_params)
+    params = ", ".join(f"{p.name}: {p.ptype}" for p in parameters if p not in out_params and not p.derived)
 
     # Create necessary conversions for the parameters
     param_conversions = "\n    ".join(
