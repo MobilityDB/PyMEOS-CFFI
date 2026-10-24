@@ -14537,11 +14537,31 @@ def geom_shortestline3d(
     return result if result != _ffi.NULL else None
 
 
+def geom_symdifference2d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_symdifference2d(gs1_converted, gs2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def geom_unary_union(
     gs: Annotated[_ffi.CData, "const GSERIALIZED *"], prec: float
 ) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     result = _lib.geom_unary_union(gs_converted, prec)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_union2d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_union2d(gs1_converted, gs2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -16126,7 +16146,7 @@ def tpointseq_from_base_tstzspan(
 def tpointseq_make_coords(
     xcoords: list[float],
     ycoords: list[float],
-    zcoords: list[float],
+    zcoords: list[float] | None,
     times: list[int],
     srid: Annotated[_ffi.CData, "int32_t"],
     geodetic: bool,
@@ -16139,9 +16159,9 @@ def tpointseq_make_coords(
     if len(ycoords) != len(xcoords):
         raise ValueError("ycoords and xcoords must have the same length")
     ycoords_converted = ycoords
-    if len(zcoords) != len(xcoords):
+    if zcoords is not None and len(zcoords) != len(xcoords):
         raise ValueError("zcoords and xcoords must have the same length")
-    zcoords_converted = zcoords
+    zcoords_converted = zcoords if zcoords is not None else _ffi.NULL
     if len(times) != len(xcoords):
         raise ValueError("times and xcoords must have the same length")
     times_converted = [_ffi.cast("TimestampTz", x) for x in times]
@@ -20101,6 +20121,26 @@ def acovers_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def adisjoint_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adisjoint_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adisjoint_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adisjoint_geo_tcbuffer(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def adisjoint_tcbuffer_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[int, "int"]:
@@ -20127,6 +20167,26 @@ def adisjoint_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.adisjoint_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adwithin_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adwithin_cbuffer_tcbuffer(cb_converted, temp_converted, dist)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adwithin_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adwithin_geo_tcbuffer(gs_converted, temp_converted, dist)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20161,6 +20221,26 @@ def adwithin_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def aintersects_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.aintersects_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def aintersects_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.aintersects_geo_tcbuffer(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def aintersects_tcbuffer_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[int, "int"]:
@@ -20187,6 +20267,26 @@ def aintersects_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.aintersects_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def atouches_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.atouches_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def atouches_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.atouches_geo_tcbuffer(gs_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20227,6 +20327,16 @@ def econtains_cbuffer_tcbuffer(
     cb_converted = _ffi.cast("const Cbuffer *", cb)
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.econtains_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def econtains_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.econtains_geo_tcbuffer(gs_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20311,6 +20421,26 @@ def ecovers_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def edisjoint_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.edisjoint_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def edisjoint_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.edisjoint_geo_tcbuffer(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def edisjoint_tcbuffer_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[int, "int"]:
@@ -20337,6 +20467,26 @@ def edisjoint_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.edisjoint_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def edwithin_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.edwithin_cbuffer_tcbuffer(cb_converted, temp_converted, dist)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def edwithin_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.edwithin_geo_tcbuffer(gs_converted, temp_converted, dist)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20371,6 +20521,26 @@ def edwithin_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def eintersects_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.eintersects_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def eintersects_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.eintersects_geo_tcbuffer(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def eintersects_tcbuffer_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[int, "int"]:
@@ -20397,6 +20567,26 @@ def eintersects_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.eintersects_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def etouches_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.etouches_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def etouches_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.etouches_geo_tcbuffer(gs_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20527,6 +20717,16 @@ def tcovers_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.tcovers_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tdwithin_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tdwithin_cbuffer_tcbuffer(cb_converted, temp_converted, dist)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -32394,6 +32594,13 @@ def tpcpoint_minus_value(
     return result if result != _ffi.NULL else None
 
 
+def tpcpoint_pcid(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "uint32_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_pcid(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpcpatchinst_make(pa: Annotated[_ffi.CData, "const Pcpatch *"], t: int) -> Annotated[_ffi.CData, "TInstant *"]:
     pa_converted = _ffi.cast("const Pcpatch *", pa)
     t_converted = _ffi.cast("TimestampTz", t)
@@ -32521,6 +32728,34 @@ def tpcpatch_minus_value(
     temp_converted = _ffi.cast("const Temporal *", temp)
     pa_converted = _ffi.cast("const Pcpatch *", pa)
     result = _lib.tpcpatch_minus_value(temp_converted, pa_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_pcid(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "uint32_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_pcid(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_start_npoints(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "uint32_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_start_npoints(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_end_npoints(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "uint32_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_end_npoints(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_npoints(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "int64_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_npoints(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
