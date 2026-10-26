@@ -2913,6 +2913,16 @@ def span_ne(
     return result if result != _ffi.NULL else None
 
 
+def span_sortkey(
+    s: Annotated[_ffi.CData, "const Span *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    s_converted = _ffi.cast("const Span *", s)
+    size = _ffi.new("size_t *")
+    result = _lib.span_sortkey(s_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
+
+
 def spanset_cmp(
     ss1: Annotated[_ffi.CData, "const SpanSet *"], ss2: Annotated[_ffi.CData, "const SpanSet *"]
 ) -> Annotated[int, "int"]:
@@ -2981,6 +2991,16 @@ def spanset_ne(
     result = _lib.spanset_ne(ss1_converted, ss2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def spanset_sortkey(
+    ss: Annotated[_ffi.CData, "const SpanSet *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    size = _ffi.new("size_t *")
+    result = _lib.spanset_sortkey(ss_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def set_spans(
@@ -14537,11 +14557,29 @@ def geom_shortestline3d(
     return result if result != _ffi.NULL else None
 
 
-def geom_unary_union(
-    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], prec: float
+def geom_symdifference2d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_symdifference2d(gs1_converted, gs2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_unary_union(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geom_unary_union(gs_converted, prec)
+    result = _lib.geom_unary_union(gs_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_union2d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_union2d(gs1_converted, gs2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -16126,7 +16164,7 @@ def tpointseq_from_base_tstzspan(
 def tpointseq_make_coords(
     xcoords: list[float],
     ycoords: list[float],
-    zcoords: list[float],
+    zcoords: list[float] | None,
     times: list[int],
     srid: Annotated[_ffi.CData, "int32_t"],
     geodetic: bool,
@@ -16139,9 +16177,9 @@ def tpointseq_make_coords(
     if len(ycoords) != len(xcoords):
         raise ValueError("ycoords and xcoords must have the same length")
     ycoords_converted = ycoords
-    if len(zcoords) != len(xcoords):
+    if zcoords is not None and len(zcoords) != len(xcoords):
         raise ValueError("zcoords and xcoords must have the same length")
-    zcoords_converted = zcoords
+    zcoords_converted = zcoords if zcoords is not None else _ffi.NULL
     if len(times) != len(xcoords):
         raise ValueError("times and xcoords must have the same length")
     times_converted = [_ffi.cast("TimestampTz", x) for x in times]
@@ -20101,6 +20139,26 @@ def acovers_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def adisjoint_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adisjoint_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adisjoint_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adisjoint_geo_tcbuffer(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def adisjoint_tcbuffer_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[int, "int"]:
@@ -20127,6 +20185,26 @@ def adisjoint_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.adisjoint_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adwithin_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adwithin_cbuffer_tcbuffer(cb_converted, temp_converted, dist)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adwithin_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adwithin_geo_tcbuffer(gs_converted, temp_converted, dist)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20161,6 +20239,26 @@ def adwithin_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def aintersects_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.aintersects_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def aintersects_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.aintersects_geo_tcbuffer(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def aintersects_tcbuffer_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[int, "int"]:
@@ -20187,6 +20285,26 @@ def aintersects_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.aintersects_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def atouches_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.atouches_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def atouches_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.atouches_geo_tcbuffer(gs_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20227,6 +20345,16 @@ def econtains_cbuffer_tcbuffer(
     cb_converted = _ffi.cast("const Cbuffer *", cb)
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.econtains_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def econtains_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.econtains_geo_tcbuffer(gs_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20311,6 +20439,26 @@ def ecovers_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def edisjoint_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.edisjoint_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def edisjoint_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.edisjoint_geo_tcbuffer(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def edisjoint_tcbuffer_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[int, "int"]:
@@ -20337,6 +20485,26 @@ def edisjoint_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.edisjoint_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def edwithin_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.edwithin_cbuffer_tcbuffer(cb_converted, temp_converted, dist)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def edwithin_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.edwithin_geo_tcbuffer(gs_converted, temp_converted, dist)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20371,6 +20539,26 @@ def edwithin_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def eintersects_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.eintersects_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def eintersects_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.eintersects_geo_tcbuffer(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def eintersects_tcbuffer_geo(
     temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[int, "int"]:
@@ -20397,6 +20585,26 @@ def eintersects_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.eintersects_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def etouches_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.etouches_cbuffer_tcbuffer(cb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def etouches_geo_tcbuffer(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.etouches_geo_tcbuffer(gs_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20527,6 +20735,16 @@ def tcovers_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.tcovers_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tdwithin_cbuffer_tcbuffer(
+    cb: Annotated[_ffi.CData, "const Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"], dist: float
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    cb_converted = _ffi.cast("const Cbuffer *", cb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tdwithin_cbuffer_tcbuffer(cb_converted, temp_converted, dist)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -22178,6 +22396,26 @@ def spanset_make_free(
     result = _lib.spanset_make_free(spans_converted, count, normalize, order)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def span_sortkey_intl(
+    s: Annotated[_ffi.CData, "const Span *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    s_converted = _ffi.cast("const Span *", s)
+    size = _ffi.new("size_t *")
+    result = _lib.span_sortkey_intl(s_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
+
+
+def spanset_sortkey_intl(
+    ss: Annotated[_ffi.CData, "const SpanSet *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    size = _ffi.new("size_t *")
+    result = _lib.spanset_sortkey_intl(ss_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def set_span(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Span *"]:
@@ -28310,6 +28548,20 @@ def jsonb_to_set(jb: Annotated[_ffi.CData, "const Jsonb *"]) -> Annotated[_ffi.C
     return result if result != _ffi.NULL else None
 
 
+def jsonbset_to_textset(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.jsonbset_to_textset(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def textset_to_jsonbset(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.textset_to_jsonbset(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def jsonbset_end_value(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Jsonb *"]:
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.jsonbset_end_value(s_converted)
@@ -28362,28 +28614,43 @@ def jsonbset_array_length(set: Annotated[_ffi.CData, "const Set *"]) -> Annotate
 
 
 def jsonbset_object_field(
-    set: Annotated[_ffi.CData, "const Set *"],
-    key: str,
-    astext: bool,
-    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+    set: Annotated[_ffi.CData, "const Set *"], key: str, null_handle: Annotated[_ffi.CData, "nullHandleType"]
 ) -> Annotated[_ffi.CData, "Set *"]:
     set_converted = _ffi.cast("const Set *", set)
     key_converted = cstring_to_text(key)
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
-    result = _lib.jsonbset_object_field(set_converted, key_converted, astext, null_handle_converted)
+    result = _lib.jsonbset_object_field(set_converted, key_converted, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def jsonbset_object_field_text(
+    set: Annotated[_ffi.CData, "const Set *"], key: str, null_handle: Annotated[_ffi.CData, "nullHandleType"]
+) -> Annotated[_ffi.CData, "Set *"]:
+    set_converted = _ffi.cast("const Set *", set)
+    key_converted = cstring_to_text(key)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.jsonbset_object_field_text(set_converted, key_converted, null_handle_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def jsonbset_array_element(
-    set: Annotated[_ffi.CData, "const Set *"],
-    idx: int,
-    astext: bool,
-    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+    set: Annotated[_ffi.CData, "const Set *"], idx: int, null_handle: Annotated[_ffi.CData, "nullHandleType"]
 ) -> Annotated[_ffi.CData, "Set *"]:
     set_converted = _ffi.cast("const Set *", set)
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
-    result = _lib.jsonbset_array_element(set_converted, idx, astext, null_handle_converted)
+    result = _lib.jsonbset_array_element(set_converted, idx, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def jsonbset_array_element_text(
+    set: Annotated[_ffi.CData, "const Set *"], idx: int, null_handle: Annotated[_ffi.CData, "nullHandleType"]
+) -> Annotated[_ffi.CData, "Set *"]:
+    set_converted = _ffi.cast("const Set *", set)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.jsonbset_array_element_text(set_converted, idx, null_handle_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -28540,14 +28807,26 @@ def jsonbset_delete_path(
 def jsonbset_extract_path(
     set: Annotated[_ffi.CData, "const Set *"],
     path_elems: list[str],
-    astext: bool,
     null_handle: Annotated[_ffi.CData, "nullHandleType"],
 ) -> Annotated[_ffi.CData, "Set *"]:
     set_converted = _ffi.cast("const Set *", set)
     path_elems_converted = [cstring_to_text(x) for x in path_elems]
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
-    result = _lib.jsonbset_extract_path(
-        set_converted, path_elems_converted, len(path_elems), astext, null_handle_converted
+    result = _lib.jsonbset_extract_path(set_converted, path_elems_converted, len(path_elems), null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def jsonbset_extract_path_text(
+    set: Annotated[_ffi.CData, "const Set *"],
+    path_elems: list[str],
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Set *"]:
+    set_converted = _ffi.cast("const Set *", set)
+    path_elems_converted = [cstring_to_text(x) for x in path_elems]
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.jsonbset_extract_path_text(
+        set_converted, path_elems_converted, len(path_elems), null_handle_converted
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -28625,6 +28904,50 @@ def jsonbset_path_query_first(
     jp_converted = _ffi.cast("const JsonPath *", jp)
     vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
     result = _lib.jsonbset_path_query_first(set_converted, jp_converted, vars_converted, silent, tz)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def jsonbset_array_element_common(
+    set: Annotated[_ffi.CData, "const Set *"],
+    idx: int,
+    astext: bool,
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Set *"]:
+    set_converted = _ffi.cast("const Set *", set)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.jsonbset_array_element_common(set_converted, idx, astext, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def jsonbset_extract_path_common(
+    set: Annotated[_ffi.CData, "const Set *"],
+    path_elems: Annotated[list, "text **"],
+    path_len: int,
+    astext: bool,
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Set *"]:
+    set_converted = _ffi.cast("const Set *", set)
+    path_elems_converted = [_ffi.cast("text *", x) for x in path_elems]
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.jsonbset_extract_path_common(
+        set_converted, path_elems_converted, path_len, astext, null_handle_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def jsonbset_object_field_common(
+    set: Annotated[_ffi.CData, "const Set *"],
+    key: str,
+    astext: bool,
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Set *"]:
+    set_converted = _ffi.cast("const Set *", set)
+    key_converted = cstring_to_text(key)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.jsonbset_object_field_common(set_converted, key_converted, astext, null_handle_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -28965,15 +29288,12 @@ def tjson_extract_path(
 
 
 def tjson_object_field(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-    key: str,
-    astext: bool,
-    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+    temp: Annotated[_ffi.CData, "const Temporal *"], key: str, null_handle: Annotated[_ffi.CData, "nullHandleType"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     key_converted = cstring_to_text(key)
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
-    result = _lib.tjson_object_field(temp_converted, key_converted, astext, null_handle_converted)
+    result = _lib.tjson_object_field(temp_converted, key_converted, null_handle_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -28988,14 +29308,21 @@ def tjson_strip_nulls(
 
 
 def tjsonb_array_element(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-    idx: int,
-    astext: bool,
-    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+    temp: Annotated[_ffi.CData, "const Temporal *"], idx: int, null_handle: Annotated[_ffi.CData, "nullHandleType"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
-    result = _lib.tjsonb_array_element(temp_converted, idx, astext, null_handle_converted)
+    result = _lib.tjsonb_array_element(temp_converted, idx, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_array_element_text(
+    temp: Annotated[_ffi.CData, "const Temporal *"], idx: int, null_handle: Annotated[_ffi.CData, "nullHandleType"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.tjsonb_array_element_text(temp_converted, idx, null_handle_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -29085,15 +29412,25 @@ def tjsonb_exists_array(
 def tjsonb_extract_path(
     temp: Annotated[_ffi.CData, "const Temporal *"],
     path_elems: list[str],
-    astext: bool,
     null_handle: Annotated[_ffi.CData, "nullHandleType"],
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     path_elems_converted = [cstring_to_text(x) for x in path_elems]
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
-    result = _lib.tjsonb_extract_path(
-        temp_converted, path_elems_converted, len(path_elems), astext, null_handle_converted
-    )
+    result = _lib.tjsonb_extract_path(temp_converted, path_elems_converted, len(path_elems), null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_extract_path_text(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    path_elems: list[str],
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    path_elems_converted = [cstring_to_text(x) for x in path_elems]
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.tjsonb_extract_path_text(temp_converted, path_elems_converted, len(path_elems), null_handle_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -29113,15 +29450,23 @@ def tjsonb_insert(
 
 
 def tjsonb_object_field(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-    key: str,
-    astext: bool,
-    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+    temp: Annotated[_ffi.CData, "const Temporal *"], key: str, null_handle: Annotated[_ffi.CData, "nullHandleType"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     key_converted = cstring_to_text(key)
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
-    result = _lib.tjsonb_object_field(temp_converted, key_converted, astext, null_handle_converted)
+    result = _lib.tjsonb_object_field(temp_converted, key_converted, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_object_field_text(
+    temp: Annotated[_ffi.CData, "const Temporal *"], key: str, null_handle: Annotated[_ffi.CData, "nullHandleType"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    key_converted = cstring_to_text(key)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.tjsonb_object_field_text(temp_converted, key_converted, null_handle_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -29325,6 +29670,64 @@ def tjsonb_to_ttext_key(
     key_converted = key.encode("utf-8")
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
     result = _lib.tjsonb_to_ttext_key(temp_converted, key_converted, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjson_object_field_common(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    key: str,
+    astext: bool,
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    key_converted = cstring_to_text(key)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.tjson_object_field_common(temp_converted, key_converted, astext, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_array_element_common(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    idx: int,
+    astext: bool,
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.tjsonb_array_element_common(temp_converted, idx, astext, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_extract_path_common(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    path_elems: Annotated[list, "text **"],
+    path_len: int,
+    astext: bool,
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    path_elems_converted = [_ffi.cast("text *", x) for x in path_elems]
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.tjsonb_extract_path_common(
+        temp_converted, path_elems_converted, path_len, astext, null_handle_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_object_field_common(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    key: str,
+    astext: bool,
+    null_handle: Annotated[_ffi.CData, "nullHandleType"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    key_converted = cstring_to_text(key)
+    null_handle_converted = _ffi.cast("nullHandleType", null_handle)
+    result = _lib.tjsonb_object_field_common(temp_converted, key_converted, astext, null_handle_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -30769,6 +31172,206 @@ def tne_tnpoint_npoint(
     temp_converted = _ffi.cast("const Temporal *", temp)
     np_converted = _ffi.cast("const Npoint *", np)
     result = _lib.tne_tnpoint_npoint(temp_converted, np_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_rid_bigint_tnpoint(
+    rid: Annotated[_ffi.CData, "int64_t"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    rid_converted = _ffi.cast("int64_t", rid)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contained_rid_bigint_tnpoint(rid_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_rid_bigintset_tnpoint(
+    s: Annotated[_ffi.CData, "const Set *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    s_converted = _ffi.cast("const Set *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contained_rid_bigintset_tnpoint(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_rid_npoint_tnpoint(
+    np: Annotated[_ffi.CData, "const Npoint *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    np_converted = _ffi.cast("const Npoint *", np)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contained_rid_npoint_tnpoint(np_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_rid_tnpoint_bigintset(
+    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"]
+) -> Annotated[bool, "bool"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.contained_rid_tnpoint_bigintset(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_rid_tnpoint_tnpoint(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contained_rid_tnpoint_tnpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_rid_bigintset_tnpoint(
+    s: Annotated[_ffi.CData, "const Set *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    s_converted = _ffi.cast("const Set *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contains_rid_bigintset_tnpoint(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_rid_tnpoint_bigint(
+    temp: Annotated[_ffi.CData, "const Temporal *"], rid: Annotated[_ffi.CData, "int64_t"]
+) -> Annotated[bool, "bool"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    rid_converted = _ffi.cast("int64_t", rid)
+    result = _lib.contains_rid_tnpoint_bigint(temp_converted, rid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_rid_tnpoint_bigintset(
+    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"]
+) -> Annotated[bool, "bool"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.contains_rid_tnpoint_bigintset(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_rid_tnpoint_npoint(
+    temp: Annotated[_ffi.CData, "const Temporal *"], np: Annotated[_ffi.CData, "const Npoint *"]
+) -> Annotated[bool, "bool"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    np_converted = _ffi.cast("const Npoint *", np)
+    result = _lib.contains_rid_tnpoint_npoint(temp_converted, np_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_rid_tnpoint_tnpoint(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contains_rid_tnpoint_tnpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_rid_bigintset_tnpoint(
+    s: Annotated[_ffi.CData, "const Set *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    s_converted = _ffi.cast("const Set *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overlaps_rid_bigintset_tnpoint(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_rid_tnpoint_bigintset(
+    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"]
+) -> Annotated[bool, "bool"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.overlaps_rid_tnpoint_bigintset(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_rid_tnpoint_tnpoint(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overlaps_rid_tnpoint_tnpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_rid_bigint_tnpoint(
+    rid: Annotated[_ffi.CData, "int64_t"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    rid_converted = _ffi.cast("int64_t", rid)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.same_rid_bigint_tnpoint(rid_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_rid_bigintset_tnpoint(
+    s: Annotated[_ffi.CData, "const Set *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    s_converted = _ffi.cast("const Set *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.same_rid_bigintset_tnpoint(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_rid_npoint_tnpoint(
+    np: Annotated[_ffi.CData, "const Npoint *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    np_converted = _ffi.cast("const Npoint *", np)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.same_rid_npoint_tnpoint(np_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_rid_tnpoint_bigint(
+    temp: Annotated[_ffi.CData, "const Temporal *"], rid: Annotated[_ffi.CData, "int64_t"]
+) -> Annotated[bool, "bool"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    rid_converted = _ffi.cast("int64_t", rid)
+    result = _lib.same_rid_tnpoint_bigint(temp_converted, rid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_rid_tnpoint_bigintset(
+    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"]
+) -> Annotated[bool, "bool"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.same_rid_tnpoint_bigintset(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_rid_tnpoint_npoint(
+    temp: Annotated[_ffi.CData, "const Temporal *"], np: Annotated[_ffi.CData, "const Npoint *"]
+) -> Annotated[bool, "bool"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    np_converted = _ffi.cast("const Npoint *", np)
+    result = _lib.same_rid_tnpoint_npoint(temp_converted, np_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_rid_tnpoint_tnpoint(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[bool, "bool"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.same_rid_tnpoint_tnpoint(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -32394,6 +32997,13 @@ def tpcpoint_minus_value(
     return result if result != _ffi.NULL else None
 
 
+def tpcpoint_pcid(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "uint32_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_pcid(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpcpatchinst_make(pa: Annotated[_ffi.CData, "const Pcpatch *"], t: int) -> Annotated[_ffi.CData, "TInstant *"]:
     pa_converted = _ffi.cast("const Pcpatch *", pa)
     t_converted = _ffi.cast("TimestampTz", t)
@@ -32521,6 +33131,34 @@ def tpcpatch_minus_value(
     temp_converted = _ffi.cast("const Temporal *", temp)
     pa_converted = _ffi.cast("const Pcpatch *", pa)
     result = _lib.tpcpatch_minus_value(temp_converted, pa_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_pcid(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "uint32_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_pcid(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_start_npoints(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "uint32_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_start_npoints(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_end_npoints(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "uint32_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_end_npoints(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_npoints(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "int64_t"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_npoints(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -37051,6 +37689,89 @@ def raster_copy(rast: Annotated[_ffi.CData, "const Raster *"]) -> Annotated[_ffi
     return result if result != _ffi.NULL else None
 
 
+def raster_make(
+    width: int,
+    height: int,
+    upperleftx: float,
+    upperlefty: float,
+    scalex: float,
+    scaley: float,
+    skewx: float,
+    skewy: float,
+    srid: Annotated[_ffi.CData, "int32_t"],
+    pixeltype: str,
+    nodataval: float,
+    has_nodata: bool,
+    pixels: bytes,
+) -> Annotated[_ffi.CData, "Raster *"]:
+    srid_converted = _ffi.cast("int32_t", srid)
+    pixeltype_converted = pixeltype.encode("utf-8")
+    pixels_converted = _ffi.new("uint8_t []", pixels)
+    result = _lib.raster_make(
+        width,
+        height,
+        upperleftx,
+        upperlefty,
+        scalex,
+        scaley,
+        skewx,
+        skewy,
+        srid_converted,
+        pixeltype_converted,
+        nodataval,
+        has_nodata,
+        pixels_converted,
+        len(pixels),
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_make_empty(
+    width: int,
+    height: int,
+    upperleftx: float,
+    upperlefty: float,
+    scalex: float,
+    scaley: float,
+    skewx: float,
+    skewy: float,
+    srid: Annotated[_ffi.CData, "int32_t"],
+) -> Annotated[_ffi.CData, "Raster *"]:
+    srid_converted = _ffi.cast("int32_t", srid)
+    result = _lib.raster_make_empty(width, height, upperleftx, upperlefty, scalex, scaley, skewx, skewy, srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_add_band(
+    rast: Annotated[_ffi.CData, "const Raster *"],
+    index: int,
+    pixeltype: str,
+    initialvalue: float,
+    nodataval: float,
+    has_nodata: bool,
+) -> Annotated[_ffi.CData, "Raster *"]:
+    rast_converted = _ffi.cast("const Raster *", rast)
+    pixeltype_converted = pixeltype.encode("utf-8")
+    result = _lib.raster_add_band(rast_converted, index, pixeltype_converted, initialvalue, nodataval, has_nodata)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_add_band_raster(
+    torast: Annotated[_ffi.CData, "const Raster *"],
+    fromrast: Annotated[_ffi.CData, "const Raster *"],
+    fromband: int,
+    toindex: int,
+) -> Annotated[_ffi.CData, "Raster *"]:
+    torast_converted = _ffi.cast("const Raster *", torast)
+    fromrast_converted = _ffi.cast("const Raster *", fromrast)
+    result = _lib.raster_add_band_raster(torast_converted, fromrast_converted, fromband, toindex)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def raster_mem_size(rast: Annotated[_ffi.CData, "const Raster *"]) -> Annotated[int, "int"]:
     rast_converted = _ffi.cast("const Raster *", rast)
     result = _lib.raster_mem_size(rast_converted)
@@ -37149,6 +37870,73 @@ def raster_band_nodata_value(
     rast_converted = _ffi.cast("const Raster *", rast)
     out_result = _ffi.new("double *")
     result = _lib.raster_band_nodata_value(rast_converted, band, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def raster_band_pixels(
+    rast: Annotated[_ffi.CData, "const Raster *"], band: int
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    rast_converted = _ffi.cast("const Raster *", rast)
+    size_out = _ffi.new("size_t *")
+    result = _lib.raster_band_pixels(rast_converted, band, size_out)
+    _check_error()
+    return result if result != _ffi.NULL else None, size_out[0]
+
+
+def bandstats_count(stats: Annotated[_ffi.CData, "const BandStats *"]) -> Annotated[_ffi.CData, "int64_t"]:
+    stats_converted = _ffi.cast("const BandStats *", stats)
+    result = _lib.bandstats_count(stats_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def bandstats_sum(stats: Annotated[_ffi.CData, "const BandStats *"]) -> Annotated[_ffi.CData, "double"]:
+    stats_converted = _ffi.cast("const BandStats *", stats)
+    out_result = _ffi.new("double *")
+    result = _lib.bandstats_sum(stats_converted, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def bandstats_mean(stats: Annotated[_ffi.CData, "const BandStats *"]) -> Annotated[_ffi.CData, "double"]:
+    stats_converted = _ffi.cast("const BandStats *", stats)
+    out_result = _ffi.new("double *")
+    result = _lib.bandstats_mean(stats_converted, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def bandstats_stddev(stats: Annotated[_ffi.CData, "const BandStats *"]) -> Annotated[_ffi.CData, "double"]:
+    stats_converted = _ffi.cast("const BandStats *", stats)
+    out_result = _ffi.new("double *")
+    result = _lib.bandstats_stddev(stats_converted, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def bandstats_min(stats: Annotated[_ffi.CData, "const BandStats *"]) -> Annotated[_ffi.CData, "double"]:
+    stats_converted = _ffi.cast("const BandStats *", stats)
+    out_result = _ffi.new("double *")
+    result = _lib.bandstats_min(stats_converted, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def bandstats_max(stats: Annotated[_ffi.CData, "const BandStats *"]) -> Annotated[_ffi.CData, "double"]:
+    stats_converted = _ffi.cast("const BandStats *", stats)
+    out_result = _ffi.new("double *")
+    result = _lib.bandstats_max(stats_converted, out_result)
     _check_error()
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
@@ -37297,6 +38085,43 @@ def raster_value_count(
     )
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
+
+
+def raster_set_values(
+    rast: Annotated[_ffi.CData, "const Raster *"],
+    band: int,
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+    values: list[float],
+    nodata: list[bool],
+    noset: list[bool],
+    keepnodata: bool,
+) -> Annotated[_ffi.CData, "Raster *"]:
+    rast_converted = _ffi.cast("const Raster *", rast)
+    values_converted = values
+    if len(nodata) != len(values):
+        raise ValueError("nodata and values must have the same length")
+    nodata_converted = nodata
+    if len(noset) != len(values):
+        raise ValueError("noset and values must have the same length")
+    noset_converted = noset
+    result = _lib.raster_set_values(
+        rast_converted,
+        band,
+        x,
+        y,
+        width,
+        height,
+        values_converted,
+        nodata_converted,
+        noset_converted,
+        len(values),
+        keepnodata,
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
 
 
 def raster_reclass(
