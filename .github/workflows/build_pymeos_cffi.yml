@@ -157,7 +157,7 @@ jobs:
         uses: tecolicom/actions-use-homebrew-tools@v1
         if: runner.os == 'macOS'
         with:
-          tools: cmake libpq proj json-c gsl geos
+          tools: cmake libpq proj json-c
 
       - name: Update brew
         if: matrix.os == 'macos-15-intel'
@@ -209,7 +209,7 @@ jobs:
           PROJ_DATA=/usr/proj81/share/proj
           echo "PROJ_DATA=$PROJ_DATA" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64" >> $GITHUB_ENV
-          echo "C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/geos39/include/:/usr/proj81/include/" >> $GITHUB_ENV
+          echo "C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/proj81/include/" >> $GITHUB_ENV
 
       - name: Build wheels
         run: |
@@ -227,11 +227,11 @@ jobs:
             dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&
             dnf -qy module disable postgresql &&
             dnf -y update &&
-            dnf -y install gcc gcc-c++ make cmake postgresql16-devel proj81-devel geos39-devel gsl-devel json-c-devel &&
+            dnf -y install gcc gcc-c++ make cmake postgresql16-devel proj81-devel json-c-devel &&
             git clone --depth 1 --branch ${{ needs.checks.outputs.meos_branch }} https://github.com/MobilityDB/MobilityDB &&
             mkdir MobilityDB/build &&
             cd MobilityDB/build &&
-            cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so &&
+            cmake .. -DMEOS=on -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so &&
             make -j &&
             make install
 

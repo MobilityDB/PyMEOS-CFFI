@@ -143,7 +143,7 @@ jobs:
       - name: Install MEOS build deps (macOS)
         uses: tecolicom/actions-use-homebrew-tools@v1
         with:
-          tools: cmake libpq proj json-c gsl geos h3 gdal
+          tools: cmake libpq proj json-c h3 gdal
 
       - name: Build and install the all-families MEOS
         shell: bash
