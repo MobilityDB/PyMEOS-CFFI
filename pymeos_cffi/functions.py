@@ -433,14 +433,14 @@ def meos_array_reset_free(array: Annotated[_ffi.CData, "MeosArray *"]) -> Annota
     _check_error()
 
 
-def meos_array_destroy(array: Annotated[_ffi.CData, "MeosArray *"]) -> Annotated[None, "void"]:
-    array_converted = _ffi.cast("MeosArray *", array)
+def meos_array_destroy(array: Annotated[_ffi.CData, "MeosArray *"] | None) -> Annotated[None, "void"]:
+    array_converted = _ffi.cast("MeosArray *", array) if array is not None else _ffi.NULL
     _lib.meos_array_destroy(array_converted)
     _check_error()
 
 
-def meos_array_destroy_free(array: Annotated[_ffi.CData, "MeosArray *"]) -> Annotated[None, "void"]:
-    array_converted = _ffi.cast("MeosArray *", array)
+def meos_array_destroy_free(array: Annotated[_ffi.CData, "MeosArray *"] | None) -> Annotated[None, "void"]:
+    array_converted = _ffi.cast("MeosArray *", array) if array is not None else _ffi.NULL
     _lib.meos_array_destroy_free(array_converted)
     _check_error()
 
@@ -499,12 +499,6 @@ def rtree_create_tbox() -> Annotated[_ffi.CData, "RTree *"]:
 
 def rtree_create_stbox() -> Annotated[_ffi.CData, "RTree *"]:
     result = _lib.rtree_create_stbox()
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def rtree_create_tpcbox() -> Annotated[_ffi.CData, "RTree *"]:
-    result = _lib.rtree_create_tpcbox()
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -656,7 +650,7 @@ def rtree_nn_cursor_open(
 
 def rtree_nn_cursor_next(
     cursor: Annotated[_ffi.CData, "RTreeNNCursor *"],
-) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "int64_t"], Annotated[_ffi.CData, "double"]]:
+) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "int64_t"] | None, Annotated[_ffi.CData, "double"] | None]:
     cursor_converted = _ffi.cast("RTreeNNCursor *", cursor)
     id_out = _ffi.new("int64_t *")
     dist_out = _ffi.new("double *")
@@ -665,8 +659,8 @@ def rtree_nn_cursor_next(
     return result if result != _ffi.NULL else None, id_out[0], dist_out[0]
 
 
-def rtree_nn_cursor_close(cursor: Annotated[_ffi.CData, "RTreeNNCursor *"]) -> Annotated[None, "void"]:
-    cursor_converted = _ffi.cast("RTreeNNCursor *", cursor)
+def rtree_nn_cursor_close(cursor: Annotated[_ffi.CData, "RTreeNNCursor *"] | None) -> Annotated[None, "void"]:
+    cursor_converted = _ffi.cast("RTreeNNCursor *", cursor) if cursor is not None else _ffi.NULL
     _lib.rtree_nn_cursor_close(cursor_converted)
     _check_error()
 
@@ -716,13 +710,6 @@ def sptree_create_tbox(kind: Annotated[_ffi.CData, "SPTreeKind"]) -> Annotated[_
 def sptree_create_stbox(kind: Annotated[_ffi.CData, "SPTreeKind"]) -> Annotated[_ffi.CData, "SPTree *"]:
     kind_converted = _ffi.cast("SPTreeKind", kind)
     result = _lib.sptree_create_stbox(kind_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def sptree_create_tpcbox(kind: Annotated[_ffi.CData, "SPTreeKind"]) -> Annotated[_ffi.CData, "SPTree *"]:
-    kind_converted = _ffi.cast("SPTreeKind", kind)
-    result = _lib.sptree_create_tpcbox(kind_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -876,7 +863,7 @@ def sptree_nn_cursor_open(
 
 def sptree_nn_cursor_next(
     cursor: Annotated[_ffi.CData, "SPNNCursor *"],
-) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "int64_t"], Annotated[_ffi.CData, "double"]]:
+) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "int64_t"] | None, Annotated[_ffi.CData, "double"] | None]:
     cursor_converted = _ffi.cast("SPNNCursor *", cursor)
     id_out = _ffi.new("int64_t *")
     dist_out = _ffi.new("double *")
@@ -885,8 +872,8 @@ def sptree_nn_cursor_next(
     return result if result != _ffi.NULL else None, id_out[0], dist_out[0]
 
 
-def sptree_nn_cursor_close(cursor: Annotated[_ffi.CData, "SPNNCursor *"]) -> Annotated[None, "void"]:
-    cursor_converted = _ffi.cast("SPNNCursor *", cursor)
+def sptree_nn_cursor_close(cursor: Annotated[_ffi.CData, "SPNNCursor *"] | None) -> Annotated[None, "void"]:
+    cursor_converted = _ffi.cast("SPNNCursor *", cursor) if cursor is not None else _ffi.NULL
     _lib.sptree_nn_cursor_close(cursor_converted)
     _check_error()
 
@@ -938,11 +925,6 @@ def meos_finalize_relate() -> Annotated[None, "void"]:
 
 def meos_finalize_ways() -> Annotated[None, "void"]:
     _lib.meos_finalize_ways()
-    _check_error()
-
-
-def meos_initialize_pointcloud() -> Annotated[None, "void"]:
-    _lib.meos_initialize_pointcloud()
     _check_error()
 
 
@@ -2841,6 +2823,16 @@ def set_ne(
     result = _lib.set_ne(s1_converted, s2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def set_sortkey(
+    s: Annotated[_ffi.CData, "const Set *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    s_converted = _ffi.cast("const Set *", s)
+    size = _ffi.new("size_t *")
+    result = _lib.set_sortkey(s_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def span_cmp(
@@ -6241,27 +6233,27 @@ def set_extent_transfn(
 
 
 def set_union_combinefn(
-    state1: Annotated[_ffi.CData, "Set *"], state2: Annotated[_ffi.CData, "Set *"]
+    state1: Annotated[_ffi.CData, "Set *"] | None, state2: Annotated[_ffi.CData, "Set *"] | None
 ) -> Annotated[_ffi.CData, "Set *"]:
-    state1_converted = _ffi.cast("Set *", state1)
-    state2_converted = _ffi.cast("Set *", state2)
+    state1_converted = _ffi.cast("Set *", state1) if state1 is not None else _ffi.NULL
+    state2_converted = _ffi.cast("Set *", state2) if state2 is not None else _ffi.NULL
     result = _lib.set_union_combinefn(state1_converted, state2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
-def set_union_finalfn(state: Annotated[_ffi.CData, "Set *"]) -> Annotated[_ffi.CData, "Set *"]:
-    state_converted = _ffi.cast("Set *", state)
+def set_union_finalfn(state: Annotated[_ffi.CData, "Set *"] | None) -> Annotated[_ffi.CData, "Set *"]:
+    state_converted = _ffi.cast("Set *", state) if state is not None else _ffi.NULL
     result = _lib.set_union_finalfn(state_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def set_union_transfn(
-    state: Annotated[_ffi.CData, "Set *"] | None, s: Annotated[_ffi.CData, "Set *"]
+    state: Annotated[_ffi.CData, "Set *"] | None, s: Annotated[_ffi.CData, "Set *"] | None
 ) -> Annotated[_ffi.CData, "Set *"]:
     state_converted = _ffi.cast("Set *", state) if state is not None else _ffi.NULL
-    s_converted = _ffi.cast("Set *", s)
+    s_converted = _ffi.cast("Set *", s) if s is not None else _ffi.NULL
     result = _lib.set_union_transfn(state_converted, s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -6295,10 +6287,10 @@ def span_extent_transfn(
 
 
 def span_union_transfn(
-    state: Annotated[_ffi.CData, "SpanSet *"] | None, s: Annotated[_ffi.CData, "const Span *"]
+    state: Annotated[_ffi.CData, "SpanSet *"] | None, s: Annotated[_ffi.CData, "const Span *"] | None
 ) -> Annotated[_ffi.CData, "SpanSet *"]:
     state_converted = _ffi.cast("SpanSet *", state) if state is not None else _ffi.NULL
-    s_converted = _ffi.cast("const Span *", s)
+    s_converted = _ffi.cast("const Span *", s) if s is not None else _ffi.NULL
     result = _lib.span_union_transfn(state_converted, s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -6315,10 +6307,10 @@ def spanset_extent_transfn(
 
 
 def spanset_union_combinefn(
-    state1: Annotated[_ffi.CData, "SpanSet *"], state2: Annotated[_ffi.CData, "const SpanSet *"]
+    state1: Annotated[_ffi.CData, "SpanSet *"] | None, state2: Annotated[_ffi.CData, "const SpanSet *"] | None
 ) -> Annotated[_ffi.CData, "SpanSet *"]:
-    state1_converted = _ffi.cast("SpanSet *", state1)
-    state2_converted = _ffi.cast("const SpanSet *", state2)
+    state1_converted = _ffi.cast("SpanSet *", state1) if state1 is not None else _ffi.NULL
+    state2_converted = _ffi.cast("const SpanSet *", state2) if state2 is not None else _ffi.NULL
     result = _lib.spanset_union_combinefn(state1_converted, state2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -6332,10 +6324,10 @@ def spanset_union_finalfn(state: Annotated[_ffi.CData, "SpanSet *"] | None) -> A
 
 
 def spanset_union_transfn(
-    state: Annotated[_ffi.CData, "SpanSet *"] | None, ss: Annotated[_ffi.CData, "const SpanSet *"]
+    state: Annotated[_ffi.CData, "SpanSet *"] | None, ss: Annotated[_ffi.CData, "const SpanSet *"] | None
 ) -> Annotated[_ffi.CData, "SpanSet *"]:
     state_converted = _ffi.cast("SpanSet *", state) if state is not None else _ffi.NULL
-    ss_converted = _ffi.cast("const SpanSet *", ss)
+    ss_converted = _ffi.cast("const SpanSet *", ss) if ss is not None else _ffi.NULL
     result = _lib.spanset_union_transfn(state_converted, ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -7295,6 +7287,16 @@ def tbox_ne(
     return result if result != _ffi.NULL else None
 
 
+def tbox_sortkey(
+    box: Annotated[_ffi.CData, "const TBox *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    box_converted = _ffi.cast("const TBox *", box)
+    size = _ffi.new("size_t *")
+    result = _lib.tbox_sortkey(box_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
+
+
 def tbool_from_mfjson(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tbool_from_mfjson(string_converted)
@@ -7352,8 +7354,8 @@ def temporal_as_wkb(
     return result_converted
 
 
-def wkb_variant_from_endian(endian: str) -> Annotated[int, "uint8_t"]:
-    endian_converted = endian.encode("utf-8")
+def wkb_variant_from_endian(endian: str | None) -> Annotated[int, "uint8_t"]:
+    endian_converted = endian.encode("utf-8") if endian is not None else _ffi.NULL
     result = _lib.wkb_variant_from_endian(endian_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -9147,6 +9149,16 @@ def temporal_ne(
     result = _lib.temporal_ne(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def temporal_sortkey(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    size = _ffi.new("size_t *")
+    result = _lib.temporal_sortkey(temp_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def always_eq_bool_tbool(b: bool, temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[int, "int"]:
@@ -12077,30 +12089,30 @@ def taggstate_serialize(
 
 
 def tbigint_tmax_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tbigint_tmax_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def tbigint_tmin_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tbigint_tmin_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def tbigint_tsum_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tbigint_tsum_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12108,11 +12120,11 @@ def tbigint_tsum_transfn(
 
 def tbigint_wmax_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tbigint_wmax_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12121,11 +12133,11 @@ def tbigint_wmax_transfn(
 
 def tbigint_wmin_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tbigint_wmin_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12134,11 +12146,11 @@ def tbigint_wmin_transfn(
 
 def tbigint_wsum_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tbigint_wsum_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12146,10 +12158,10 @@ def tbigint_wsum_transfn(
 
 
 def tbool_tand_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tbool_tand_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12166,10 +12178,10 @@ def tbool_tand_combinefn(
 
 
 def tbool_tor_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tbool_tor_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12237,10 +12249,10 @@ def temporal_tagg_finalfn(state: Annotated[_ffi.CData, "SkipList *"] | None) -> 
 
 
 def temporal_tcount_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.temporal_tcount_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12278,11 +12290,11 @@ def temporal_tmin_combinefn(
 
 def temporal_wcount_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.temporal_wcount_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12297,30 +12309,30 @@ def temporal_to_taggstate(temp: Annotated[_ffi.CData, "const Temporal *"]) -> An
 
 
 def tfloat_tmax_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tfloat_tmax_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def tfloat_tmin_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tfloat_tmin_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def tfloat_tsum_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tfloat_tsum_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12328,11 +12340,11 @@ def tfloat_tsum_transfn(
 
 def tfloat_wmax_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tfloat_wmax_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12341,11 +12353,11 @@ def tfloat_wmax_transfn(
 
 def tfloat_wmin_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tfloat_wmin_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12354,11 +12366,11 @@ def tfloat_wmin_transfn(
 
 def tfloat_wsum_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tfloat_wsum_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12376,30 +12388,30 @@ def timestamptz_tcount_transfn(
 
 
 def tint_tmax_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tint_tmax_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def tint_tmin_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tint_tmin_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def tint_tsum_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tint_tsum_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12407,11 +12419,11 @@ def tint_tsum_transfn(
 
 def tint_wmax_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tint_wmax_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12420,11 +12432,11 @@ def tint_wmax_transfn(
 
 def tint_wmin_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tint_wmin_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12433,11 +12445,11 @@ def tint_wmin_transfn(
 
 def tint_wsum_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tint_wsum_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12472,10 +12484,10 @@ def tnumber_tavg_finalfn(state: Annotated[_ffi.CData, "SkipList *"] | None) -> A
 
 
 def tnumber_tavg_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tnumber_tavg_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12503,11 +12515,11 @@ def tnumber_tsum_combinefn(
 
 def tnumber_wavg_transfn(
     state: Annotated[_ffi.CData, "SkipList *"] | None,
-    temp: Annotated[_ffi.CData, "const Temporal *"],
+    temp: Annotated[_ffi.CData, "const Temporal *"] | None,
     interv: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.tnumber_wavg_transfn(state_converted, temp_converted, interv_converted)
     _check_error()
@@ -12515,40 +12527,40 @@ def tnumber_wavg_transfn(
 
 
 def tstzset_tcount_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, s: Annotated[_ffi.CData, "const Set *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, s: Annotated[_ffi.CData, "const Set *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    s_converted = _ffi.cast("const Set *", s)
+    s_converted = _ffi.cast("const Set *", s) if s is not None else _ffi.NULL
     result = _lib.tstzset_tcount_transfn(state_converted, s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def tstzspan_tcount_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, s: Annotated[_ffi.CData, "const Span *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, s: Annotated[_ffi.CData, "const Span *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    s_converted = _ffi.cast("const Span *", s)
+    s_converted = _ffi.cast("const Span *", s) if s is not None else _ffi.NULL
     result = _lib.tstzspan_tcount_transfn(state_converted, s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def tstzspanset_tcount_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, ss: Annotated[_ffi.CData, "const SpanSet *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, ss: Annotated[_ffi.CData, "const SpanSet *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    ss_converted = _ffi.cast("const SpanSet *", ss)
+    ss_converted = _ffi.cast("const SpanSet *", ss) if ss is not None else _ffi.NULL
     result = _lib.tstzspanset_tcount_transfn(state_converted, ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def temporal_merge_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.temporal_merge_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12565,20 +12577,20 @@ def temporal_merge_combinefn(
 
 
 def ttext_tmax_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.ttext_tmax_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def ttext_tmin_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.ttext_tmin_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -12852,7 +12864,7 @@ def tbigint_value_time_split(
     border_inc: bool,
 ) -> tuple[
     Annotated[_ffi.CData, "Temporal **"],
-    Annotated[list, "int64_t *"],
+    Annotated[list, "int64_t *"] | None,
     Annotated[list, "TimestampTz *"],
     Annotated[_ffi.CData, "int"],
 ]:
@@ -13015,7 +13027,7 @@ def tfloat_value_boxes(
 
 def tfloat_value_split(
     temp: Annotated[_ffi.CData, "const Temporal *"], vsize: float, vorigin: float, border_inc: bool
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "double *"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "double *"] | None, Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     bins = _ffi.new("double **")
     count = _ffi.new("int *")
@@ -13052,7 +13064,7 @@ def tfloat_value_time_split(
     border_inc: bool,
 ) -> tuple[
     Annotated[_ffi.CData, "Temporal **"],
-    Annotated[list, "double *"],
+    Annotated[list, "double *"] | None,
     Annotated[list, "TimestampTz *"],
     Annotated[_ffi.CData, "int"],
 ]:
@@ -13150,7 +13162,7 @@ def tint_value_boxes(
 
 def tint_value_split(
     temp: Annotated[_ffi.CData, "const Temporal *"], vsize: int, vorigin: int, border_inc: bool
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "int *"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "int *"] | None, Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     bins = _ffi.new("int **")
     count = _ffi.new("int *")
@@ -13187,7 +13199,7 @@ def tint_value_time_split(
     border_inc: bool,
 ) -> tuple[
     Annotated[_ffi.CData, "Temporal **"],
-    Annotated[list, "int *"],
+    Annotated[list, "int *"] | None,
     Annotated[list, "TimestampTz *"],
     Annotated[_ffi.CData, "int"],
 ]:
@@ -13312,6 +13324,13 @@ def meostype_name(type: Annotated[_ffi.CData, "MeosType"]) -> Annotated[str, "co
     result = _lib.meostype_name(type_converted)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def meostype_from_string(name: str) -> Annotated[_ffi.CData, "MeosType"]:
+    name_converted = name.encode("utf-8")
+    result = _lib.meostype_from_string(name_converted)
+    _check_error()
     return result if result != _ffi.NULL else None
 
 
@@ -13934,9 +13953,9 @@ def geo_as_geojson(
     return result if result != _ffi.NULL else None
 
 
-def geo_as_hexewkb(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str) -> Annotated[str, "char *"]:
+def geo_as_hexewkb(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str | None) -> Annotated[str, "char *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    endian_converted = endian.encode("utf-8")
+    endian_converted = endian.encode("utf-8") if endian is not None else _ffi.NULL
     result = _lib.geo_as_hexewkb(gs_converted, endian_converted)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
@@ -15966,6 +15985,16 @@ def stbox_ne(
     return result if result != _ffi.NULL else None
 
 
+def stbox_sortkey(
+    box: Annotated[_ffi.CData, "const STBox *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    box_converted = _ffi.cast("const STBox *", box)
+    size = _ffi.new("size_t *")
+    result = _lib.stbox_sortkey(box_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
+
+
 def tspatial_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tspatial_out(temp_converted, maxdd)
@@ -17035,14 +17064,14 @@ def tgeo_space_time_boxes(
     ysize: float,
     zsize: float,
     duration: Annotated[_ffi.CData, "const Interval *"],
-    sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"] | None,
+    sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"],
     torigin: int,
     bitmatrix: bool,
     border_inc: bool,
 ) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     duration_converted = _ffi.cast("const Interval *", duration)
-    sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin) if sorigin is not None else _ffi.NULL
+    sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin)
     torigin_converted = _ffi.cast("TimestampTz", torigin)
     count = _ffi.new("int *")
     result = _lib.tgeo_space_time_boxes(
@@ -18613,10 +18642,10 @@ def tpoint_tcentroid_finalfn(state: Annotated[_ffi.CData, "SkipList *"] | None) 
 
 
 def tpoint_tcentroid_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("Temporal *", temp)
+    temp_converted = _ffi.cast("Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tpoint_tcentroid_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -18737,12 +18766,12 @@ def stbox_space_time_tiles(
 
 def stbox_time_tiles(
     bounds: Annotated[_ffi.CData, "const STBox *"],
-    duration: Annotated[_ffi.CData, "const Interval *"] | None,
+    duration: Annotated[_ffi.CData, "const Interval *"],
     torigin: int,
     border_inc: bool,
 ) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
     bounds_converted = _ffi.cast("const STBox *", bounds)
-    duration_converted = _ffi.cast("const Interval *", duration) if duration is not None else _ffi.NULL
+    duration_converted = _ffi.cast("const Interval *", duration)
     torigin_converted = _ffi.cast("TimestampTz", torigin)
     count = _ffi.new("int *")
     result = _lib.stbox_time_tiles(bounds_converted, duration_converted, torigin_converted, border_inc, count)
@@ -18758,7 +18787,9 @@ def tgeo_space_split(
     sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"],
     bitmatrix: bool,
     border_inc: bool,
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "GSERIALIZED ***"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[
+    Annotated[_ffi.CData, "Temporal **"], Annotated[list, "GSERIALIZED ***"] | None, Annotated[_ffi.CData, "int"]
+]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin)
     space_bins = _ffi.new("GSERIALIZED ***")
@@ -18782,8 +18813,8 @@ def tgeo_space_time_split(
     border_inc: bool,
 ) -> tuple[
     Annotated[_ffi.CData, "Temporal **"],
-    Annotated[list, "GSERIALIZED ***"],
-    Annotated[list, "TimestampTz *"],
+    Annotated[list, "GSERIALIZED ***"] | None,
+    Annotated[list, "TimestampTz *"] | None,
     Annotated[_ffi.CData, "int"],
 ]:
     temp_converted = _ffi.cast("const Temporal *", temp)
@@ -19268,26 +19299,6 @@ def cbuffer_ne(
     cb1_converted = _ffi.cast("const Cbuffer *", cb1)
     cb2_converted = _ffi.cast("const Cbuffer *", cb2)
     result = _lib.cbuffer_ne(cb1_converted, cb2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def cbuffer_nsame(
-    cb1: Annotated[_ffi.CData, "const Cbuffer *"], cb2: Annotated[_ffi.CData, "const Cbuffer *"]
-) -> Annotated[bool, "bool"]:
-    cb1_converted = _ffi.cast("const Cbuffer *", cb1)
-    cb2_converted = _ffi.cast("const Cbuffer *", cb2)
-    result = _lib.cbuffer_nsame(cb1_converted, cb2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def cbuffer_same(
-    cb1: Annotated[_ffi.CData, "const Cbuffer *"], cb2: Annotated[_ffi.CData, "const Cbuffer *"]
-) -> Annotated[bool, "bool"]:
-    cb1_converted = _ffi.cast("const Cbuffer *", cb1)
-    cb2_converted = _ffi.cast("const Cbuffer *", cb2)
-    result = _lib.cbuffer_same(cb1_converted, cb2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -21736,10 +21747,10 @@ def tgeompoint_to_th3index(
 
 def tgeogpoint_h3index_split(
     temp: Annotated[_ffi.CData, "const Temporal *"], resolution: int, border_inc: bool
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "Datum **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "uint64_t **"], Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     resolution_converted = _ffi.cast("int32", resolution)
-    cells = _ffi.new("Datum **")
+    cells = _ffi.new("uint64_t **")
     count = _ffi.new("int *")
     result = _lib.tgeogpoint_h3index_split(temp_converted, resolution_converted, border_inc, cells, count)
     _check_error()
@@ -21748,10 +21759,10 @@ def tgeogpoint_h3index_split(
 
 def tgeompoint_h3index_split(
     temp: Annotated[_ffi.CData, "const Temporal *"], resolution: int, border_inc: bool
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "Datum **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "uint64_t **"], Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     resolution_converted = _ffi.cast("int32", resolution)
-    cells = _ffi.new("Datum **")
+    cells = _ffi.new("uint64_t **")
     count = _ffi.new("int *")
     result = _lib.tgeompoint_h3index_split(temp_converted, resolution_converted, border_inc, cells, count)
     _check_error()
@@ -22396,6 +22407,16 @@ def spanset_make_free(
     result = _lib.spanset_make_free(spans_converted, count, normalize, order)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def set_sortkey_intl(
+    s: Annotated[_ffi.CData, "const Set *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    s_converted = _ffi.cast("const Set *", s)
+    size = _ffi.new("size_t *")
+    result = _lib.set_sortkey_intl(s_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def span_sortkey_intl(
@@ -23184,6 +23205,23 @@ def ensure_index_result(result: Annotated[_ffi.CData, "const MeosArray *"]) -> A
     return result if result != _ffi.NULL else None
 
 
+def rtree_create(bboxtype: Annotated[_ffi.CData, "MeosType"]) -> Annotated[_ffi.CData, "RTree *"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    result = _lib.rtree_create(bboxtype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def sptree_create(
+    bboxtype: Annotated[_ffi.CData, "MeosType"], kind: Annotated[_ffi.CData, "SPTreeKind"]
+) -> Annotated[_ffi.CData, "SPTree *"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    kind_converted = _ffi.cast("SPTreeKind", kind)
+    result = _lib.sptree_create(bboxtype_converted, kind_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def rtree_search_intl(
     rtree: Annotated[_ffi.CData, "const RTree *"],
     op: Annotated[_ffi.CData, "IndexSearchOp"],
@@ -23916,6 +23954,16 @@ def inter_tbox_tbox(
     if result:
         return out_result if out_result != _ffi.NULL else None
     return None
+
+
+def tbox_sortkey_intl(
+    box: Annotated[_ffi.CData, "const TBox *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    box_converted = _ffi.cast("const TBox *", box)
+    size = _ffi.new("size_t *")
+    result = _lib.tbox_sortkey_intl(box_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def tboolinst_in(string: str) -> Annotated[_ffi.CData, "TInstant *"]:
@@ -25881,6 +25929,16 @@ def tinstant_cmp(
     return result if result != _ffi.NULL else None
 
 
+def temporal_sortkey_intl(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    size = _ffi.new("size_t *")
+    result = _lib.temporal_sortkey_intl(temp_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
+
+
 def tinstant_eq(
     inst1: Annotated[_ffi.CData, "const TInstant *"], inst2: Annotated[_ffi.CData, "const TInstant *"]
 ) -> Annotated[bool, "bool"]:
@@ -27128,6 +27186,16 @@ def stbox_geo(box: Annotated[_ffi.CData, "const STBox *"]) -> Annotated[_ffi.CDa
     return result if result != _ffi.NULL else None
 
 
+def stbox_sortkey_intl(
+    box: Annotated[_ffi.CData, "const STBox *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    box_converted = _ffi.cast("const STBox *", box)
+    size = _ffi.new("size_t *")
+    result = _lib.stbox_sortkey_intl(box_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
+
+
 def tgeogpointinst_in(string: str) -> Annotated[_ffi.CData, "TInstant *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tgeogpointinst_in(string_converted)
@@ -27982,9 +28050,9 @@ def json_array_length(js: str) -> Annotated[int, "int"]:
 
 def json_each(
     js: str,
-) -> tuple[Annotated[_ffi.CData, "text **"], Annotated[list, "text **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "text **"], Annotated[list, "text ***"], Annotated[_ffi.CData, "int"]]:
     js_converted = cstring_to_text(js)
-    values = _ffi.new("text **")
+    values = _ffi.new("text ***")
     count = _ffi.new("int *")
     result = _lib.json_each(js_converted, values, count)
     _check_error()
@@ -27993,9 +28061,9 @@ def json_each(
 
 def json_each_text(
     js: str,
-) -> tuple[Annotated[_ffi.CData, "text **"], Annotated[list, "text **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "text **"], Annotated[list, "text ***"], Annotated[_ffi.CData, "int"]]:
     js_converted = cstring_to_text(js)
-    values = _ffi.new("text **")
+    values = _ffi.new("text ***")
     count = _ffi.new("int *")
     result = _lib.json_each_text(js_converted, values, count)
     _check_error()
@@ -28118,9 +28186,9 @@ def jsonb_contains(
 
 def jsonb_each(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
-) -> tuple[Annotated[_ffi.CData, "text **"], Annotated[list, "Jsonb **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "text **"], Annotated[list, "Jsonb ***"], Annotated[_ffi.CData, "int"]]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
-    values = _ffi.new("Jsonb **")
+    values = _ffi.new("Jsonb ***")
     count = _ffi.new("int *")
     result = _lib.jsonb_each(jb_converted, values, count)
     _check_error()
@@ -28129,9 +28197,9 @@ def jsonb_each(
 
 def jsonb_each_text(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
-) -> tuple[Annotated[_ffi.CData, "text **"], Annotated[list, "text **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "text **"], Annotated[list, "text ***"], Annotated[_ffi.CData, "int"]]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
-    values = _ffi.new("text **")
+    values = _ffi.new("text ***")
     count = _ffi.new("int *")
     result = _lib.jsonb_each_text(jb_converted, values, count)
     _check_error()
@@ -28320,13 +28388,13 @@ def jsonb_set(
 def jsonb_set_lax(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     path_elems: list[str],
-    newjb: Annotated[_ffi.CData, "const Jsonb *"],
+    newjb: Annotated[_ffi.CData, "const Jsonb *"] | None,
     create: bool,
     handle_null: str,
 ) -> Annotated[_ffi.CData, "Jsonb *"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     path_elems_converted = [cstring_to_text(x) for x in path_elems]
-    newjb_converted = _ffi.cast("const Jsonb *", newjb)
+    newjb_converted = _ffi.cast("const Jsonb *", newjb) if newjb is not None else _ffi.NULL
     handle_null_converted = cstring_to_text(handle_null)
     result = _lib.jsonb_set_lax(
         jb_converted, path_elems_converted, len(path_elems), newjb_converted, create, handle_null_converted
@@ -28417,13 +28485,13 @@ def jsonb_ne(
 def jsonb_path_exists(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
     silent: bool,
     tz: bool,
 ) -> Annotated[int, "int"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars)
+    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
     result = _lib.jsonb_path_exists(jb_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -28432,13 +28500,13 @@ def jsonb_path_exists(
 def jsonb_path_match(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
     silent: bool,
     tz: bool,
 ) -> Annotated[bool, "bool"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars)
+    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
     result = _lib.jsonb_path_match(jb_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -28447,13 +28515,13 @@ def jsonb_path_match(
 def jsonb_path_query_all(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
     silent: bool,
     tz: bool,
 ) -> tuple[Annotated[_ffi.CData, "Jsonb **"], Annotated[_ffi.CData, "int"]]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars)
+    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
     count = _ffi.new("int *")
     result = _lib.jsonb_path_query_all(jb_converted, jp_converted, vars_converted, silent, tz, count)
     _check_error()
@@ -28463,13 +28531,13 @@ def jsonb_path_query_all(
 def jsonb_path_query_array(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Jsonb *"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars)
+    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
     result = _lib.jsonb_path_query_array(jb_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -28478,13 +28546,13 @@ def jsonb_path_query_array(
 def jsonb_path_query_first(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Jsonb *"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars)
+    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
     result = _lib.jsonb_path_query_first(jb_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -29541,14 +29609,14 @@ def tjsonb_pretty(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[
 def tjsonb_set(
     temp: Annotated[_ffi.CData, "const Temporal *"],
     keys: list[str],
-    newjb: Annotated[_ffi.CData, "const Jsonb *"],
+    newjb: Annotated[_ffi.CData, "const Jsonb *"] | None,
     create: bool,
     handle_null: str,
     lax: bool,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     keys_converted = [cstring_to_text(x) for x in keys]
-    newjb_converted = _ffi.cast("const Jsonb *", newjb)
+    newjb_converted = _ffi.cast("const Jsonb *", newjb) if newjb is not None else _ffi.NULL
     handle_null_converted = cstring_to_text(handle_null)
     result = _lib.tjsonb_set(
         temp_converted, keys_converted, len(keys), newjb_converted, create, handle_null_converted, lax
@@ -30370,16 +30438,6 @@ def npoint_ne(
     return result if result != _ffi.NULL else None
 
 
-def npoint_same(
-    np1: Annotated[_ffi.CData, "const Npoint *"], np2: Annotated[_ffi.CData, "const Npoint *"]
-) -> Annotated[bool, "bool"]:
-    np1_converted = _ffi.cast("const Npoint *", np1)
-    np2_converted = _ffi.cast("const Npoint *", np2)
-    result = _lib.npoint_same(np1_converted, np2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def nsegment_cmp(
     ns1: Annotated[_ffi.CData, "const Nsegment *"], ns2: Annotated[_ffi.CData, "const Nsegment *"]
 ) -> Annotated[int, "int"]:
@@ -31027,10 +31085,10 @@ def shortestline_tnpoint_tnpoint(
 
 
 def tnpoint_tcentroid_transfn(
-    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"]
+    state: Annotated[_ffi.CData, "SkipList *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "SkipList *"]:
     state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
-    temp_converted = _ffi.cast("const Temporal *", temp)
+    temp_converted = _ffi.cast("const Temporal *", temp) if temp is not None else _ffi.NULL
     result = _lib.tnpoint_tcentroid_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -31453,56 +31511,49 @@ def pcpoint_mem_size(pt: Annotated[_ffi.CData, "const Pcpoint *"]) -> Annotated[
 
 
 def pcpoint_get_x(
-    pt: Annotated[_ffi.CData, "const Pcpoint *"], schema: Annotated[_ffi.CData, "PCSCHEMA *"]
+    pt: Annotated[_ffi.CData, "const Pcpoint *"],
 ) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "double"]]:
     pt_converted = _ffi.cast("const Pcpoint *", pt)
-    schema_converted = _ffi.cast("PCSCHEMA *", schema)
     out = _ffi.new("double *")
-    result = _lib.pcpoint_get_x(pt_converted, schema_converted, out)
+    result = _lib.pcpoint_get_x(pt_converted, out)
     _check_error()
     return result if result != _ffi.NULL else None, out[0]
 
 
 def pcpoint_get_y(
-    pt: Annotated[_ffi.CData, "const Pcpoint *"], schema: Annotated[_ffi.CData, "PCSCHEMA *"]
+    pt: Annotated[_ffi.CData, "const Pcpoint *"],
 ) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "double"]]:
     pt_converted = _ffi.cast("const Pcpoint *", pt)
-    schema_converted = _ffi.cast("PCSCHEMA *", schema)
     out = _ffi.new("double *")
-    result = _lib.pcpoint_get_y(pt_converted, schema_converted, out)
+    result = _lib.pcpoint_get_y(pt_converted, out)
     _check_error()
     return result if result != _ffi.NULL else None, out[0]
 
 
 def pcpoint_get_z(
-    pt: Annotated[_ffi.CData, "const Pcpoint *"], schema: Annotated[_ffi.CData, "PCSCHEMA *"]
+    pt: Annotated[_ffi.CData, "const Pcpoint *"],
 ) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "double"]]:
     pt_converted = _ffi.cast("const Pcpoint *", pt)
-    schema_converted = _ffi.cast("PCSCHEMA *", schema)
     out = _ffi.new("double *")
-    result = _lib.pcpoint_get_z(pt_converted, schema_converted, out)
+    result = _lib.pcpoint_get_z(pt_converted, out)
     _check_error()
     return result if result != _ffi.NULL else None, out[0]
 
 
 def pcpoint_get_dim(
-    pt: Annotated[_ffi.CData, "const Pcpoint *"], schema: Annotated[_ffi.CData, "PCSCHEMA *"], name: str
+    pt: Annotated[_ffi.CData, "const Pcpoint *"], name: str
 ) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "double"]]:
     pt_converted = _ffi.cast("const Pcpoint *", pt)
-    schema_converted = _ffi.cast("PCSCHEMA *", schema)
     name_converted = name.encode("utf-8")
     out = _ffi.new("double *")
-    result = _lib.pcpoint_get_dim(pt_converted, schema_converted, name_converted, out)
+    result = _lib.pcpoint_get_dim(pt_converted, name_converted, out)
     _check_error()
     return result if result != _ffi.NULL else None, out[0]
 
 
-def pcpoint_to_tpcbox(
-    pt: Annotated[_ffi.CData, "const Pcpoint *"], schema: Annotated[_ffi.CData, "PCSCHEMA *"]
-) -> Annotated[_ffi.CData, "TPCBox *"]:
+def pcpoint_to_tpcbox(pt: Annotated[_ffi.CData, "const Pcpoint *"]) -> Annotated[_ffi.CData, "TPCBox *"]:
     pt_converted = _ffi.cast("const Pcpoint *", pt)
-    schema_converted = _ffi.cast("PCSCHEMA *", schema)
-    result = _lib.pcpoint_to_tpcbox(pt_converted, schema_converted)
+    result = _lib.pcpoint_to_tpcbox(pt_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -31602,10 +31653,28 @@ def meos_pc_schema_ndims(pcid: Annotated[_ffi.CData, "uint32_t"]) -> Annotated[_
     return result if result != _ffi.NULL else None
 
 
-def meos_set_pointcloud_schemas_xml(path: str) -> Annotated[None, "void"]:
-    path_converted = path.encode("utf-8")
+def meos_set_pointcloud_schemas_xml(path: str | None) -> Annotated[None, "void"]:
+    path_converted = path.encode("utf-8") if path is not None else _ffi.NULL
     _lib.meos_set_pointcloud_schemas_xml(path_converted)
     _check_error()
+
+
+def meos_initialize_pointcloud() -> Annotated[None, "void"]:
+    _lib.meos_initialize_pointcloud()
+    _check_error()
+
+
+def rtree_create_tpcbox() -> Annotated[_ffi.CData, "RTree *"]:
+    result = _lib.rtree_create_tpcbox()
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def sptree_create_tpcbox(kind: Annotated[_ffi.CData, "SPTreeKind"]) -> Annotated[_ffi.CData, "SPTree *"]:
+    kind_converted = _ffi.cast("SPTreeKind", kind)
+    result = _lib.sptree_create_tpcbox(kind_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
 
 
 def pcpoint_cmp(
@@ -32250,7 +32319,6 @@ def tpcbox_make(
     hasz: bool,
     hast: bool,
     geodetic: bool,
-    srid: Annotated[_ffi.CData, "int32_t"],
     pcid: Annotated[_ffi.CData, "uint32_t"],
     xmin: float,
     xmax: float,
@@ -32260,11 +32328,10 @@ def tpcbox_make(
     zmax: float,
     period: Annotated[_ffi.CData, "const Span *"] | None,
 ) -> Annotated[_ffi.CData, "TPCBox *"]:
-    srid_converted = _ffi.cast("int32_t", srid)
     pcid_converted = _ffi.cast("uint32_t", pcid)
     period_converted = _ffi.cast("const Span *", period) if period is not None else _ffi.NULL
     result = _lib.tpcbox_make(
-        hasx, hasz, hast, geodetic, srid_converted, pcid_converted, xmin, xmax, ymin, ymax, zmin, zmax, period_converted
+        hasx, hasz, hast, geodetic, pcid_converted, xmin, xmax, ymin, ymax, zmin, zmax, period_converted
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -32277,12 +32344,9 @@ def tpcbox_copy(box: Annotated[_ffi.CData, "const TPCBox *"]) -> Annotated[_ffi.
     return result if result != _ffi.NULL else None
 
 
-def pcpatch_to_tpcbox(
-    pa: Annotated[_ffi.CData, "const Pcpatch *"], srid: Annotated[_ffi.CData, "int32_t"]
-) -> Annotated[_ffi.CData, "TPCBox *"]:
+def pcpatch_to_tpcbox(pa: Annotated[_ffi.CData, "const Pcpatch *"]) -> Annotated[_ffi.CData, "TPCBox *"]:
     pa_converted = _ffi.cast("const Pcpatch *", pa)
-    srid_converted = _ffi.cast("int32_t", srid)
-    result = _lib.pcpatch_to_tpcbox(pa_converted, srid_converted)
+    result = _lib.pcpatch_to_tpcbox(pa_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -32564,6 +32628,16 @@ def tpcbox_ne(
     result = _lib.tpcbox_ne(box1_converted, box2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def tpcbox_sortkey(
+    box: Annotated[_ffi.CData, "const TPCBox *"],
+) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+    box_converted = _ffi.cast("const TPCBox *", box)
+    size = _ffi.new("size_t *")
+    result = _lib.tpcbox_sortkey(box_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def tpcbox_lt(
@@ -34820,26 +34894,6 @@ def pose_ne(
     return result if result != _ffi.NULL else None
 
 
-def pose_nsame(
-    pose1: Annotated[_ffi.CData, "const Pose *"], pose2: Annotated[_ffi.CData, "const Pose *"]
-) -> Annotated[bool, "bool"]:
-    pose1_converted = _ffi.cast("const Pose *", pose1)
-    pose2_converted = _ffi.cast("const Pose *", pose2)
-    result = _lib.pose_nsame(pose1_converted, pose2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pose_same(
-    pose1: Annotated[_ffi.CData, "const Pose *"], pose2: Annotated[_ffi.CData, "const Pose *"]
-) -> Annotated[bool, "bool"]:
-    pose1_converted = _ffi.cast("const Pose *", pose1)
-    pose2_converted = _ffi.cast("const Pose *", pose2)
-    result = _lib.pose_same(pose1_converted, pose2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def poseset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     string_converted = string.encode("utf-8")
     result = _lib.poseset_in(string_converted)
@@ -35877,26 +35931,6 @@ def posechain_ne(
     pc1_converted = _ffi.cast("const PoseChain *", pc1)
     pc2_converted = _ffi.cast("const PoseChain *", pc2)
     result = _lib.posechain_ne(pc1_converted, pc2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def posechain_same(
-    pc1: Annotated[_ffi.CData, "const PoseChain *"], pc2: Annotated[_ffi.CData, "const PoseChain *"]
-) -> Annotated[bool, "bool"]:
-    pc1_converted = _ffi.cast("const PoseChain *", pc1)
-    pc2_converted = _ffi.cast("const PoseChain *", pc2)
-    result = _lib.posechain_same(pc1_converted, pc2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def posechain_nsame(
-    pc1: Annotated[_ffi.CData, "const PoseChain *"], pc2: Annotated[_ffi.CData, "const PoseChain *"]
-) -> Annotated[bool, "bool"]:
-    pc1_converted = _ffi.cast("const PoseChain *", pc1)
-    pc2_converted = _ffi.cast("const PoseChain *", pc2)
-    result = _lib.posechain_nsame(pc1_converted, pc2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -37419,10 +37453,10 @@ def tgeompoint_to_tquadbin(
 
 def tgeogpoint_quadbin_split(
     temp: Annotated[_ffi.CData, "const Temporal *"], resolution: int, border_inc: bool
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "Datum **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "uint64_t **"], Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     resolution_converted = _ffi.cast("int32", resolution)
-    cells = _ffi.new("Datum **")
+    cells = _ffi.new("uint64_t **")
     count = _ffi.new("int *")
     result = _lib.tgeogpoint_quadbin_split(temp_converted, resolution_converted, border_inc, cells, count)
     _check_error()
@@ -37431,10 +37465,10 @@ def tgeogpoint_quadbin_split(
 
 def tgeompoint_quadbin_split(
     temp: Annotated[_ffi.CData, "const Temporal *"], resolution: int, border_inc: bool
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "Datum **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "uint64_t **"], Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     resolution_converted = _ffi.cast("int32", resolution)
-    cells = _ffi.new("Datum **")
+    cells = _ffi.new("uint64_t **")
     count = _ffi.new("int *")
     result = _lib.tgeompoint_quadbin_split(temp_converted, resolution_converted, border_inc, cells, count)
     _check_error()
@@ -37965,14 +37999,14 @@ def raster_clip(
 def raster_transform(
     rast: Annotated[_ffi.CData, "const Raster *"],
     srid: Annotated[_ffi.CData, "int32_t"],
-    algorithm: str,
+    algorithm: str | None,
     max_err: float,
     scale_x: float,
     scale_y: float,
 ) -> Annotated[_ffi.CData, "Raster *"]:
     rast_converted = _ffi.cast("const Raster *", rast)
     srid_converted = _ffi.cast("int32_t", srid)
-    algorithm_converted = algorithm.encode("utf-8")
+    algorithm_converted = algorithm.encode("utf-8") if algorithm is not None else _ffi.NULL
     result = _lib.raster_transform(rast_converted, srid_converted, algorithm_converted, max_err, scale_x, scale_y)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -37983,7 +38017,7 @@ def raster_transform_pipeline(
     pipelinestr: str,
     srid: Annotated[_ffi.CData, "int32_t"],
     is_forward: bool,
-    algorithm: str,
+    algorithm: str | None,
     max_err: float,
     scale_x: float,
     scale_y: float,
@@ -37991,7 +38025,7 @@ def raster_transform_pipeline(
     rast_converted = _ffi.cast("const Raster *", rast)
     pipelinestr_converted = pipelinestr.encode("utf-8")
     srid_converted = _ffi.cast("int32_t", srid)
-    algorithm_converted = algorithm.encode("utf-8")
+    algorithm_converted = algorithm.encode("utf-8") if algorithm is not None else _ffi.NULL
     result = _lib.raster_transform_pipeline(
         rast_converted,
         pipelinestr_converted,
@@ -38009,22 +38043,22 @@ def raster_transform_pipeline(
 def raster_transform_raster(
     rast: Annotated[_ffi.CData, "const Raster *"],
     alignto: Annotated[_ffi.CData, "const Raster *"],
-    algorithm: str,
+    algorithm: str | None,
     max_err: float,
 ) -> Annotated[_ffi.CData, "Raster *"]:
     rast_converted = _ffi.cast("const Raster *", rast)
     alignto_converted = _ffi.cast("const Raster *", alignto)
-    algorithm_converted = algorithm.encode("utf-8")
+    algorithm_converted = algorithm.encode("utf-8") if algorithm is not None else _ffi.NULL
     result = _lib.raster_transform_raster(rast_converted, alignto_converted, algorithm_converted, max_err)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_rescale(
-    rast: Annotated[_ffi.CData, "const Raster *"], scale_x: float, scale_y: float, algorithm: str, max_err: float
+    rast: Annotated[_ffi.CData, "const Raster *"], scale_x: float, scale_y: float, algorithm: str | None, max_err: float
 ) -> Annotated[_ffi.CData, "Raster *"]:
     rast_converted = _ffi.cast("const Raster *", rast)
-    algorithm_converted = algorithm.encode("utf-8")
+    algorithm_converted = algorithm.encode("utf-8") if algorithm is not None else _ffi.NULL
     result = _lib.raster_rescale(rast_converted, scale_x, scale_y, algorithm_converted, max_err)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -38095,18 +38129,18 @@ def raster_set_values(
     width: int,
     height: int,
     values: list[float],
-    nodata: list[bool],
-    noset: list[bool],
+    nodata: list[bool] | None,
+    noset: list[bool] | None,
     keepnodata: bool,
 ) -> Annotated[_ffi.CData, "Raster *"]:
     rast_converted = _ffi.cast("const Raster *", rast)
     values_converted = values
-    if len(nodata) != len(values):
+    if nodata is not None and len(nodata) != len(values):
         raise ValueError("nodata and values must have the same length")
-    nodata_converted = nodata
-    if len(noset) != len(values):
+    nodata_converted = nodata if nodata is not None else _ffi.NULL
+    if noset is not None and len(noset) != len(values):
         raise ValueError("noset and values must have the same length")
-    noset_converted = noset
+    noset_converted = noset if noset is not None else _ffi.NULL
     result = _lib.raster_set_values(
         rast_converted,
         band,
@@ -38196,7 +38230,7 @@ def raster_map_algebra(
     stat: str,
     pixeltype: str | None,
     extenttype: str | None,
-    customextent: Annotated[_ffi.CData, "const Raster *"],
+    customextent: Annotated[_ffi.CData, "const Raster *"] | None,
     distancex: int,
     distancey: int,
 ) -> Annotated[_ffi.CData, "Raster *"]:
@@ -38204,7 +38238,7 @@ def raster_map_algebra(
     stat_converted = stat.encode("utf-8")
     pixeltype_converted = pixeltype.encode("utf-8") if pixeltype is not None else _ffi.NULL
     extenttype_converted = extenttype.encode("utf-8") if extenttype is not None else _ffi.NULL
-    customextent_converted = _ffi.cast("const Raster *", customextent)
+    customextent_converted = _ffi.cast("const Raster *", customextent) if customextent is not None else _ffi.NULL
     distancex_converted = _ffi.cast("int32", distancex)
     distancey_converted = _ffi.cast("int32", distancey)
     result = _lib.raster_map_algebra(
@@ -38221,14 +38255,14 @@ def raster_map_algebra(
     return result if result != _ffi.NULL else None
 
 
-def geomval_arr_free(gvarr: list[Annotated[_ffi.CData, "GeomVal"]]) -> Annotated[None, "void"]:
-    gvarr_converted = gvarr
+def geomval_arr_free(gvarr: list[Annotated[_ffi.CData, "GeomVal"]] | None) -> Annotated[None, "void"]:
+    gvarr_converted = gvarr if gvarr is not None else _ffi.NULL
     _lib.geomval_arr_free(gvarr_converted, len(gvarr))
     _check_error()
 
 
-def pixel_arr_free(pixarr: list[Annotated[_ffi.CData, "Pixel"]]) -> Annotated[None, "void"]:
-    pixarr_converted = pixarr
+def pixel_arr_free(pixarr: list[Annotated[_ffi.CData, "Pixel"]] | None) -> Annotated[None, "void"]:
+    pixarr_converted = pixarr if pixarr is not None else _ffi.NULL
     _lib.pixel_arr_free(pixarr_converted, len(pixarr))
     _check_error()
 
@@ -38351,89 +38385,94 @@ def raster_not_same_alignment_reason(
 
 
 def raster_same_alignment_combinefn(
-    state1: Annotated[_ffi.CData, "RasterAlignState *"], state2: Annotated[_ffi.CData, "const RasterAlignState *"]
+    state1: Annotated[_ffi.CData, "RasterAlignState *"] | None,
+    state2: Annotated[_ffi.CData, "const RasterAlignState *"] | None,
 ) -> Annotated[_ffi.CData, "RasterAlignState *"]:
-    state1_converted = _ffi.cast("RasterAlignState *", state1)
-    state2_converted = _ffi.cast("const RasterAlignState *", state2)
+    state1_converted = _ffi.cast("RasterAlignState *", state1) if state1 is not None else _ffi.NULL
+    state2_converted = _ffi.cast("const RasterAlignState *", state2) if state2 is not None else _ffi.NULL
     result = _lib.raster_same_alignment_combinefn(state1_converted, state2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
-def raster_same_alignment_finalfn(state: Annotated[_ffi.CData, "RasterAlignState *"]) -> Annotated[bool, "bool"]:
-    state_converted = _ffi.cast("RasterAlignState *", state)
+def raster_same_alignment_finalfn(state: Annotated[_ffi.CData, "RasterAlignState *"] | None) -> Annotated[bool, "bool"]:
+    state_converted = _ffi.cast("RasterAlignState *", state) if state is not None else _ffi.NULL
     result = _lib.raster_same_alignment_finalfn(state_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_same_alignment_transfn(
-    state: Annotated[_ffi.CData, "RasterAlignState *"], rast: Annotated[_ffi.CData, "const Raster *"]
+    state: Annotated[_ffi.CData, "RasterAlignState *"] | None, rast: Annotated[_ffi.CData, "const Raster *"] | None
 ) -> Annotated[_ffi.CData, "RasterAlignState *"]:
-    state_converted = _ffi.cast("RasterAlignState *", state)
-    rast_converted = _ffi.cast("const Raster *", rast)
+    state_converted = _ffi.cast("RasterAlignState *", state) if state is not None else _ffi.NULL
+    rast_converted = _ffi.cast("const Raster *", rast) if rast is not None else _ffi.NULL
     result = _lib.raster_same_alignment_transfn(state_converted, rast_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_summary_stats_combinefn(
-    state1: Annotated[_ffi.CData, "RasterStatsState *"], state2: Annotated[_ffi.CData, "const RasterStatsState *"]
+    state1: Annotated[_ffi.CData, "RasterStatsState *"] | None,
+    state2: Annotated[_ffi.CData, "const RasterStatsState *"] | None,
 ) -> Annotated[_ffi.CData, "RasterStatsState *"]:
-    state1_converted = _ffi.cast("RasterStatsState *", state1)
-    state2_converted = _ffi.cast("const RasterStatsState *", state2)
+    state1_converted = _ffi.cast("RasterStatsState *", state1) if state1 is not None else _ffi.NULL
+    state2_converted = _ffi.cast("const RasterStatsState *", state2) if state2 is not None else _ffi.NULL
     result = _lib.raster_summary_stats_combinefn(state1_converted, state2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_summary_stats_finalfn(
-    state: Annotated[_ffi.CData, "RasterStatsState *"],
+    state: Annotated[_ffi.CData, "RasterStatsState *"] | None,
 ) -> Annotated[_ffi.CData, "BandStats *"]:
-    state_converted = _ffi.cast("RasterStatsState *", state)
+    state_converted = _ffi.cast("RasterStatsState *", state) if state is not None else _ffi.NULL
     result = _lib.raster_summary_stats_finalfn(state_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_summary_stats_transfn(
-    state: Annotated[_ffi.CData, "RasterStatsState *"],
-    rast: Annotated[_ffi.CData, "const Raster *"],
+    state: Annotated[_ffi.CData, "RasterStatsState *"] | None,
+    rast: Annotated[_ffi.CData, "const Raster *"] | None,
     band: int,
     exclude_nodata: bool,
 ) -> Annotated[_ffi.CData, "RasterStatsState *"]:
-    state_converted = _ffi.cast("RasterStatsState *", state)
-    rast_converted = _ffi.cast("const Raster *", rast)
+    state_converted = _ffi.cast("RasterStatsState *", state) if state is not None else _ffi.NULL
+    rast_converted = _ffi.cast("const Raster *", rast) if rast is not None else _ffi.NULL
     result = _lib.raster_summary_stats_transfn(state_converted, rast_converted, band, exclude_nodata)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_union_combinefn(
-    state1: Annotated[_ffi.CData, "RasterUnionState *"], state2: Annotated[_ffi.CData, "const RasterUnionState *"]
+    state1: Annotated[_ffi.CData, "RasterUnionState *"] | None,
+    state2: Annotated[_ffi.CData, "const RasterUnionState *"] | None,
 ) -> Annotated[_ffi.CData, "RasterUnionState *"]:
-    state1_converted = _ffi.cast("RasterUnionState *", state1)
-    state2_converted = _ffi.cast("const RasterUnionState *", state2)
+    state1_converted = _ffi.cast("RasterUnionState *", state1) if state1 is not None else _ffi.NULL
+    state2_converted = _ffi.cast("const RasterUnionState *", state2) if state2 is not None else _ffi.NULL
     result = _lib.raster_union_combinefn(state1_converted, state2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
-def raster_union_finalfn(state: Annotated[_ffi.CData, "RasterUnionState *"]) -> Annotated[_ffi.CData, "Raster *"]:
-    state_converted = _ffi.cast("RasterUnionState *", state)
+def raster_union_finalfn(
+    state: Annotated[_ffi.CData, "RasterUnionState *"] | None,
+) -> Annotated[_ffi.CData, "Raster *"]:
+    state_converted = _ffi.cast("RasterUnionState *", state) if state is not None else _ffi.NULL
     result = _lib.raster_union_finalfn(state_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_union_transfn(
-    state: Annotated[_ffi.CData, "RasterUnionState *"],
-    rast: Annotated[_ffi.CData, "const Raster *"],
+    state: Annotated[_ffi.CData, "RasterUnionState *"] | None,
+    rast: Annotated[_ffi.CData, "const Raster *"] | None,
     band: int,
     uniontype: str | None,
 ) -> Annotated[_ffi.CData, "RasterUnionState *"]:
-    state_converted = _ffi.cast("RasterUnionState *", state)
-    rast_converted = _ffi.cast("const Raster *", rast)
+    state_converted = _ffi.cast("RasterUnionState *", state) if state is not None else _ffi.NULL
+    rast_converted = _ffi.cast("const Raster *", rast) if rast is not None else _ffi.NULL
     uniontype_converted = uniontype.encode("utf-8") if uniontype is not None else _ffi.NULL
     result = _lib.raster_union_transfn(state_converted, rast_converted, band, uniontype_converted)
     _check_error()
@@ -38580,11 +38619,11 @@ def raster_value(
     rast: Annotated[_ffi.CData, "const Raster *"],
     band: int,
     exclude_nodata: bool,
-    resample: str,
+    resample: str | None,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
     rast_converted = _ffi.cast("const Raster *", rast)
-    resample_converted = resample.encode("utf-8")
+    resample_converted = resample.encode("utf-8") if resample is not None else _ffi.NULL
     result = _lib.raster_value(traj_converted, rast_converted, band, exclude_nodata, resample_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -39276,10 +39315,10 @@ def trgeometry_delete_tstzspanset(
 
 
 def trgeometry_merge(
-    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+    temp1: Annotated[_ffi.CData, "const Temporal *"] | None, temp2: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    temp1_converted = _ffi.cast("const Temporal *", temp1) if temp1 is not None else _ffi.NULL
+    temp2_converted = _ffi.cast("const Temporal *", temp2) if temp2 is not None else _ffi.NULL
     result = _lib.trgeometry_merge(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -39373,10 +39412,10 @@ def trgeometry_as_tsequence(
 
 
 def trgeometry_as_tsequenceset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], interp_str: str
+    temp: Annotated[_ffi.CData, "const Temporal *"], interp_str: str | None
 ) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
-    interp_str_converted = interp_str.encode("utf-8")
+    interp_str_converted = interp_str.encode("utf-8") if interp_str is not None else _ffi.NULL
     result = _lib.trgeometry_as_tsequenceset(temp_converted, interp_str_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -40913,10 +40952,10 @@ def tgeompoint_to_ts2cell(
 
 def tgeogpoint_s2cell_split(
     temp: Annotated[_ffi.CData, "const Temporal *"], level: int, border_inc: bool
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "Datum **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "uint64_t **"], Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     level_converted = _ffi.cast("int32", level)
-    cells = _ffi.new("Datum **")
+    cells = _ffi.new("uint64_t **")
     count = _ffi.new("int *")
     result = _lib.tgeogpoint_s2cell_split(temp_converted, level_converted, border_inc, cells, count)
     _check_error()
@@ -40925,10 +40964,10 @@ def tgeogpoint_s2cell_split(
 
 def tgeompoint_s2cell_split(
     temp: Annotated[_ffi.CData, "const Temporal *"], level: int, border_inc: bool
-) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "Datum **"], Annotated[_ffi.CData, "int"]]:
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "uint64_t **"], Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     level_converted = _ffi.cast("int32", level)
-    cells = _ffi.new("Datum **")
+    cells = _ffi.new("uint64_t **")
     count = _ffi.new("int *")
     result = _lib.tgeompoint_s2cell_split(temp_converted, level_converted, border_inc, cells, count)
     _check_error()
