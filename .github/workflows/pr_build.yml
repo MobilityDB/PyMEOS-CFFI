@@ -115,10 +115,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15-intel, macos-14]
+        os: [macos-15-intel, macos-15]
         include:
           - ld_prefix: "/usr/local"
-          - os: macos-14
+          - os: macos-15
             ld_prefix: "/opt/homebrew"
 
     steps:
