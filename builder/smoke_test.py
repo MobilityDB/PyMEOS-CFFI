@@ -30,7 +30,17 @@ tz_param = ms_sig.parameters.get("tz_str")
 assert tz_param is not None, "meos_initialize lost tz_str arg"
 assert "None" in str(tz_param.annotation), f"tz_str annotation does not allow None: {tz_param.annotation}"
 
-# Live initialisation check: the standard happy-path cycle works.
+# A function returning a byte array and its length through a size_t output
+# parameter returns the bytes, whatever its name: an encoding, a sort key, an
+# aggregate state.
+for name in ("set_as_wkb", "temporal_sortkey", "npoint_as_wkb", "pose_as_wkb", "cbuffer_as_wkb"):
+    ann = inspect.signature(getattr(f, name)).return_annotation
+    assert ann in (bytes, "bytes"), f"{name} returns {ann}, not bytes"
+
+# Live initialisation check: the standard happy-path cycle works, and a WKB
+# encoding comes back as bytes.
 meos_initialize("UTC")
+wkb = f.set_as_wkb(f.intset_in("{1, 2, 3}"), 4)
+assert isinstance(wkb, bytes) and len(wkb) > 0, f"set_as_wkb returned {type(wkb)}"
 meos_finalize()
 print(f"PyMEOS CFFI build + shape smoke test OK on {label}")

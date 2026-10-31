@@ -1240,16 +1240,13 @@ def set_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def set_as_wkb(
-    s: Annotated[_ffi.CData, "const Set *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def set_as_wkb(s: Annotated[_ffi.CData, "const Set *"], variant: int) -> bytes:
     s_converted = _ffi.cast("const Set *", s)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.set_as_wkb(s_converted, variant_converted, size_out)
     _check_error()
-    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
-    return result_converted
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def set_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "Set *"]:
@@ -1278,16 +1275,13 @@ def span_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def span_as_wkb(
-    s: Annotated[_ffi.CData, "const Span *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def span_as_wkb(s: Annotated[_ffi.CData, "const Span *"], variant: int) -> bytes:
     s_converted = _ffi.cast("const Span *", s)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.span_as_wkb(s_converted, variant_converted, size_out)
     _check_error()
-    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
-    return result_converted
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def span_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "Span *"]:
@@ -1316,16 +1310,13 @@ def spanset_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def spanset_as_wkb(
-    ss: Annotated[_ffi.CData, "const SpanSet *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def spanset_as_wkb(ss: Annotated[_ffi.CData, "const SpanSet *"], variant: int) -> bytes:
     ss_converted = _ffi.cast("const SpanSet *", ss)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.spanset_as_wkb(ss_converted, variant_converted, size_out)
     _check_error()
-    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
-    return result_converted
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def spanset_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "SpanSet *"]:
@@ -2825,14 +2816,12 @@ def set_ne(
     return result if result != _ffi.NULL else None
 
 
-def set_sortkey(
-    s: Annotated[_ffi.CData, "const Set *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def set_sortkey(s: Annotated[_ffi.CData, "const Set *"]) -> bytes:
     s_converted = _ffi.cast("const Set *", s)
     size = _ffi.new("size_t *")
     result = _lib.set_sortkey(s_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def span_cmp(
@@ -2905,14 +2894,12 @@ def span_ne(
     return result if result != _ffi.NULL else None
 
 
-def span_sortkey(
-    s: Annotated[_ffi.CData, "const Span *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def span_sortkey(s: Annotated[_ffi.CData, "const Span *"]) -> bytes:
     s_converted = _ffi.cast("const Span *", s)
     size = _ffi.new("size_t *")
     result = _lib.span_sortkey(s_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def spanset_cmp(
@@ -2985,14 +2972,12 @@ def spanset_ne(
     return result if result != _ffi.NULL else None
 
 
-def spanset_sortkey(
-    ss: Annotated[_ffi.CData, "const SpanSet *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def spanset_sortkey(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> bytes:
     ss_converted = _ffi.cast("const SpanSet *", ss)
     size = _ffi.new("size_t *")
     result = _lib.spanset_sortkey(ss_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def set_spans(
@@ -6266,14 +6251,12 @@ def setstate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def setstate_serialize(
-    state: Annotated[_ffi.CData, "const Set *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def setstate_serialize(state: Annotated[_ffi.CData, "const Set *"]) -> bytes:
     state_converted = _ffi.cast("const Set *", state)
     size_out = _ffi.new("size_t *")
     result = _lib.setstate_serialize(state_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def span_extent_transfn(
@@ -6340,14 +6323,12 @@ def spansetstate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "SpanSet *"]
     return result if result != _ffi.NULL else None
 
 
-def spansetstate_serialize(
-    state: Annotated[_ffi.CData, "const SpanSet *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def spansetstate_serialize(state: Annotated[_ffi.CData, "const SpanSet *"]) -> bytes:
     state_converted = _ffi.cast("const SpanSet *", state)
     size_out = _ffi.new("size_t *")
     result = _lib.spansetstate_serialize(state_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def text_union_transfn(state: Annotated[_ffi.CData, "Set *"] | None, txt: str) -> Annotated[_ffi.CData, "Set *"]:
@@ -6612,16 +6593,13 @@ def tbox_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def tbox_as_wkb(
-    box: Annotated[_ffi.CData, "const TBox *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def tbox_as_wkb(box: Annotated[_ffi.CData, "const TBox *"], variant: int) -> bytes:
     box_converted = _ffi.cast("const TBox *", box)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.tbox_as_wkb(box_converted, variant_converted, size_out)
     _check_error()
-    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
-    return result_converted
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def tbox_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "TBox *"]:
@@ -7647,14 +7625,12 @@ def tbox_ne(
     return result if result != _ffi.NULL else None
 
 
-def tbox_sortkey(
-    box: Annotated[_ffi.CData, "const TBox *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def tbox_sortkey(box: Annotated[_ffi.CData, "const TBox *"]) -> bytes:
     box_converted = _ffi.cast("const TBox *", box)
     size = _ffi.new("size_t *")
     result = _lib.tbox_sortkey(box_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def tbool_from_mfjson(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
@@ -7702,16 +7678,13 @@ def temporal_as_mfjson(
     return result if result != _ffi.NULL else None
 
 
-def temporal_as_wkb(
-    temp: Annotated[_ffi.CData, "const Temporal *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def temporal_as_wkb(temp: Annotated[_ffi.CData, "const Temporal *"], variant: int) -> bytes:
     temp_converted = _ffi.cast("const Temporal *", temp)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.temporal_as_wkb(temp_converted, variant_converted, size_out)
     _check_error()
-    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
-    return result_converted
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def wkb_variant_from_endian(endian: str | None) -> Annotated[int, "uint8_t"]:
@@ -9511,14 +9484,12 @@ def temporal_ne(
     return result if result != _ffi.NULL else None
 
 
-def temporal_sortkey(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def temporal_sortkey(temp: Annotated[_ffi.CData, "const Temporal *"]) -> bytes:
     temp_converted = _ffi.cast("const Temporal *", temp)
     size = _ffi.new("size_t *")
     result = _lib.temporal_sortkey(temp_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def always_eq_bool_tbool(b: bool, temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[int, "int"]:
@@ -12498,14 +12469,12 @@ def taggstate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "SkipList *"]:
     return result if result != _ffi.NULL else None
 
 
-def taggstate_serialize(
-    state: Annotated[_ffi.CData, "SkipList *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def taggstate_serialize(state: Annotated[_ffi.CData, "SkipList *"]) -> bytes:
     state_converted = _ffi.cast("SkipList *", state)
     size_out = _ffi.new("size_t *")
     result = _lib.taggstate_serialize(state_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def tbigint_tmax_transfn(
@@ -14343,15 +14312,13 @@ def gbox_out(box: Annotated[_ffi.CData, "const GBOX *"], maxdd: int) -> Annotate
     return result if result != _ffi.NULL else None
 
 
-def geo_as_ewkb(
-    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str | None
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def geo_as_ewkb(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str | None) -> bytes:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     endian_converted = endian.encode("utf-8") if endian is not None else _ffi.NULL
     size = _ffi.new("size_t *")
     result = _lib.geo_as_ewkb(gs_converted, endian_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def geo_as_ewkt(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], precision: int) -> Annotated[str, "char *"]:
@@ -15410,15 +15377,13 @@ def spatialset_as_text(set: Annotated[_ffi.CData, "const Set *"], maxdd: int) ->
     return result if result != _ffi.NULL else None
 
 
-def spatialset_as_ewkb(
-    s: Annotated[_ffi.CData, "const Set *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def spatialset_as_ewkb(s: Annotated[_ffi.CData, "const Set *"], variant: int) -> bytes:
     s_converted = _ffi.cast("const Set *", s)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.spatialset_as_ewkb(s_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def spatialset_as_ewkt(set: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
@@ -15644,15 +15609,13 @@ def spatialset_transform_pipeline(
     return result if result != _ffi.NULL else None
 
 
-def stbox_as_ewkb(
-    box: Annotated[_ffi.CData, "const STBox *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def stbox_as_ewkb(box: Annotated[_ffi.CData, "const STBox *"], variant: int) -> bytes:
     box_converted = _ffi.cast("const STBox *", box)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.stbox_as_ewkb(box_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def stbox_as_hexewkb(
@@ -15679,16 +15642,13 @@ def stbox_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def stbox_as_wkb(
-    box: Annotated[_ffi.CData, "const STBox *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def stbox_as_wkb(box: Annotated[_ffi.CData, "const STBox *"], variant: int) -> bytes:
     box_converted = _ffi.cast("const STBox *", box)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.stbox_as_wkb(box_converted, variant_converted, size_out)
     _check_error()
-    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
-    return result_converted
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def stbox_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "STBox *"]:
@@ -16405,14 +16365,12 @@ def stbox_ne(
     return result if result != _ffi.NULL else None
 
 
-def stbox_sortkey(
-    box: Annotated[_ffi.CData, "const STBox *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def stbox_sortkey(box: Annotated[_ffi.CData, "const STBox *"]) -> bytes:
     box_converted = _ffi.cast("const STBox *", box)
     size = _ffi.new("size_t *")
     result = _lib.stbox_sortkey(box_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def tspatial_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
@@ -16479,15 +16437,13 @@ def tgeompoint_in(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     return result if result != _ffi.NULL else None
 
 
-def tspatial_as_ewkb(
-    temp: Annotated[_ffi.CData, "const Temporal *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def tspatial_as_ewkb(temp: Annotated[_ffi.CData, "const Temporal *"], variant: int) -> bytes:
     temp_converted = _ffi.cast("const Temporal *", temp)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.tspatial_as_ewkb(temp_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def tspatial_as_ewkt(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
@@ -19303,15 +19259,13 @@ def geo_cluster_within(
     return result if result != _ffi.NULL else None, count[0]
 
 
-def cbuffer_as_ewkb(
-    cb: Annotated[_ffi.CData, "const Cbuffer *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def cbuffer_as_ewkb(cb: Annotated[_ffi.CData, "const Cbuffer *"], variant: int) -> bytes:
     cb_converted = _ffi.cast("const Cbuffer *", cb)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.cbuffer_as_ewkb(cb_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def cbuffer_as_ewkt(cb: Annotated[_ffi.CData, "const Cbuffer *"], maxdd: int) -> Annotated[str, "char *"]:
@@ -19354,15 +19308,13 @@ def cbuffer_as_text(cb: Annotated[_ffi.CData, "const Cbuffer *"], maxdd: int) ->
     return result if result != _ffi.NULL else None
 
 
-def cbuffer_as_wkb(
-    cb: Annotated[_ffi.CData, "const Cbuffer *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def cbuffer_as_wkb(cb: Annotated[_ffi.CData, "const Cbuffer *"], variant: int) -> bytes:
     cb_converted = _ffi.cast("const Cbuffer *", cb)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.cbuffer_as_wkb(cb_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def cbuffer_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "Cbuffer *"]:
@@ -21621,15 +21573,13 @@ def h3index_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "uint64_t"]:
     return result if result != _ffi.NULL else None
 
 
-def h3index_as_wkb(
-    cell: Annotated[_ffi.CData, "uint64_t"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def h3index_as_wkb(cell: Annotated[_ffi.CData, "uint64_t"], variant: int) -> bytes:
     cell_converted = _ffi.cast("uint64_t", cell)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.h3index_as_wkb(cell_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def h3index_as_hexwkb(
@@ -22839,34 +22789,28 @@ def spanset_make_free(
     return result if result != _ffi.NULL else None
 
 
-def set_sortkey_intl(
-    s: Annotated[_ffi.CData, "const Set *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def set_sortkey_intl(s: Annotated[_ffi.CData, "const Set *"]) -> bytes:
     s_converted = _ffi.cast("const Set *", s)
     size = _ffi.new("size_t *")
     result = _lib.set_sortkey_intl(s_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
-def span_sortkey_intl(
-    s: Annotated[_ffi.CData, "const Span *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def span_sortkey_intl(s: Annotated[_ffi.CData, "const Span *"]) -> bytes:
     s_converted = _ffi.cast("const Span *", s)
     size = _ffi.new("size_t *")
     result = _lib.span_sortkey_intl(s_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
-def spanset_sortkey_intl(
-    ss: Annotated[_ffi.CData, "const SpanSet *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def spanset_sortkey_intl(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> bytes:
     ss_converted = _ffi.cast("const SpanSet *", ss)
     size = _ffi.new("size_t *")
     result = _lib.spanset_sortkey_intl(ss_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def set_span(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Span *"]:
@@ -24386,14 +24330,12 @@ def inter_tbox_tbox(
     return None
 
 
-def tbox_sortkey_intl(
-    box: Annotated[_ffi.CData, "const TBox *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def tbox_sortkey_intl(box: Annotated[_ffi.CData, "const TBox *"]) -> bytes:
     box_converted = _ffi.cast("const TBox *", box)
     size = _ffi.new("size_t *")
     result = _lib.tbox_sortkey_intl(box_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def tboolinst_in(string: str) -> Annotated[_ffi.CData, "TInstant *"]:
@@ -26359,14 +26301,12 @@ def tinstant_cmp(
     return result if result != _ffi.NULL else None
 
 
-def temporal_sortkey_intl(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def temporal_sortkey_intl(temp: Annotated[_ffi.CData, "const Temporal *"]) -> bytes:
     temp_converted = _ffi.cast("const Temporal *", temp)
     size = _ffi.new("size_t *")
     result = _lib.temporal_sortkey_intl(temp_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def tinstant_eq(
@@ -27636,14 +27576,12 @@ def stbox_geo(box: Annotated[_ffi.CData, "const STBox *"]) -> Annotated[_ffi.CDa
     return result if result != _ffi.NULL else None
 
 
-def stbox_sortkey_intl(
-    box: Annotated[_ffi.CData, "const STBox *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def stbox_sortkey_intl(box: Annotated[_ffi.CData, "const STBox *"]) -> bytes:
     box_converted = _ffi.cast("const STBox *", box)
     size = _ffi.new("size_t *")
     result = _lib.stbox_sortkey_intl(box_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def tgeogpointinst_in(string: str) -> Annotated[_ffi.CData, "TInstant *"]:
@@ -30430,15 +30368,13 @@ def tne_tjsonb_jsonb(
     return result if result != _ffi.NULL else None
 
 
-def npoint_as_ewkb(
-    np: Annotated[_ffi.CData, "const Npoint *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def npoint_as_ewkb(np: Annotated[_ffi.CData, "const Npoint *"], variant: int) -> bytes:
     np_converted = _ffi.cast("const Npoint *", np)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.npoint_as_ewkb(np_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def npoint_as_ewkt(np: Annotated[_ffi.CData, "const Npoint *"], maxdd: int) -> Annotated[str, "char *"]:
@@ -30481,15 +30417,13 @@ def npoint_as_text(np: Annotated[_ffi.CData, "const Npoint *"], maxdd: int) -> A
     return result if result != _ffi.NULL else None
 
 
-def npoint_as_wkb(
-    np: Annotated[_ffi.CData, "const Npoint *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def npoint_as_wkb(np: Annotated[_ffi.CData, "const Npoint *"], variant: int) -> bytes:
     np_converted = _ffi.cast("const Npoint *", np)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.npoint_as_wkb(np_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def npoint_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "Npoint *"]:
@@ -30545,15 +30479,13 @@ def nsegment_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def nsegment_as_wkb(
-    ns: Annotated[_ffi.CData, "const Nsegment *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def nsegment_as_wkb(ns: Annotated[_ffi.CData, "const Nsegment *"], variant: int) -> bytes:
     ns_converted = _ffi.cast("const Nsegment *", ns)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.nsegment_as_wkb(ns_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def nsegment_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "Nsegment *"]:
@@ -30585,15 +30517,13 @@ def nsegment_out(ns: Annotated[_ffi.CData, "const Nsegment *"], maxdd: int) -> A
     return result if result != _ffi.NULL else None
 
 
-def nsegment_as_ewkb(
-    ns: Annotated[_ffi.CData, "const Nsegment *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def nsegment_as_ewkb(ns: Annotated[_ffi.CData, "const Nsegment *"], variant: int) -> bytes:
     ns_converted = _ffi.cast("const Nsegment *", ns)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.nsegment_as_ewkb(ns_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def nsegment_as_ewkt(ns: Annotated[_ffi.CData, "const Nsegment *"], maxdd: int) -> Annotated[str, "char *"]:
@@ -32699,15 +32629,13 @@ def pcpatch_union_transfn(
     return result if result != _ffi.NULL else None
 
 
-def tpcbox_as_ewkb(
-    box: Annotated[_ffi.CData, "const TPCBox *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def tpcbox_as_ewkb(box: Annotated[_ffi.CData, "const TPCBox *"], variant: int) -> bytes:
     box_converted = _ffi.cast("const TPCBox *", box)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.tpcbox_as_ewkb(box_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def tpcbox_as_hexewkb(
@@ -32734,15 +32662,13 @@ def tpcbox_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def tpcbox_as_wkb(
-    box: Annotated[_ffi.CData, "const TPCBox *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def tpcbox_as_wkb(box: Annotated[_ffi.CData, "const TPCBox *"], variant: int) -> bytes:
     box_converted = _ffi.cast("const TPCBox *", box)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.tpcbox_as_wkb(box_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def tpcbox_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "TPCBox *"]:
@@ -33090,14 +33016,12 @@ def tpcbox_ne(
     return result if result != _ffi.NULL else None
 
 
-def tpcbox_sortkey(
-    box: Annotated[_ffi.CData, "const TPCBox *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def tpcbox_sortkey(box: Annotated[_ffi.CData, "const TPCBox *"]) -> bytes:
     box_converted = _ffi.cast("const TPCBox *", box)
     size = _ffi.new("size_t *")
     result = _lib.tpcbox_sortkey(box_converted, size)
     _check_error()
-    return result if result != _ffi.NULL else None, size[0]
+    return bytes(_ffi.buffer(result, size[0])) if result != _ffi.NULL else None
 
 
 def tpcbox_lt(
@@ -34717,15 +34641,13 @@ def nad_tpcpoint_geo(
     return result if result != _ffi.NULL else None
 
 
-def pose_as_ewkb(
-    pose: Annotated[_ffi.CData, "const Pose *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def pose_as_ewkb(pose: Annotated[_ffi.CData, "const Pose *"], variant: int) -> bytes:
     pose_converted = _ffi.cast("const Pose *", pose)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.pose_as_ewkb(pose_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def pose_as_ewkt(pose: Annotated[_ffi.CData, "const Pose *"], maxdd: int) -> Annotated[str, "char *"]:
@@ -34768,15 +34690,13 @@ def pose_as_text(pose: Annotated[_ffi.CData, "const Pose *"], maxdd: int) -> Ann
     return result if result != _ffi.NULL else None
 
 
-def pose_as_wkb(
-    pose: Annotated[_ffi.CData, "const Pose *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def pose_as_wkb(pose: Annotated[_ffi.CData, "const Pose *"], variant: int) -> bytes:
     pose_converted = _ffi.cast("const Pose *", pose)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.pose_as_wkb(pose_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def pose_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "Pose *"]:
@@ -36113,15 +36033,13 @@ def posechain_as_text(pc: Annotated[_ffi.CData, "const PoseChain *"], maxdd: int
     return result if result != _ffi.NULL else None
 
 
-def posechain_as_ewkb(
-    pc: Annotated[_ffi.CData, "const PoseChain *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def posechain_as_ewkb(pc: Annotated[_ffi.CData, "const PoseChain *"], variant: int) -> bytes:
     pc_converted = _ffi.cast("const PoseChain *", pc)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.posechain_as_ewkb(pc_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def posechain_as_ewkt(pc: Annotated[_ffi.CData, "const PoseChain *"], maxdd: int) -> Annotated[str, "char *"]:
@@ -36132,15 +36050,13 @@ def posechain_as_ewkt(pc: Annotated[_ffi.CData, "const PoseChain *"], maxdd: int
     return result if result != _ffi.NULL else None
 
 
-def posechain_as_wkb(
-    pc: Annotated[_ffi.CData, "const PoseChain *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def posechain_as_wkb(pc: Annotated[_ffi.CData, "const PoseChain *"], variant: int) -> bytes:
     pc_converted = _ffi.cast("const PoseChain *", pc)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.posechain_as_wkb(pc_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def posechain_as_hexewkb(
@@ -37168,15 +37084,13 @@ def quadbin_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def quadbin_as_wkb(
-    cell: Annotated[_ffi.CData, "uint64_t"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def quadbin_as_wkb(cell: Annotated[_ffi.CData, "uint64_t"], variant: int) -> bytes:
     cell_converted = _ffi.cast("uint64_t", cell)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.quadbin_as_wkb(cell_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def quadbin_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "uint64_t"]:
@@ -38198,15 +38112,13 @@ def raquet_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "Raquet *"]:
     return result if result != _ffi.NULL else None
 
 
-def raquet_as_wkb(
-    rq: Annotated[_ffi.CData, "const Raquet *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def raquet_as_wkb(rq: Annotated[_ffi.CData, "const Raquet *"], variant: int) -> bytes:
     rq_converted = _ffi.cast("const Raquet *", rq)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.raquet_as_wkb(rq_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def raquet_as_hexwkb(
@@ -38318,14 +38230,12 @@ def raquet_band_nodata_value(rq: Annotated[_ffi.CData, "const Raquet *"]) -> Ann
     return None
 
 
-def raquet_pixels(
-    rq: Annotated[_ffi.CData, "const Raquet *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def raquet_pixels(rq: Annotated[_ffi.CData, "const Raquet *"]) -> bytes:
     rq_converted = _ffi.cast("const Raquet *", rq)
     size_out = _ffi.new("size_t *")
     result = _lib.raquet_pixels(rq_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def raquet_hash(rq: Annotated[_ffi.CData, "const Raquet *"]) -> Annotated[_ffi.CData, "uint32_t"]:
@@ -38366,15 +38276,13 @@ def raster_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "Raster *"]:
     return result if result != _ffi.NULL else None
 
 
-def raster_as_wkb(
-    rast: Annotated[_ffi.CData, "const Raster *"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def raster_as_wkb(rast: Annotated[_ffi.CData, "const Raster *"], variant: int) -> bytes:
     rast_converted = _ffi.cast("const Raster *", rast)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.raster_as_wkb(rast_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def raster_as_hexwkb(
@@ -38583,14 +38491,12 @@ def raster_band_nodata_value(
     return None
 
 
-def raster_band_pixels(
-    rast: Annotated[_ffi.CData, "const Raster *"], band: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def raster_band_pixels(rast: Annotated[_ffi.CData, "const Raster *"], band: int) -> bytes:
     rast_converted = _ffi.cast("const Raster *", rast)
     size_out = _ffi.new("size_t *")
     result = _lib.raster_band_pixels(rast_converted, band, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def bandstats_count(stats: Annotated[_ffi.CData, "const BandStats *"]) -> Annotated[_ffi.CData, "int64_t"]:
@@ -39163,14 +39069,12 @@ def rasteralignstate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "RasterA
     return result if result != _ffi.NULL else None
 
 
-def rasteralignstate_serialize(
-    state: Annotated[_ffi.CData, "const RasterAlignState *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def rasteralignstate_serialize(state: Annotated[_ffi.CData, "const RasterAlignState *"]) -> bytes:
     state_converted = _ffi.cast("const RasterAlignState *", state)
     size_out = _ffi.new("size_t *")
     result = _lib.rasteralignstate_serialize(state_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def rasterstatsstate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "RasterStatsState *"]:
@@ -39180,14 +39084,12 @@ def rasterstatsstate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "RasterS
     return result if result != _ffi.NULL else None
 
 
-def rasterstatsstate_serialize(
-    state: Annotated[_ffi.CData, "const RasterStatsState *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def rasterstatsstate_serialize(state: Annotated[_ffi.CData, "const RasterStatsState *"]) -> bytes:
     state_converted = _ffi.cast("const RasterStatsState *", state)
     size_out = _ffi.new("size_t *")
     result = _lib.rasterstatsstate_serialize(state_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def rasterunionstate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "RasterUnionState *"]:
@@ -39197,14 +39099,12 @@ def rasterunionstate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "RasterU
     return result if result != _ffi.NULL else None
 
 
-def rasterunionstate_serialize(
-    state: Annotated[_ffi.CData, "const RasterUnionState *"],
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def rasterunionstate_serialize(state: Annotated[_ffi.CData, "const RasterUnionState *"]) -> bytes:
     state_converted = _ffi.cast("const RasterUnionState *", state)
     size_out = _ffi.new("size_t *")
     result = _lib.rasterunionstate_serialize(state_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def raquet_to_stbox(rq: Annotated[_ffi.CData, "const Raquet *"]) -> Annotated[_ffi.CData, "STBox *"]:
@@ -40870,15 +40770,13 @@ def s2cell_as_hexwkb(
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def s2cell_as_wkb(
-    cell: Annotated[_ffi.CData, "uint64_t"], variant: int
-) -> tuple[Annotated[_ffi.CData, "uint8_t *"], Annotated[_ffi.CData, "size_t *"]]:
+def s2cell_as_wkb(cell: Annotated[_ffi.CData, "uint64_t"], variant: int) -> bytes:
     cell_converted = _ffi.cast("uint64_t", cell)
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.s2cell_as_wkb(cell_converted, variant_converted, size_out)
     _check_error()
-    return result if result != _ffi.NULL else None, size_out[0]
+    return bytes(_ffi.buffer(result, size_out[0])) if result != _ffi.NULL else None
 
 
 def s2cell_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "uint64_t"]:
