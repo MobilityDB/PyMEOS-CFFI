@@ -80,12 +80,6 @@ function_modifiers = {
     "meos_finalize": remove_error_check_modifier,
     "cstring_to_text": cstring_to_text_modifier,
     "text_to_cstring": text_to_cstring_modifier,
-    "temporal_as_wkb": as_wkb_modifier,
-    "set_as_wkb": as_wkb_modifier,
-    "span_as_wkb": as_wkb_modifier,
-    "spanset_as_wkb": as_wkb_modifier,
-    "tbox_as_wkb": as_wkb_modifier,
-    "stbox_as_wkb": as_wkb_modifier,
     "mi_span_span": mi_span_span_modifier,
 }
 
@@ -480,6 +474,19 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     # For each output param, create the CFFI object to hold it
     for out_param in out_params:
         param_conversions += f"\n    {out_param.name} = _ffi.new('{out_param.ctype}')"
+    # A byte buffer MEOS returns with its length written through a size_t pointer (a WKB,
+    # a sort key, a serialized aggregate state, raster pixels) is one Python bytes object,
+    # the output twin of a uint8_t input array taken as bytes (#apply_input_arrays).
+    if (
+        result_param is None
+        and return_type.ctype.replace(" ", "") == "uint8_t*"
+        and len(out_params) == 1
+        and out_params[0].ctype.replace(" ", "") == "size_t*"
+    ):
+        size = out_params[0].name
+        function_return_type = "bytes"
+        result_manipulation = f"    return bytes(_ffi.buffer(result, {size}[0])) if result != _ffi.NULL else None"
+        out_params = []
     out_types = [p.get_ptype_without_pointers() for p in out_params]
     out_values = [f"{p.name}[0]" for p in out_params]
 

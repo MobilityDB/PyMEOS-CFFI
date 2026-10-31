@@ -40,14 +40,6 @@ def text_to_cstring_modifier(_: str) -> str:
     return result"""
 
 
-def as_wkb_modifier(function: str) -> str:
-    return function.replace("-> \"Tuple['uint8_t *', 'size_t *']\":", "-> bytes:").replace(
-        "return result if result != _ffi.NULL else None, size_out[0]",
-        "result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None\n"
-        "    return result_converted",
-    )
-
-
 def mi_span_span_modifier(function: str) -> str:
     return (
         function.replace(
