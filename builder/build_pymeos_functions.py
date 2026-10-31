@@ -138,18 +138,6 @@ def _load_shape_pairs(idl: dict) -> None:
             nullable_parameters.add((name, nm))
 
 
-def byte_array_size_param(entry: dict) -> str | None:
-    """The output parameter through which a function returning a byte array writes its
-    length: the one ``size_t *`` the catalog's ``shape.outParams`` lists for a function
-    whose return is ``uint8_t *``, as #_load_shape_pairs reads ``outParams``. None for
-    any other function."""
-    out_params = entry.get("shape", {}).get("outParams", [])
-    if entry["returnType"]["c"].replace(" ", "") != "uint8_t*" or len(out_params) != 1:
-        return None
-    ctypes = {p["name"]: p["cType"].replace(" ", "") for p in entry["params"]}
-    return out_params[0] if ctypes.get(out_params[0]) == "size_t*" else None
-
-
 # Checks if parameter in function is nullable
 def is_nullable_parameter(function: str, parameter: str) -> bool:
     return (function, parameter) in nullable_parameters
@@ -216,9 +204,6 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json", header_path="builde
             if entry["api"] == "public":
                 apply_input_arrays(params, entry.get("shape", {}).get("inputArrays", []), struct_names)
             function_string = build_function_string(function, return_type, params)
-            size_param = byte_array_size_param(entry)
-            if size_param is not None:
-                function_string = byte_array_modifier(function_string, size_param)
             file.write(function_string)
             file.write("\n\n\n")
 
@@ -489,6 +474,19 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     # For each output param, create the CFFI object to hold it
     for out_param in out_params:
         param_conversions += f"\n    {out_param.name} = _ffi.new('{out_param.ctype}')"
+    # A byte buffer MEOS returns with its length written through a size_t pointer (a WKB,
+    # a sort key, a serialized aggregate state, raster pixels) is one Python bytes object,
+    # the output twin of a uint8_t input array taken as bytes (#apply_input_arrays).
+    if (
+        result_param is None
+        and return_type.ctype.replace(" ", "") == "uint8_t*"
+        and len(out_params) == 1
+        and out_params[0].ctype.replace(" ", "") == "size_t*"
+    ):
+        size = out_params[0].name
+        function_return_type = "bytes"
+        result_manipulation = f"    return bytes(_ffi.buffer(result, {size}[0])) if result != _ffi.NULL else None"
+        out_params = []
     out_types = [p.get_ptype_without_pointers() for p in out_params]
     out_values = [f"{p.name}[0]" for p in out_params]
 
