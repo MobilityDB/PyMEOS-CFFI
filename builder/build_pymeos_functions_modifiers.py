@@ -40,11 +40,21 @@ def text_to_cstring_modifier(_: str) -> str:
     return result"""
 
 
-def as_wkb_modifier(function: str) -> str:
-    return function.replace("-> \"Tuple['uint8_t *', 'size_t *']\":", "-> bytes:").replace(
-        "return result if result != _ffi.NULL else None, size_out[0]",
-        "result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None\n"
-        "    return result_converted",
+def byte_array_modifier(function: str, size_param: str) -> str:
+    """A function returning a byte array whose length it writes through its one
+    ``size_t *`` output parameter, as ``set_as_wkb``, ``npoint_as_wkb`` or
+    ``temporal_sortkey`` do, returns the bytes: the length is the size of the
+    ``bytes`` object, not a second value. It rewrites the generated text as its
+    neighbour #mi_span_span_modifier does, here keyed on the shape the catalog
+    states rather than on a function name."""
+    for quote in ("'", '"'):
+        function = function.replace(
+            f"-> tuple[Annotated[_ffi.CData, {quote}uint8_t *{quote}], Annotated[_ffi.CData, {quote}size_t *{quote}]]:",
+            "-> bytes:",
+        )
+    return function.replace(
+        f"return result if result != _ffi.NULL else None, {size_param}[0]",
+        f"return bytes(_ffi.buffer(result, {size_param}[0])) if result != _ffi.NULL else None",
     )
 
 

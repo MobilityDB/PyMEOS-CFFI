@@ -80,12 +80,6 @@ function_modifiers = {
     "meos_finalize": remove_error_check_modifier,
     "cstring_to_text": cstring_to_text_modifier,
     "text_to_cstring": text_to_cstring_modifier,
-    "temporal_as_wkb": as_wkb_modifier,
-    "set_as_wkb": as_wkb_modifier,
-    "span_as_wkb": as_wkb_modifier,
-    "spanset_as_wkb": as_wkb_modifier,
-    "tbox_as_wkb": as_wkb_modifier,
-    "stbox_as_wkb": as_wkb_modifier,
     "mi_span_span": mi_span_span_modifier,
 }
 
@@ -142,6 +136,18 @@ def _load_shape_pairs(idl: dict) -> None:
             output_parameters.add((name, param))
         for nm in sh.get("nullable", []):
             nullable_parameters.add((name, nm))
+
+
+def byte_array_size_param(entry: dict) -> str | None:
+    """The output parameter through which a function returning a byte array writes its
+    length: the one ``size_t *`` the catalog's ``shape.outParams`` lists for a function
+    whose return is ``uint8_t *``, as #_load_shape_pairs reads ``outParams``. None for
+    any other function."""
+    out_params = entry.get("shape", {}).get("outParams", [])
+    if entry["returnType"]["c"].replace(" ", "") != "uint8_t*" or len(out_params) != 1:
+        return None
+    ctypes = {p["name"]: p["cType"].replace(" ", "") for p in entry["params"]}
+    return out_params[0] if ctypes.get(out_params[0]) == "size_t*" else None
 
 
 # Checks if parameter in function is nullable
@@ -210,6 +216,9 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json", header_path="builde
             if entry["api"] == "public":
                 apply_input_arrays(params, entry.get("shape", {}).get("inputArrays", []), struct_names)
             function_string = build_function_string(function, return_type, params)
+            size_param = byte_array_size_param(entry)
+            if size_param is not None:
+                function_string = byte_array_modifier(function_string, size_param)
             file.write(function_string)
             file.write("\n\n\n")
 
