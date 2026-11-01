@@ -37,10 +37,18 @@ for name in ("set_as_wkb", "temporal_sortkey", "npoint_as_wkb", "pose_as_wkb", "
     ann = inspect.signature(getattr(f, name)).return_annotation
     assert ann in (bytes, "bytes"), f"{name} returns {ann}, not bytes"
 
+# A function returning a string and its length through a size_t output parameter
+# returns the string alone: the hexadecimal WKB and EWKB of every type.
+for name in ("set_as_hexwkb", "temporal_as_hexwkb", "tspatial_as_hexewkb", "npoint_as_hexwkb", "pose_as_hexewkb"):
+    ann = inspect.signature(getattr(f, name)).return_annotation
+    assert "tuple" not in str(ann), f"{name} returns {ann}, not the string alone"
+
 # Live initialisation check: the standard happy-path cycle works, and a WKB
-# encoding comes back as bytes.
+# encoding comes back as bytes and its hexadecimal form as their string.
 meos_initialize("UTC")
 wkb = f.set_as_wkb(f.intset_in("{1, 2, 3}"), 4)
 assert isinstance(wkb, bytes) and len(wkb) > 0, f"set_as_wkb returned {type(wkb)}"
+hexwkb = f.set_as_hexwkb(f.intset_in("{1, 2, 3}"), 4)
+assert isinstance(hexwkb, str) and bytes.fromhex(hexwkb) == wkb, f"set_as_hexwkb returned {hexwkb!r}"
 meos_finalize()
 print(f"PyMEOS CFFI build + shape smoke test OK on {label}")

@@ -487,6 +487,16 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         function_return_type = "bytes"
         result_manipulation = f"    return bytes(_ffi.buffer(result, {size}[0])) if result != _ffi.NULL else None"
         out_params = []
+    # A string MEOS returns with its length written through a size_t pointer (the
+    # hexadecimal WKB and EWKB of every type) is the string alone: the length is the
+    # string's own, as GoMEOS's tools/objectgen.py and MEOS.NET's method_for drop it.
+    elif (
+        result_param is None
+        and return_type.ctype.replace(" ", "") == "char*"
+        and len(out_params) == 1
+        and out_params[0].ctype.replace(" ", "") == "size_t*"
+    ):
+        out_params = []
     out_types = [p.get_ptype_without_pointers() for p in out_params]
     out_values = [f"{p.name}[0]" for p in out_params]
 
