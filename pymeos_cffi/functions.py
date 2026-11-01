@@ -2674,14 +2674,34 @@ def timestamptz_tprecision(
     return result if result != _ffi.NULL else None
 
 
-def tstzset_shift_scale(
-    s: Annotated[_ffi.CData, "const Set *"],
-    shift: Annotated[_ffi.CData, "const Interval *"] | None,
-    duration: Annotated[_ffi.CData, "const Interval *"] | None,
+def tstzset_scale(
+    s: Annotated[_ffi.CData, "const Set *"], duration: Annotated[_ffi.CData, "const Interval *"]
 ) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
-    shift_converted = _ffi.cast("const Interval *", shift) if shift is not None else _ffi.NULL
-    duration_converted = _ffi.cast("const Interval *", duration) if duration is not None else _ffi.NULL
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.tstzset_scale(s_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tstzset_shift(
+    s: Annotated[_ffi.CData, "const Set *"], shift: Annotated[_ffi.CData, "const Interval *"]
+) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    result = _lib.tstzset_shift(s_converted, shift_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tstzset_shift_scale(
+    s: Annotated[_ffi.CData, "const Set *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
     result = _lib.tstzset_shift_scale(s_converted, shift_converted, duration_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -2698,14 +2718,34 @@ def tstzset_tprecision(
     return result if result != _ffi.NULL else None
 
 
-def tstzspan_shift_scale(
-    s: Annotated[_ffi.CData, "const Span *"],
-    shift: Annotated[_ffi.CData, "const Interval *"] | None,
-    duration: Annotated[_ffi.CData, "const Interval *"] | None,
+def tstzspan_scale(
+    s: Annotated[_ffi.CData, "const Span *"], duration: Annotated[_ffi.CData, "const Interval *"]
 ) -> Annotated[_ffi.CData, "Span *"]:
     s_converted = _ffi.cast("const Span *", s)
-    shift_converted = _ffi.cast("const Interval *", shift) if shift is not None else _ffi.NULL
-    duration_converted = _ffi.cast("const Interval *", duration) if duration is not None else _ffi.NULL
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.tstzspan_scale(s_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tstzspan_shift(
+    s: Annotated[_ffi.CData, "const Span *"], shift: Annotated[_ffi.CData, "const Interval *"]
+) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    result = _lib.tstzspan_shift(s_converted, shift_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tstzspan_shift_scale(
+    s: Annotated[_ffi.CData, "const Span *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
     result = _lib.tstzspan_shift_scale(s_converted, shift_converted, duration_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -2722,14 +2762,34 @@ def tstzspan_tprecision(
     return result if result != _ffi.NULL else None
 
 
-def tstzspanset_shift_scale(
-    ss: Annotated[_ffi.CData, "const SpanSet *"],
-    shift: Annotated[_ffi.CData, "const Interval *"] | None,
-    duration: Annotated[_ffi.CData, "const Interval *"] | None,
+def tstzspanset_scale(
+    ss: Annotated[_ffi.CData, "const SpanSet *"], duration: Annotated[_ffi.CData, "const Interval *"]
 ) -> Annotated[_ffi.CData, "SpanSet *"]:
     ss_converted = _ffi.cast("const SpanSet *", ss)
-    shift_converted = _ffi.cast("const Interval *", shift) if shift is not None else _ffi.NULL
-    duration_converted = _ffi.cast("const Interval *", duration) if duration is not None else _ffi.NULL
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.tstzspanset_scale(ss_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tstzspanset_shift(
+    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: Annotated[_ffi.CData, "const Interval *"]
+) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    result = _lib.tstzspanset_shift(ss_converted, shift_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tstzspanset_shift_scale(
+    ss: Annotated[_ffi.CData, "const SpanSet *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
     result = _lib.tstzspanset_shift_scale(ss_converted, shift_converted, duration_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -7007,15 +7067,35 @@ def tintbox_shift_scale(
     return result if result != _ffi.NULL else None
 
 
-def tbox_shift_scale_time(
-    box: Annotated[_ffi.CData, "const TBox *"],
-    shift: Annotated[_ffi.CData, "const Interval *"] | None,
-    duration: Annotated[_ffi.CData, "const Interval *"] | None,
+def tbox_scale_time(
+    box: Annotated[_ffi.CData, "const TBox *"], duration: Annotated[_ffi.CData, "const Interval *"]
 ) -> Annotated[_ffi.CData, "TBox *"]:
     box_converted = _ffi.cast("const TBox *", box)
-    shift_converted = _ffi.cast("const Interval *", shift) if shift is not None else _ffi.NULL
-    duration_converted = _ffi.cast("const Interval *", duration) if duration is not None else _ffi.NULL
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.tbox_scale_time(box_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbox_shift_scale_time(
+    box: Annotated[_ffi.CData, "const TBox *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
     result = _lib.tbox_shift_scale_time(box_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbox_shift_time(
+    box: Annotated[_ffi.CData, "const TBox *"], shift: Annotated[_ffi.CData, "const Interval *"]
+) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    result = _lib.tbox_shift_time(box_converted, shift_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -8860,12 +8940,12 @@ def temporal_set_interp(
 
 def temporal_shift_scale_time(
     temp: Annotated[_ffi.CData, "const Temporal *"],
-    shift: Annotated[_ffi.CData, "const Interval *"] | None,
-    duration: Annotated[_ffi.CData, "const Interval *"] | None,
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
-    shift_converted = _ffi.cast("const Interval *", shift) if shift is not None else _ffi.NULL
-    duration_converted = _ffi.cast("const Interval *", duration) if duration is not None else _ffi.NULL
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
     result = _lib.temporal_shift_scale_time(temp_converted, shift_converted, duration_converted)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -16004,15 +16084,35 @@ def stbox_round(box: Annotated[_ffi.CData, "const STBox *"], maxdd: int) -> Anno
     return result if result != _ffi.NULL else None
 
 
-def stbox_shift_scale_time(
-    box: Annotated[_ffi.CData, "const STBox *"],
-    shift: Annotated[_ffi.CData, "const Interval *"] | None,
-    duration: Annotated[_ffi.CData, "const Interval *"] | None,
+def stbox_scale_time(
+    box: Annotated[_ffi.CData, "const STBox *"], duration: Annotated[_ffi.CData, "const Interval *"]
 ) -> Annotated[_ffi.CData, "STBox *"]:
     box_converted = _ffi.cast("const STBox *", box)
-    shift_converted = _ffi.cast("const Interval *", shift) if shift is not None else _ffi.NULL
-    duration_converted = _ffi.cast("const Interval *", duration) if duration is not None else _ffi.NULL
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.stbox_scale_time(box_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_shift_scale_time(
+    box: Annotated[_ffi.CData, "const STBox *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "STBox *"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
     result = _lib.stbox_shift_scale_time(box_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_shift_time(
+    box: Annotated[_ffi.CData, "const STBox *"], shift: Annotated[_ffi.CData, "const Interval *"]
+) -> Annotated[_ffi.CData, "STBox *"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    result = _lib.stbox_shift_time(box_converted, shift_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -23043,6 +23143,19 @@ def numset_shift_scale(
     return result if result != _ffi.NULL else None
 
 
+def tstzset_shift_scale_intl(
+    s: Annotated[_ffi.CData, "const Set *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.tstzset_shift_scale_intl(s_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def numspan_expand(
     s: Annotated[_ffi.CData, "const Span *"], value: Annotated[_ffi.CData, "Datum"]
 ) -> Annotated[_ffi.CData, "Span *"]:
@@ -23068,6 +23181,19 @@ def numspan_shift_scale(
     return result if result != _ffi.NULL else None
 
 
+def tstzspan_shift_scale_intl(
+    s: Annotated[_ffi.CData, "const Span *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.tstzspan_shift_scale_intl(s_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def numspanset_shift_scale(
     ss: Annotated[_ffi.CData, "const SpanSet *"],
     shift: Annotated[_ffi.CData, "Datum"],
@@ -23079,6 +23205,19 @@ def numspanset_shift_scale(
     shift_converted = _ffi.cast("Datum", shift)
     width_converted = _ffi.cast("Datum", width)
     result = _lib.numspanset_shift_scale(ss_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tstzspanset_shift_scale_intl(
+    ss: Annotated[_ffi.CData, "const SpanSet *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.tstzspanset_shift_scale_intl(ss_converted, shift_converted, duration_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -24161,6 +24300,19 @@ def tstzspan_set_tbox(s: Annotated[_ffi.CData, "const Span *"]) -> Annotated[_ff
     _lib.tstzspan_set_tbox(s_converted, box)
     _check_error()
     return box[0]
+
+
+def tbox_shift_scale_time_intl(
+    box: Annotated[_ffi.CData, "const TBox *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.tbox_shift_scale_time_intl(box_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
 
 
 def tbox_shift_scale_value(
@@ -25446,6 +25598,19 @@ def tinstant_as_tsequenceset(
 ) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     inst_converted = _ffi.cast("const TInstant *", inst)
     result = _lib.tinstant_as_tsequenceset(inst_converted, interp)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_shift_scale_time_intl(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.temporal_shift_scale_time_intl(temp_converted, shift_converted, duration_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -26948,14 +27113,14 @@ def skiplist_splice(
     keys: Annotated[list, "void **"],
     values: Annotated[list, "void **"],
     count: int,
-    func: Annotated[_ffi.CData, "datum_func2"],
+    func: Annotated[_ffi.CData, "datum_func2"] | None,
     crossings: bool,
     sktype: Annotated[_ffi.CData, "SkipListType"],
 ) -> Annotated[None, "void"]:
     list_converted = _ffi.cast("SkipList *", list)
     keys_converted = [_ffi.cast("void *", x) for x in keys]
     values_converted = [_ffi.cast("void *", x) for x in values]
-    func_converted = _ffi.cast("datum_func2", func)
+    func_converted = _ffi.cast("datum_func2", func) if func is not None else _ffi.NULL
     sktype_converted = _ffi.cast("SkipListType", sktype)
     _lib.skiplist_splice(
         list_converted, keys_converted, values_converted, count, func_converted, crossings, sktype_converted
@@ -27138,7 +27303,7 @@ def tnumber_value_time_split(
     border_inc: bool,
 ) -> tuple[
     Annotated[_ffi.CData, "Temporal **"],
-    Annotated[list, "Datum **"],
+    Annotated[list, "Datum **"] | None,
     Annotated[list, "TimestampTz *"],
     Annotated[_ffi.CData, "int"],
 ]:
@@ -27344,6 +27509,19 @@ def stbox_expand_space_set(box: Annotated[_ffi.CData, "const STBox *"], d: float
     if result:
         return out_result if out_result != _ffi.NULL else None
     return None
+
+
+def stbox_shift_scale_time_intl(
+    box: Annotated[_ffi.CData, "const STBox *"],
+    shift: Annotated[_ffi.CData, "const Interval *"],
+    duration: Annotated[_ffi.CData, "const Interval *"],
+) -> Annotated[_ffi.CData, "STBox *"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    shift_converted = _ffi.cast("const Interval *", shift)
+    duration_converted = _ffi.cast("const Interval *", duration)
+    result = _lib.stbox_shift_scale_time_intl(box_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
 
 
 def stbox_contains(
@@ -27676,31 +27854,28 @@ def tspatial_set_stbox(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annot
     return out_result if out_result != _ffi.NULL else None
 
 
-def tgeoinst_set_stbox(
-    inst: Annotated[_ffi.CData, "const TInstant *"], box: Annotated[_ffi.CData, "STBox *"]
-) -> Annotated[None, "void"]:
+def tgeoinst_set_stbox(inst: Annotated[_ffi.CData, "const TInstant *"]) -> Annotated[_ffi.CData, "STBox *"]:
     inst_converted = _ffi.cast("const TInstant *", inst)
-    box_converted = _ffi.cast("STBox *", box)
-    _lib.tgeoinst_set_stbox(inst_converted, box_converted)
+    box = _ffi.new("STBox *")
+    _lib.tgeoinst_set_stbox(inst_converted, box)
     _check_error()
+    return box[0]
 
 
-def tspatialseq_set_stbox(
-    seq: Annotated[_ffi.CData, "const TSequence *"], box: Annotated[_ffi.CData, "STBox *"]
-) -> Annotated[None, "void"]:
+def tspatialseq_set_stbox(seq: Annotated[_ffi.CData, "const TSequence *"]) -> Annotated[_ffi.CData, "STBox *"]:
     seq_converted = _ffi.cast("const TSequence *", seq)
-    box_converted = _ffi.cast("STBox *", box)
-    _lib.tspatialseq_set_stbox(seq_converted, box_converted)
+    box = _ffi.new("STBox *")
+    _lib.tspatialseq_set_stbox(seq_converted, box)
     _check_error()
+    return box[0]
 
 
-def tspatialseqset_set_stbox(
-    ss: Annotated[_ffi.CData, "const TSequenceSet *"], box: Annotated[_ffi.CData, "STBox *"]
-) -> Annotated[None, "void"]:
+def tspatialseqset_set_stbox(ss: Annotated[_ffi.CData, "const TSequenceSet *"]) -> Annotated[_ffi.CData, "STBox *"]:
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
-    box_converted = _ffi.cast("STBox *", box)
-    _lib.tspatialseqset_set_stbox(ss_converted, box_converted)
+    box = _ffi.new("STBox *")
+    _lib.tspatialseqset_set_stbox(ss_converted, box)
     _check_error()
+    return box[0]
 
 
 def tgeo_restrict_elevation(
@@ -39650,6 +39825,19 @@ def trgeometry_value_n(temp: Annotated[_ffi.CData, "const Temporal *"], n: int) 
     temp_converted = _ffi.cast("const Temporal *", temp)
     out_result = _ffi.new("GSERIALIZED **")
     result = _lib.trgeometry_value_n(temp_converted, n, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def trgeometry_value_at_timestamptz(
+    temp: Annotated[_ffi.CData, "const Temporal *"], t: int, strict: bool
+) -> Annotated[list, "GSERIALIZED **"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    t_converted = _ffi.cast("TimestampTz", t)
+    out_result = _ffi.new("GSERIALIZED **")
+    result = _lib.trgeometry_value_at_timestamptz(temp_converted, t_converted, strict, out_result)
     _check_error()
     if result:
         return out_result if out_result != _ffi.NULL else None
