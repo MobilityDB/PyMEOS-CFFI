@@ -14793,14 +14793,24 @@ def geo_scale(
 
 
 def geo_scale_geo(
-    gs: Annotated[_ffi.CData, "const GSERIALIZED *"],
-    scale: Annotated[_ffi.CData, "const GSERIALIZED *"],
-    sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"] | None,
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], scale: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     scale_converted = _ffi.cast("const GSERIALIZED *", scale)
-    sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin) if sorigin is not None else _ffi.NULL
-    result = _lib.geo_scale_geo(gs_converted, scale_converted, sorigin_converted)
+    result = _lib.geo_scale_geo(gs_converted, scale_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geo_scale_geo_origin(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"],
+    scale: Annotated[_ffi.CData, "const GSERIALIZED *"],
+    sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"],
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    scale_converted = _ffi.cast("const GSERIALIZED *", scale)
+    sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin)
+    result = _lib.geo_scale_geo_origin(gs_converted, scale_converted, sorigin_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -16839,6 +16849,15 @@ def tpoint_tfloat_to_geomeas(
     return None
 
 
+def tpoint_to_geomeas(
+    tpoint: Annotated[_ffi.CData, "const Temporal *"], segmentize: bool
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    tpoint_converted = _ffi.cast("const Temporal *", tpoint)
+    result = _lib.tpoint_to_geomeas(tpoint_converted, segmentize)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tspatial_to_stbox(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "STBox *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tspatial_to_stbox(temp_converted)
@@ -17133,14 +17152,24 @@ def tgeo_scale(
 
 
 def tgeo_scale_geo(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-    scale: Annotated[_ffi.CData, "const GSERIALIZED *"],
-    sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"] | None,
+    temp: Annotated[_ffi.CData, "const Temporal *"], scale: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     scale_converted = _ffi.cast("const GSERIALIZED *", scale)
-    sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin) if sorigin is not None else _ffi.NULL
-    result = _lib.tgeo_scale_geo(temp_converted, scale_converted, sorigin_converted)
+    result = _lib.tgeo_scale_geo(temp_converted, scale_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeo_scale_geo_origin(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    scale: Annotated[_ffi.CData, "const GSERIALIZED *"],
+    sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    scale_converted = _ffi.cast("const GSERIALIZED *", scale)
+    sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin)
+    result = _lib.tgeo_scale_geo_origin(temp_converted, scale_converted, sorigin_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -27350,6 +27379,19 @@ def point_round(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], maxdd: int) ->
     return result if result != _ffi.NULL else None
 
 
+def geo_scale_geo_intl(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"],
+    scale: Annotated[_ffi.CData, "const GSERIALIZED *"],
+    sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"],
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    scale_converted = _ffi.cast("const GSERIALIZED *", scale)
+    sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin)
+    result = _lib.geo_scale_geo_intl(gs_converted, scale_converted, sorigin_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def stbox_set(
     hasx: bool,
     hasz: bool,
@@ -27839,6 +27881,32 @@ def tgeometryseq_in(string: str, interp: InterpolationType) -> Annotated[_ffi.CD
 def tgeometryseqset_in(string: str) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tgeometryseqset_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_tfloat_to_geomeas_intl(
+    tpoint: Annotated[_ffi.CData, "const Temporal *"], meas: Annotated[_ffi.CData, "const Temporal *"], segmentize: bool
+) -> Annotated[list, "GSERIALIZED **"]:
+    tpoint_converted = _ffi.cast("const Temporal *", tpoint)
+    meas_converted = _ffi.cast("const Temporal *", meas)
+    out_result = _ffi.new("GSERIALIZED **")
+    result = _lib.tpoint_tfloat_to_geomeas_intl(tpoint_converted, meas_converted, segmentize, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def tgeo_scale_geo_intl(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    scale: Annotated[_ffi.CData, "const GSERIALIZED *"],
+    sorigin: Annotated[_ffi.CData, "const GSERIALIZED *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    scale_converted = _ffi.cast("const GSERIALIZED *", scale)
+    sorigin_converted = _ffi.cast("const GSERIALIZED *", sorigin)
+    result = _lib.tgeo_scale_geo_intl(temp_converted, scale_converted, sorigin_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -29045,13 +29113,13 @@ def jsonb_ne(
 def jsonb_path_exists(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[int, "int"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.jsonb_path_exists(jb_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -29060,13 +29128,13 @@ def jsonb_path_exists(
 def jsonb_path_match(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[bool, "bool"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.jsonb_path_match(jb_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -29075,13 +29143,13 @@ def jsonb_path_match(
 def jsonb_path_query_all(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> tuple[Annotated[_ffi.CData, "Jsonb **"], Annotated[_ffi.CData, "int"]]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     count = _ffi.new("int *")
     result = _lib.jsonb_path_query_all(jb_converted, jp_converted, vars_converted, silent, tz, count)
     _check_error()
@@ -29091,13 +29159,13 @@ def jsonb_path_query_all(
 def jsonb_path_query_array(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Jsonb *"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.jsonb_path_query_array(jb_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -29106,13 +29174,13 @@ def jsonb_path_query_array(
 def jsonb_path_query_first(
     jb: Annotated[_ffi.CData, "const Jsonb *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Jsonb *"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.jsonb_path_query_first(jb_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -29333,15 +29401,28 @@ def jsonbset_set(
     keys: list[str],
     newjb: Annotated[_ffi.CData, "const Jsonb *"],
     create: bool,
-    null_handle: str,
-    lax: bool,
 ) -> Annotated[_ffi.CData, "Set *"]:
     set_converted = _ffi.cast("const Set *", set)
     keys_converted = [cstring_to_text(x) for x in keys]
     newjb_converted = _ffi.cast("const Jsonb *", newjb)
+    result = _lib.jsonbset_set(set_converted, keys_converted, len(keys), newjb_converted, create)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def jsonbset_set_lax(
+    set: Annotated[_ffi.CData, "const Set *"],
+    keys: list[str],
+    newjb: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    create: bool,
+    null_handle: str,
+) -> Annotated[_ffi.CData, "Set *"]:
+    set_converted = _ffi.cast("const Set *", set)
+    keys_converted = [cstring_to_text(x) for x in keys]
+    newjb_converted = _ffi.cast("const Jsonb *", newjb) if newjb is not None else _ffi.NULL
     null_handle_converted = cstring_to_text(null_handle)
-    result = _lib.jsonbset_set(
-        set_converted, keys_converted, len(keys), newjb_converted, create, null_handle_converted, lax
+    result = _lib.jsonbset_set_lax(
+        set_converted, keys_converted, len(keys), newjb_converted, create, null_handle_converted
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -29477,13 +29558,13 @@ def jsonbset_insert(
 def jsonbset_path_exists(
     set: Annotated[_ffi.CData, "const Set *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> tuple[Annotated[_ffi.CData, "bool *"], Annotated[_ffi.CData, "int"]]:
     set_converted = _ffi.cast("const Set *", set)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     count = _ffi.new("int *")
     result = _lib.jsonbset_path_exists(set_converted, jp_converted, vars_converted, silent, tz, count)
     _check_error()
@@ -29493,13 +29574,13 @@ def jsonbset_path_exists(
 def jsonbset_path_match(
     set: Annotated[_ffi.CData, "const Set *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> tuple[Annotated[_ffi.CData, "bool *"], Annotated[_ffi.CData, "int"]]:
     set_converted = _ffi.cast("const Set *", set)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     count = _ffi.new("int *")
     result = _lib.jsonbset_path_match(set_converted, jp_converted, vars_converted, silent, tz, count)
     _check_error()
@@ -29509,13 +29590,13 @@ def jsonbset_path_match(
 def jsonbset_path_query_array(
     set: Annotated[_ffi.CData, "const Set *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Set *"]:
     set_converted = _ffi.cast("const Set *", set)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.jsonbset_path_query_array(set_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -29524,13 +29605,13 @@ def jsonbset_path_query_array(
 def jsonbset_path_query_first(
     set: Annotated[_ffi.CData, "const Set *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Set *"]:
     set_converted = _ffi.cast("const Set *", set)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.jsonbset_path_query_first(set_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -29576,6 +29657,58 @@ def jsonbset_object_field_common(
     key_converted = cstring_to_text(key)
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
     result = _lib.jsonbset_object_field_common(set_converted, key_converted, astext, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def jsonbset_path_exists_intl(
+    set: Annotated[_ffi.CData, "const Set *"],
+    jp: Annotated[_ffi.CData, "const JsonPath *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    silent: bool,
+    tz: bool,
+) -> tuple[Annotated[_ffi.CData, "bool *"], Annotated[_ffi.CData, "int"]]:
+    set_converted = _ffi.cast("const Set *", set)
+    jp_converted = _ffi.cast("const JsonPath *", jp)
+    vars_converted = _ffi.cast("const Jsonb *", vars)
+    count = _ffi.new("int *")
+    result = _lib.jsonbset_path_exists_intl(set_converted, jp_converted, vars_converted, silent, tz, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def jsonbset_path_match_intl(
+    set: Annotated[_ffi.CData, "const Set *"],
+    jp: Annotated[_ffi.CData, "const JsonPath *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    silent: bool,
+    tz: bool,
+) -> tuple[Annotated[_ffi.CData, "bool *"], Annotated[_ffi.CData, "int"]]:
+    set_converted = _ffi.cast("const Set *", set)
+    jp_converted = _ffi.cast("const JsonPath *", jp)
+    vars_converted = _ffi.cast("const Jsonb *", vars)
+    count = _ffi.new("int *")
+    result = _lib.jsonbset_path_match_intl(set_converted, jp_converted, vars_converted, silent, tz, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def jsonbset_set_intl(
+    set: Annotated[_ffi.CData, "const Set *"],
+    keys: Annotated[list, "text **"],
+    count: int,
+    newjb: Annotated[_ffi.CData, "const Jsonb *"],
+    create: bool,
+    null_handle: str,
+    lax: bool,
+) -> Annotated[_ffi.CData, "Set *"]:
+    set_converted = _ffi.cast("const Set *", set)
+    keys_converted = [_ffi.cast("text *", x) for x in keys]
+    newjb_converted = _ffi.cast("const Jsonb *", newjb)
+    null_handle_converted = cstring_to_text(null_handle)
+    result = _lib.jsonbset_set_intl(
+        set_converted, keys_converted, count, newjb_converted, create, null_handle_converted, lax
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -30102,13 +30235,13 @@ def tjsonb_object_field_text(
 def tjsonb_path_exists(
     temp: Annotated[_ffi.CData, "const Temporal *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.tjsonb_path_exists(temp_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -30117,13 +30250,13 @@ def tjsonb_path_exists(
 def tjsonb_path_match(
     temp: Annotated[_ffi.CData, "const Temporal *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.tjsonb_path_match(temp_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -30132,13 +30265,13 @@ def tjsonb_path_match(
 def tjsonb_path_query_array(
     temp: Annotated[_ffi.CData, "const Temporal *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.tjsonb_path_query_array(temp_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -30147,13 +30280,13 @@ def tjsonb_path_query_array(
 def tjsonb_path_query_first(
     temp: Annotated[_ffi.CData, "const Temporal *"],
     jp: Annotated[_ffi.CData, "const JsonPath *"],
-    vars: Annotated[_ffi.CData, "const Jsonb *"] | None,
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     jp_converted = _ffi.cast("const JsonPath *", jp)
-    vars_converted = _ffi.cast("const Jsonb *", vars) if vars is not None else _ffi.NULL
+    vars_converted = _ffi.cast("const Jsonb *", vars)
     result = _lib.tjsonb_path_query_first(temp_converted, jp_converted, vars_converted, silent, tz)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -30169,17 +30302,30 @@ def tjsonb_pretty(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[
 def tjsonb_set(
     temp: Annotated[_ffi.CData, "const Temporal *"],
     keys: list[str],
+    newjb: Annotated[_ffi.CData, "const Jsonb *"],
+    create: bool,
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    keys_converted = [cstring_to_text(x) for x in keys]
+    newjb_converted = _ffi.cast("const Jsonb *", newjb)
+    result = _lib.tjsonb_set(temp_converted, keys_converted, len(keys), newjb_converted, create)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_set_lax(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    keys: list[str],
     newjb: Annotated[_ffi.CData, "const Jsonb *"] | None,
     create: bool,
-    handle_null: str,
-    lax: bool,
+    null_handle: str,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     keys_converted = [cstring_to_text(x) for x in keys]
     newjb_converted = _ffi.cast("const Jsonb *", newjb) if newjb is not None else _ffi.NULL
-    handle_null_converted = cstring_to_text(handle_null)
-    result = _lib.tjsonb_set(
-        temp_converted, keys_converted, len(keys), newjb_converted, create, handle_null_converted, lax
+    null_handle_converted = cstring_to_text(null_handle)
+    result = _lib.tjsonb_set_lax(
+        temp_converted, keys_converted, len(keys), newjb_converted, create, null_handle_converted
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -30356,6 +30502,56 @@ def tjsonb_object_field_common(
     key_converted = cstring_to_text(key)
     null_handle_converted = _ffi.cast("nullHandleType", null_handle)
     result = _lib.tjsonb_object_field_common(temp_converted, key_converted, astext, null_handle_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_path_exists_intl(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    jp: Annotated[_ffi.CData, "const JsonPath *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    silent: bool,
+    tz: bool,
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    jp_converted = _ffi.cast("const JsonPath *", jp)
+    vars_converted = _ffi.cast("const Jsonb *", vars)
+    result = _lib.tjsonb_path_exists_intl(temp_converted, jp_converted, vars_converted, silent, tz)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_path_match_intl(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    jp: Annotated[_ffi.CData, "const JsonPath *"],
+    vars: Annotated[_ffi.CData, "const Jsonb *"],
+    silent: bool,
+    tz: bool,
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    jp_converted = _ffi.cast("const JsonPath *", jp)
+    vars_converted = _ffi.cast("const Jsonb *", vars)
+    result = _lib.tjsonb_path_match_intl(temp_converted, jp_converted, vars_converted, silent, tz)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tjsonb_set_intl(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    keys: Annotated[list, "text **"],
+    count: int,
+    newjb: Annotated[_ffi.CData, "const Jsonb *"],
+    create: bool,
+    null_handle: str,
+    lax: bool,
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    keys_converted = [_ffi.cast("text *", x) for x in keys]
+    newjb_converted = _ffi.cast("const Jsonb *", newjb)
+    null_handle_converted = cstring_to_text(null_handle)
+    result = _lib.tjsonb_set_intl(
+        temp_converted, keys_converted, count, newjb_converted, create, null_handle_converted, lax
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -32863,7 +33059,6 @@ def tpcbox_out(box: Annotated[_ffi.CData, "const TPCBox *"], maxdd: int) -> Anno
 def tpcbox_make(
     hasx: bool,
     hasz: bool,
-    hast: bool,
     geodetic: bool,
     pcid: Annotated[_ffi.CData, "uint32_t"],
     xmin: float,
@@ -32877,7 +33072,7 @@ def tpcbox_make(
     pcid_converted = _ffi.cast("uint32_t", pcid)
     period_converted = _ffi.cast("const Span *", period) if period is not None else _ffi.NULL
     result = _lib.tpcbox_make(
-        hasx, hasz, hast, geodetic, pcid_converted, xmin, xmax, ymin, ymax, zmin, zmax, period_converted
+        hasx, hasz, geodetic, pcid_converted, xmin, xmax, ymin, ymax, zmin, zmax, period_converted
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -38724,14 +38919,14 @@ def raster_clip(
 def raster_transform(
     rast: Annotated[_ffi.CData, "const Raster *"],
     srid: Annotated[_ffi.CData, "int32_t"],
-    algorithm: str | None,
+    algorithm: str,
     max_err: float,
     scale_x: float,
     scale_y: float,
 ) -> Annotated[_ffi.CData, "Raster *"]:
     rast_converted = _ffi.cast("const Raster *", rast)
     srid_converted = _ffi.cast("int32_t", srid)
-    algorithm_converted = algorithm.encode("utf-8") if algorithm is not None else _ffi.NULL
+    algorithm_converted = algorithm.encode("utf-8")
     result = _lib.raster_transform(rast_converted, srid_converted, algorithm_converted, max_err, scale_x, scale_y)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -38742,7 +38937,7 @@ def raster_transform_pipeline(
     pipelinestr: str,
     srid: Annotated[_ffi.CData, "int32_t"],
     is_forward: bool,
-    algorithm: str | None,
+    algorithm: str,
     max_err: float,
     scale_x: float,
     scale_y: float,
@@ -38750,7 +38945,7 @@ def raster_transform_pipeline(
     rast_converted = _ffi.cast("const Raster *", rast)
     pipelinestr_converted = pipelinestr.encode("utf-8")
     srid_converted = _ffi.cast("int32_t", srid)
-    algorithm_converted = algorithm.encode("utf-8") if algorithm is not None else _ffi.NULL
+    algorithm_converted = algorithm.encode("utf-8")
     result = _lib.raster_transform_pipeline(
         rast_converted,
         pipelinestr_converted,
@@ -38768,22 +38963,22 @@ def raster_transform_pipeline(
 def raster_transform_raster(
     rast: Annotated[_ffi.CData, "const Raster *"],
     alignto: Annotated[_ffi.CData, "const Raster *"],
-    algorithm: str | None,
+    algorithm: str,
     max_err: float,
 ) -> Annotated[_ffi.CData, "Raster *"]:
     rast_converted = _ffi.cast("const Raster *", rast)
     alignto_converted = _ffi.cast("const Raster *", alignto)
-    algorithm_converted = algorithm.encode("utf-8") if algorithm is not None else _ffi.NULL
+    algorithm_converted = algorithm.encode("utf-8")
     result = _lib.raster_transform_raster(rast_converted, alignto_converted, algorithm_converted, max_err)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_rescale(
-    rast: Annotated[_ffi.CData, "const Raster *"], scale_x: float, scale_y: float, algorithm: str | None, max_err: float
+    rast: Annotated[_ffi.CData, "const Raster *"], scale_x: float, scale_y: float, algorithm: str, max_err: float
 ) -> Annotated[_ffi.CData, "Raster *"]:
     rast_converted = _ffi.cast("const Raster *", rast)
-    algorithm_converted = algorithm.encode("utf-8") if algorithm is not None else _ffi.NULL
+    algorithm_converted = algorithm.encode("utf-8")
     result = _lib.raster_rescale(rast_converted, scale_x, scale_y, algorithm_converted, max_err)
     _check_error()
     return result if result != _ffi.NULL else None
@@ -39342,11 +39537,11 @@ def raster_value(
     rast: Annotated[_ffi.CData, "const Raster *"],
     band: int,
     exclude_nodata: bool,
-    resample: str | None,
+    resample: str,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
     rast_converted = _ffi.cast("const Raster *", rast)
-    resample_converted = resample.encode("utf-8") if resample is not None else _ffi.NULL
+    resample_converted = resample.encode("utf-8")
     result = _lib.raster_value(traj_converted, rast_converted, band, exclude_nodata, resample_converted)
     _check_error()
     return result if result != _ffi.NULL else None
