@@ -36,8 +36,7 @@ def cstring_to_text_modifier(_: str) -> str:
 def text_to_cstring_modifier(_: str) -> str:
     return """def text_to_cstring(textptr: 'text *') -> str:
     result = _lib.text_to_cstring(textptr)
-    result = _ffi.string(result).decode('utf-8')
-    return result"""
+    return _take_string(result)"""
 
 
 def mi_span_span_modifier(function: str) -> str:
