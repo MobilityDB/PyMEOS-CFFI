@@ -20,17 +20,20 @@ conversion_map: dict[str, Conversion] = {
     "void": Conversion("void", "None", None, None),
     "bool": Conversion("bool", "bool", None, None),
     "double": Conversion("double", "float", None, None),
+    # A char * MEOS returns is the caller's, so it is freed once copied
+    # (#_take_string); a const char * names a string MEOS keeps, such as a type
+    # name, and is copied alone.
     "char *": Conversion(
         "char *",
         "str",
         lambda p_obj: f"{p_obj}.encode('utf-8')",
-        lambda c_obj: f"_ffi.string({c_obj}).decode('utf-8')",
+        lambda c_obj: f"_take_string({c_obj})",
     ),
     "const char *": Conversion(
         "const char *",
         "str",
         lambda p_obj: f"{p_obj}.encode('utf-8')",
-        lambda c_obj: f"_ffi.string({c_obj}).decode('utf-8')",
+        lambda c_obj: f"_read_string({c_obj})",
     ),
     "text": Conversion(
         "text",

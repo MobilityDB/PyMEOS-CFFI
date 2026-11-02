@@ -43,6 +43,28 @@ def py_error_handler(error_level, error_code, error_msg):
     logger.debug(f"ERROR Handler called: Level: {_error} | Code: {_error_level} | Message: {_error_message}")
 
 
+def _read_string(ptr: Annotated[_ffi.CData, "const char *"]) -> str | None:
+    return _ffi.string(ptr).decode("utf-8") if ptr != _ffi.NULL else None
+
+
+def _take_string(ptr: Annotated[_ffi.CData, "char *"]) -> str | None:
+    """The string MEOS hands the caller, copied and then freed, as #_read_string reads it"""
+    if ptr == _ffi.NULL:
+        return None
+    result = _ffi.string(ptr).decode("utf-8")
+    _lib.free(ptr)
+    return result
+
+
+def _take_bytes(ptr: Annotated[_ffi.CData, "uint8_t *"], size: int) -> bytes | None:
+    """The byte buffer MEOS hands the caller, copied and then freed, as #_take_string takes a string"""
+    if ptr == _ffi.NULL:
+        return None
+    result = bytes(_ffi.buffer(ptr, size))
+    _lib.free(ptr)
+    return result
+
+
 def create_pointer(object: "Any", type: str) -> Annotated[_ffi.CData, "Any *"]:
     return _ffi.new(f"{type} *", object)
 

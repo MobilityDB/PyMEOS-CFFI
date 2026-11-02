@@ -485,7 +485,7 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     ):
         size = out_params[0].name
         function_return_type = "bytes"
-        result_manipulation = f"    return bytes(_ffi.buffer(result, {size}[0])) if result != _ffi.NULL else None"
+        result_manipulation = f"    return _take_bytes(result, {size}[0])"
         out_params = []
     # A string MEOS returns with its length written through a size_t pointer (the
     # hexadecimal WKB and EWKB of every type) is the string alone: the length is the

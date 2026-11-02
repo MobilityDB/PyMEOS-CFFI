@@ -22,6 +22,9 @@ header_files = sorted(_files, key=lambda h: (h != "meos.h", h))
 
 ffibuilder = FFI()
 ffibuilder.cdef(content)
+# The C library's free, which releases a string or byte buffer MEOS hands the
+# caller once the wrapper has copied it (functions.py's _take_string and _take_bytes)
+ffibuilder.cdef("void free(void *ptr);")
 
 
 # A MEOS install prefix may be supplied out of band so the extension can be built

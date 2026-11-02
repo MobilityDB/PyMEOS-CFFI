@@ -50,5 +50,11 @@ wkb = f.set_as_wkb(f.intset_in("{1, 2, 3}"), 4)
 assert isinstance(wkb, bytes) and len(wkb) > 0, f"set_as_wkb returned {type(wkb)}"
 hexwkb = f.set_as_hexwkb(f.intset_in("{1, 2, 3}"), 4)
 assert isinstance(hexwkb, str) and bytes.fromhex(hexwkb) == wkb, f"set_as_hexwkb returned {hexwkb!r}"
+# A string MEOS hands the caller is freed once copied, and one MEOS keeps is only
+# copied: the subtype name reads the same on every call.
+temp = f.tfloat_in("[1.5@2001-01-01, 2.5@2001-01-02]")
+text = "[1.5@2001-01-01 00:00:00+00, 2.5@2001-01-02 00:00:00+00]"
+assert f.temporal_out(temp, 15) == f.temporal_out(temp, 15) == text
+assert f.temporal_subtype(temp) == f.temporal_subtype(temp) == "Sequence"
 meos_finalize()
 print(f"PyMEOS CFFI build + shape smoke test OK on {label}")
