@@ -35,9 +35,6 @@ __all__ = [
     "SpatialRelation",
     # Functions
     "py_error_handler",
-    "_read_string",
-    "_take_string",
-    "_take_bytes",
     "create_pointer",
     "get_address",
     "datetime_to_timestamptz",

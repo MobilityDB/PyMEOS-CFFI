@@ -59,12 +59,6 @@ class ReturnType:
         self.conversion = conversion
 
 
-# List of functions defined in functions.py that shouldn't be exported
-
-hidden_functions = [
-    "_check_error",
-]
-
 # List of MEOS functions that should not be defined in functions.py
 skipped_functions = [
     "py_error_handler",
@@ -214,7 +208,9 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json", header_path="builde
         function_text = ""
         for fn in matches:
             function_name = fn.group(1)
-            if function_name in hidden_functions:
+            # A name with a leading underscore is a helper of the generated wrappers, such
+            # as _check_error or _take_string, and stays out of the package's exports
+            if function_name.startswith("_"):
                 continue
             function_text += f"    '{function_name}',\n"
             functions.append(function_name)
