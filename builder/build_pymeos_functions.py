@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 from build_pymeos_functions_modifiers import *
-from objects import Conversion, conversion_map
+from objects import CatalogTypes, Conversion, base_name, conversion_map
 
 # The wrappers project exactly the functions the CFFI cdef declares: build_header.py
 # emits builder/meos.h from the same catalog, keeping the functions libmeos defines and
@@ -28,6 +28,7 @@ class Parameter:
         ctype: str,
         ptype: str,
         cp_conversion: str | None,
+        scalar: bool = False,
     ) -> None:
         super().__init__()
         self.name = name
@@ -35,11 +36,14 @@ class Parameter:
         self.ctype = ctype
         self.ptype = ptype
         self.cp_conversion = cp_conversion
+        # Whether the type, without its pointers, is a bool, an integer or a floating
+        # number (#CatalogTypes.is_scalar), which CFFI reads as the Python value
+        self.scalar = scalar
         # A length taken from the array it counts is not a Python argument (#apply_input_arrays).
         self.derived = False
 
     def is_interoperable(self):
-        return any(self.ctype.startswith(x) for x in ["int", "bool", "double", "TimestampTz"])
+        return self.scalar
 
     def get_ptype_without_pointers(self):
         if self.is_interoperable():
@@ -119,7 +123,7 @@ def _load_shape_pairs(idl: dict) -> None:
         # primary return.  A count taken by value is the length of an input array
         # the return matches, as in ``stboxarr_round(boxarr, count, maxdd)``.
         length = sh.get("arrayReturn", {}).get("lengthFrom")
-        ctypes = {p["name"]: p["cType"] for p in entry["params"]}
+        ctypes = {p["name"]: p["canonical"] for p in entry["params"]}
         if length and length.get("kind") == "param" and ctypes.get(length["name"], "").rstrip().endswith("*"):
             output_parameters.add((name, length["name"]))
         for oa in sh.get("outputArrays", []):
@@ -174,7 +178,7 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json", header_path="builde
     with open(idl_path) as f:
         idl = json.load(f)
     _load_shape_pairs(idl)
-    struct_names = {s["name"] for s in idl["structs"]}
+    types = CatalogTypes(idl)
 
     file_path = os.path.dirname(__file__)
     template_path = os.path.join(file_path, "templates/functions.py")
@@ -193,10 +197,10 @@ def build_pymeos_functions(idl_path="builder/meos-idl.json", header_path="builde
             function = entry["name"]
             if function not in declared or function in skipped_functions:
                 continue
-            return_type = get_return_type(entry["returnType"]["c"])
-            params = get_params(function, entry["params"])
+            return_type = get_return_type(types.spell(entry["returnType"], f"the return of {function}"), types)
+            params = get_params(function, entry["params"], types)
             if entry["api"] == "public":
-                apply_input_arrays(params, entry.get("shape", {}).get("inputArrays", []), struct_names)
+                apply_input_arrays(function, params, entry.get("shape", {}).get("inputArrays", []), types)
             function_string = build_function_string(function, return_type, params)
             file.write(function_string)
             file.write("\n\n\n")
@@ -233,7 +237,7 @@ def format_generated(paths: list[str]) -> None:
     subprocess.check_call(command + ["format", "--quiet", *paths])
 
 
-def apply_input_arrays(params: list[Parameter], input_arrays: list[dict], struct_names: set[str]) -> None:
+def apply_input_arrays(function: str, params: list[Parameter], input_arrays: list[dict], types: CatalogTypes) -> None:
     """Turn each array the catalog's ``shape.inputArrays`` names into one Python list.
 
     MEOS takes an array as a pointer plus the parameter its ``lengthFrom`` names; Python
@@ -254,7 +258,7 @@ def apply_input_arrays(params: list[Parameter], input_arrays: list[dict], struct
         if param is None or length is None:
             continue
         name = param.name
-        element = array["element"]["c"]
+        element = types.spell(array["element"], f"the elements of {name} of {function}")
         nullable = param.ptype.endswith("| None")
         first = first_of_count.setdefault(length.name, name)
 
@@ -262,11 +266,11 @@ def apply_input_arrays(params: list[Parameter], input_arrays: list[dict], struct
             ptype = "bytes"
             value = f"_ffi.new('uint8_t []', {name})"
         else:
-            conversion = conversion_map.get(element)
+            conversion = conversion_map.get(element) or scalar_conversion(element, types)
             if element.endswith("*") and (conversion is None or conversion.p_to_c is None):
                 item_type = f"Annotated[_ffi.CData, '{element}']"
                 item = f"_ffi.cast('{element}', x)"
-            elif element in struct_names:
+            elif "*" not in element and types.kind(base_name(element)) == "struct":
                 item_type = f"Annotated[_ffi.CData, '{element}']"
                 item = None
             elif conversion is not None:
@@ -297,14 +301,15 @@ def apply_input_arrays(params: list[Parameter], input_arrays: list[dict], struct
         length.cp_conversion = None
 
 
-def get_params(function: str, params: list[dict]) -> list[Parameter]:
-    return [p for p in (get_param(function, entry) for entry in params) if p is not None]
+def get_params(function: str, params: list[dict], types: CatalogTypes) -> list[Parameter]:
+    return [p for p in (get_param(function, entry, types) for entry in params) if p is not None]
 
 
 # Creates a Parameter object from a meos-idl.json parameter entry
-def get_param(function: str, entry: dict) -> Parameter | None:
+def get_param(function: str, entry: dict, types: CatalogTypes) -> Parameter | None:
     param_name = entry["name"]
-    param_type = entry["cType"]
+    param_type = types.spell(entry, f"parameter {param_name} of {function}")
+    scalar = types.is_scalar(param_type)
 
     # Check if the parameter name is a reserved word and change it if necessary
     reserved_words = {"str": "string", "is": "iset", "from": "from_"}
@@ -316,7 +321,7 @@ def get_param(function: str, entry: dict) -> Parameter | None:
         return None
 
     # Get the type conversion
-    conversion = get_param_conversion(param_type)
+    conversion = get_param_conversion(param_type, types)
 
     # Check if parameter is nullable
     nullable = is_nullable_parameter(function, param_name)
@@ -331,8 +336,9 @@ def get_param(function: str, entry: dict) -> Parameter | None:
                 param_type,
                 f"{conversion.p_type} | None",
                 f"{param_name}_converted = {param_name} if {param_name} is not None else _ffi.NULL",
+                scalar,
             )
-        return Parameter(param_name, param_name, param_type, conversion.p_type, None)
+        return Parameter(param_name, param_name, param_type, conversion.p_type, None, scalar)
 
     # If a conversion is needed, create a new name and add the conversion
     if nullable:
@@ -342,6 +348,7 @@ def get_param(function: str, entry: dict) -> Parameter | None:
             param_type,
             f"{conversion.p_type} | None",
             f"{param_name}_converted = {conversion.p_to_c(param_name)} if {param_name} is not None else _ffi.NULL",
+            scalar,
         )
     return Parameter(
         param_name,
@@ -349,14 +356,32 @@ def get_param(function: str, entry: dict) -> Parameter | None:
         param_type,
         conversion.p_type,
         f"{param_name}_converted = {conversion.p_to_c(param_name)}",
+        scalar,
     )
 
 
+def scalar_conversion(spelling: str, types: CatalogTypes) -> Conversion | None:
+    """The conversion of a scalar the catalog resolves to an integer or a floating
+    number: a Python int, cast to its C type unless it is a plain int, or a Python float"""
+    if "*" in spelling or "[" in spelling:
+        return None
+    name = base_name(spelling)
+    kind = types.kind(name)
+    if kind == "int":
+        return Conversion(name, "int", None if name == "int" else (lambda p_obj: f"_ffi.cast('{name}', {p_obj})"), None)
+    if kind == "float":
+        return Conversion(name, "float", None, None)
+    return None
+
+
 # Returns a conversion for a type
-def get_param_conversion(param_type: str) -> Conversion:
+def get_param_conversion(param_type: str, types: CatalogTypes) -> Conversion:
     # Check if the type is known
     if param_type in conversion_map:
         return conversion_map[param_type]
+    conversion = scalar_conversion(param_type, types)
+    if conversion is not None:
+        return conversion
     # Otherwise, create a new conversion
 
     # If it's a double pointer, cast as an array
@@ -379,10 +404,10 @@ def get_param_conversion(param_type: str) -> Conversion:
 
 
 # Creates a ReturnType object from the function return type
-def get_return_type(inner_return_type) -> ReturnType:
+def get_return_type(inner_return_type: str, types: CatalogTypes) -> ReturnType:
     # Check if a conversion is known
-    if inner_return_type in conversion_map:
-        conversion = conversion_map[inner_return_type]
+    conversion = conversion_map.get(inner_return_type) or scalar_conversion(inner_return_type, types)
+    if conversion is not None:
         return ReturnType(
             conversion.c_type,
             conversion.p_type,

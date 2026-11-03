@@ -30,6 +30,13 @@ tz_param = ms_sig.parameters.get("tz_str")
 assert tz_param is not None, "meos_initialize lost tz_str arg"
 assert "None" in str(tz_param.annotation), f"tz_str annotation does not allow None: {tz_param.annotation}"
 
+# The cdef spells every callback by the signature the catalog's callbacks list
+# states, and a name the catalog's typedefs list defines by that definition.
+for name in ("error_handler_fn", "interrupt_handler_fn", "meos_malloc_fn", "meos_realloc_fn", "meos_free_fn"):
+    assert f._ffi.typeof(name).kind == "function", f"{name} is {f._ffi.typeof(name).cname}, not a function pointer"
+for name, definition in (("TimestampTz", "int64_t"), ("DateADT", "int32_t"), ("Datum", "uintptr_t")):
+    assert f._ffi.typeof(name) is f._ffi.typeof(definition), f"{name} is {f._ffi.typeof(name).cname}, not {definition}"
+
 # A function returning a byte array and its length through a size_t output
 # parameter returns the bytes, whatever its name: an encoding, a sort key, an
 # aggregate state.
