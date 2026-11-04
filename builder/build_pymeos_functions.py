@@ -407,6 +407,10 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     out_params = []
     if len(parameters) > 1:
         out_params = [p for p in parameters if is_output_parameter(function_name, p)]
+    else:
+        # A function's only parameter is an output when the catalog lists it in
+        # shape.outParams, as the size of meos_version(size_t *size_out) is
+        out_params = [p for p in parameters if (function_name, p.name) in output_parameters]
 
     # Create wrapper function parameter list
     params = ", ".join(f"{p.name}: {p.ptype}" for p in parameters if p not in out_params and not p.derived)
@@ -483,9 +487,11 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         function_return_type = "bytes"
         result_manipulation = f"    return _take_bytes(result, {size}[0])"
         out_params = []
-    # A string MEOS returns with its length written through a size_t pointer (the
-    # hexadecimal WKB and EWKB of every type) is the string alone: the length is the
-    # string's own, as GoMEOS's tools/objectgen.py and MEOS.NET's method_for drop it.
+    # A string MEOS returns with its size written through a size_t pointer (every
+    # public char * return) is the string alone, as GoMEOS's tools/objectgen.py and
+    # MEOS.NET's method_for drop the size. #_take_string reads it by its terminator:
+    # over cffi, reading it for that size gains nothing on AIS trajectories and costs
+    # a short string more (MobilityDB's doc/contributing/io/IMPLEMENTATION-PLAN.md).
     elif (
         result_param is None
         and return_type.ctype.replace(" ", "") == "char*"
@@ -507,7 +513,9 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         function_return_type = f"tuple[{', '.join([function_return_type] + out_types)}]"
         result_manipulation += "".join(f", {value}" for value in out_values)
 
-    # Add padding to param conversions
+    # Add padding to param conversions; a function converting no input starts them
+    # with the line of its first output
+    param_conversions = param_conversions.removeprefix("\n    ")
     if len(param_conversions) > 0:
         param_conversions = f"    {param_conversions}\n"
 

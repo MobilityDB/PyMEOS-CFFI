@@ -43,6 +43,22 @@ for name in ("set_as_hexwkb", "temporal_as_hexwkb", "tspatial_as_hexewkb", "npoi
     ann = inspect.signature(getattr(f, name)).return_annotation
     assert "tuple" not in str(ann), f"{name} returns {ann}, not the string alone"
 
+# Every string MEOS hands the caller comes with its size, written through a size_t
+# output parameter: the wrapper takes no such argument and reads the string by its
+# terminator.
+for name in (
+    "tfloat_out",
+    "ttext_out",
+    "geo_as_text",
+    "temporal_as_mfjson",
+    "temporal_as_hexwkb",
+    "date_out",
+    "meos_version",
+):
+    fn = getattr(f, name)
+    assert "size_out" not in inspect.signature(fn).parameters, f"{name} takes its size as an argument"
+    assert "_take_string(result)" in inspect.getsource(fn), f"{name} does not free its string"
+
 # Live initialisation check: the standard happy-path cycle works, and a WKB
 # encoding comes back as bytes and its hexadecimal form as their string.
 meos_initialize("UTC")
@@ -56,5 +72,8 @@ temp = f.tfloat_in("[1.5@2001-01-01, 2.5@2001-01-02]")
 text = "[1.5@2001-01-01 00:00:00+00, 2.5@2001-01-02 00:00:00+00]"
 assert f.temporal_out(temp, 15) == f.temporal_out(temp, 15) == text
 assert f.temporal_subtype(temp) == f.temporal_subtype(temp) == "Sequence"
+# A value holding a character UTF-8 writes in two bytes reads back whole.
+ttext = '{"Zürich"@2001-01-01 00:00:00+00, "Liège"@2001-01-02 00:00:00+00}'
+assert f.ttext_out(f.ttext_in(ttext)) == ttext, f"ttext_out returned {f.ttext_out(f.ttext_in(ttext))!r}"
 meos_finalize()
 print(f"PyMEOS CFFI build + shape smoke test OK on {label}")
