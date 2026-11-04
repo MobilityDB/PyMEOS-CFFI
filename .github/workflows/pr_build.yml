@@ -19,17 +19,15 @@ permissions:
   contents: read
 
 jobs:
-  # Derive the MEOS catalog ONCE from a single MobilityDB commit via the shared
-  # provision-meos action (the same derivation JMEOS / Spark / GoMEOS consume),
-  # build + install the all-families libmeos, and validate the Linux wheel. The
-  # catalog is the single source of truth the CFFI cdef header is projected
-  # from — no MEOS header is parsed in this repository. The generated catalog is
-  # uploaded so the macOS builds reuse it (it is OS-independent).
-  linux:
-    name: Provision catalog + build PyMEOS CFFI (Linux, all families)
+  # The MEOS branch the package version derives, and the one commit of it this run builds from.
+  # The Linux and macOS jobs both read that commit, so the catalog and every libmeos come from
+  # it whatever the branch receives while the run is in progress.
+  resolve:
+    name: Resolve the MobilityDB commit
     runs-on: ubuntu-latest
     outputs:
       meos_branch: ${{ steps.meos_branch.outputs.meos_branch }}
+      mobilitydb_sha: ${{ steps.meos_branch.outputs.mobilitydb_sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,14 +44,32 @@ jobs:
           else
             meos_branch="master"
           fi
-          echo "Package version $python_version => MEOS branch $meos_branch"
+          sha=$(git ls-remote https://github.com/MobilityDB/MobilityDB "refs/heads/$meos_branch" | cut -f1)
+          echo "Package version $python_version => MEOS branch $meos_branch at $sha"
           echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
+          echo "mobilitydb_sha=$sha" >> "$GITHUB_OUTPUT"
+
+  # Derive the MEOS catalog ONCE from a single MobilityDB commit via the shared
+  # provision-meos action (the same derivation JMEOS / Spark / GoMEOS consume),
+  # build + install the all-families libmeos, and validate the Linux wheel. The
+  # catalog is the single source of truth the CFFI cdef header is projected
+  # from — no MEOS header is parsed in this repository. The generated catalog is
+  # uploaded so the macOS builds reuse it (it is OS-independent).
+  linux:
+    name: Provision catalog + build PyMEOS CFFI (Linux, all families)
+    runs-on: ubuntu-latest
+    needs: resolve
+    outputs:
+      meos_branch: ${{ needs.resolve.outputs.meos_branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Provision MEOS (catalog + all-families libmeos)
         id: provision
         uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
         with:
-          mobilitydb-ref: ${{ steps.meos_branch.outputs.meos_branch }}
+          mobilitydb-ref: ${{ needs.resolve.outputs.mobilitydb_sha }}
           build-libmeos: "true"
 
       - name: Stage the derived catalog for the cdef generator
@@ -104,14 +120,15 @@ jobs:
           python builder/smoke_test.py
 
   # macOS reuses the OS-independent catalog derived on Linux (provision-meos is
-  # Linux-only) and builds the all-families libmeos from the same MobilityDB commit.
-  # It runs beside the Linux job: the Homebrew tools and the libmeos build need no
-  # catalog, so the job fetches it once its library is installed and the Linux job
-  # has uploaded it. The header is then projected from that catalog and the
-  # wheel validated — no MEOS header is parsed here either.
+  # Linux-only) and builds the all-families libmeos from the same MobilityDB commit,
+  # the one the resolve job states. It runs beside the Linux job: the Homebrew tools
+  # and the libmeos build need no catalog, so the job fetches it once its library is
+  # installed and the Linux job has uploaded it. The header is then projected from
+  # that catalog and the wheel validated — no MEOS header is parsed here either.
   macos:
     name: Build PyMEOS CFFI on ${{ matrix.os }} (all families)
     runs-on: ${{ matrix.os }}
+    needs: resolve
     strategy:
       fail-fast: false
       matrix:
@@ -125,21 +142,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Derive MEOS branch from package version
-        id: meos_branch
-        shell: bash
-        run: |
-          python_version=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' pymeos_cffi/__init__.py)
-          major_minor=$(echo "$python_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
-          candidate="stable-${major_minor}"
-          if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
-            meos_branch=$candidate
-          else
-            meos_branch="master"
-          fi
-          echo "Package version $python_version => MEOS branch $meos_branch"
-          echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
-
       - name: Install MEOS build deps (macOS)
         uses: tecolicom/actions-use-homebrew-tools@v1
         with:
@@ -147,13 +149,18 @@ jobs:
 
       - name: Build and install the all-families MEOS
         shell: bash
+        env:
+          MOBILITYDB_SHA: ${{ needs.resolve.outputs.mobilitydb_sha }}
         run: |
-          git clone --depth 1 --branch ${{ steps.meos_branch.outputs.meos_branch }} \
-            https://github.com/MobilityDB/MobilityDB
+          git init -q MobilityDB
+          git -C MobilityDB fetch -q --depth 1 https://github.com/MobilityDB/MobilityDB \
+            "$MOBILITYDB_SHA"
+          git -C MobilityDB checkout -q FETCH_HEAD
           mkdir MobilityDB/build
           cd MobilityDB/build
           # The Homebrew libraries it links are built for the runner's macOS.
-          export MACOSX_DEPLOYMENT_TARGET="$(sw_vers -productVersion | cut -d. -f1).0"
+          MACOSX_DEPLOYMENT_TARGET="$(sw_vers -productVersion | cut -d. -f1).0"
+          export MACOSX_DEPLOYMENT_TARGET
           cmake .. -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
           make -j"$(sysctl -n hw.ncpu)"
@@ -167,7 +174,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           run="repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          for attempt in $(seq 1 90); do
+          for _ in $(seq 1 90); do
             found=$(gh api "$run/artifacts" --jq '[.artifacts[] | select(.name == "meos-idl")] | length')
             [ "$found" -ge 1 ] && exit 0
             linux=$(gh api "$run/jobs" --jq '[.jobs[] | select(.name | startswith("Provision catalog")) | .status][0]')
