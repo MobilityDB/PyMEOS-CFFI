@@ -204,7 +204,6 @@ def bool_in(string: str) -> Annotated[bool, "bool"]:
 
 
 def bool_out(b: bool) -> Annotated[str, "char *"]:
-
     size_out = _ffi.new("size_t *")
     result = _lib.bool_out(b, size_out)
     _check_error()
@@ -213,7 +212,6 @@ def bool_out(b: bool) -> Annotated[str, "char *"]:
 
 
 def float8_out(num: float, maxdd: int) -> Annotated[str, "char *"]:
-
     size_out = _ffi.new("size_t *")
     result = _lib.float8_out(num, maxdd, size_out)
     _check_error()
@@ -575,12 +573,13 @@ def rtree_insert(
 def rtree_load(
     rtree: Annotated[_ffi.CData, "RTree *"],
     boxes: Annotated[_ffi.CData, "const void *"],
-    ids: list[Annotated[int, "int64_t"]],
+    ids: Annotated[_ffi.CData, "const int64_t *"],
+    count: int,
 ) -> Annotated[bool, "bool"]:
     rtree_converted = _ffi.cast("RTree *", rtree)
     boxes_converted = _ffi.cast("const void *", boxes)
-    ids_converted = ids
-    result = _lib.rtree_load(rtree_converted, boxes_converted, ids_converted, len(ids))
+    ids_converted = _ffi.cast("const int64_t *", ids)
+    result = _lib.rtree_load(rtree_converted, boxes_converted, ids_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -788,12 +787,13 @@ def sptree_insert(
 def sptree_load(
     sptree: Annotated[_ffi.CData, "SPTree *"],
     boxes: Annotated[_ffi.CData, "const void *"],
-    ids: list[Annotated[int, "int64_t"]],
+    ids: Annotated[_ffi.CData, "const int64_t *"],
+    count: int,
 ) -> Annotated[bool, "bool"]:
     sptree_converted = _ffi.cast("SPTree *", sptree)
     boxes_converted = _ffi.cast("const void *", boxes)
-    ids_converted = ids
-    result = _lib.sptree_load(sptree_converted, boxes_converted, ids_converted, len(ids))
+    ids_converted = _ffi.cast("const int64_t *", ids)
+    result = _lib.sptree_load(sptree_converted, boxes_converted, ids_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -974,17 +974,17 @@ def meos_set_intervalstyle(newval: str, extra: int) -> Annotated[bool, "bool"]:
     return result if result != _ffi.NULL else None
 
 
-def meos_get_datestyle(size_out: Annotated[_ffi.CData, "size_t *"]) -> Annotated[str, "char *"]:
-    size_out_converted = _ffi.cast("size_t *", size_out)
-    result = _lib.meos_get_datestyle(size_out_converted)
+def meos_get_datestyle() -> Annotated[str, "char *"]:
+    size_out = _ffi.new("size_t *")
+    result = _lib.meos_get_datestyle(size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
-def meos_get_intervalstyle(size_out: Annotated[_ffi.CData, "size_t *"]) -> Annotated[str, "char *"]:
-    size_out_converted = _ffi.cast("size_t *", size_out)
-    result = _lib.meos_get_intervalstyle(size_out_converted)
+def meos_get_intervalstyle() -> Annotated[str, "char *"]:
+    size_out = _ffi.new("size_t *")
+    result = _lib.meos_get_intervalstyle(size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
@@ -1028,33 +1028,33 @@ def meos_finalize() -> Annotated[None, "void"]:
     _check_error()
 
 
-def meos_version(size_out: Annotated[_ffi.CData, "size_t *"]) -> Annotated[str, "char *"]:
-    size_out_converted = _ffi.cast("size_t *", size_out)
-    result = _lib.meos_version(size_out_converted)
+def meos_version() -> Annotated[str, "char *"]:
+    size_out = _ffi.new("size_t *")
+    result = _lib.meos_version(size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
-def meos_full_version(size_out: Annotated[_ffi.CData, "size_t *"]) -> Annotated[str, "char *"]:
-    size_out_converted = _ffi.cast("size_t *", size_out)
-    result = _lib.meos_full_version(size_out_converted)
+def meos_full_version() -> Annotated[str, "char *"]:
+    size_out = _ffi.new("size_t *")
+    result = _lib.meos_full_version(size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
-def mobilitydb_version(size_out: Annotated[_ffi.CData, "size_t *"]) -> Annotated[str, "char *"]:
-    size_out_converted = _ffi.cast("size_t *", size_out)
-    result = _lib.mobilitydb_version(size_out_converted)
+def mobilitydb_version() -> Annotated[str, "char *"]:
+    size_out = _ffi.new("size_t *")
+    result = _lib.mobilitydb_version(size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
-def mobilitydb_full_version(size_out: Annotated[_ffi.CData, "size_t *"]) -> Annotated[str, "char *"]:
-    size_out_converted = _ffi.cast("size_t *", size_out)
-    result = _lib.mobilitydb_full_version(size_out_converted)
+def mobilitydb_full_version() -> Annotated[str, "char *"]:
+    size_out = _ffi.new("size_t *")
+    result = _lib.mobilitydb_full_version(size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
@@ -23795,6 +23795,99 @@ def ensure_index_join_op(op: Annotated[_ffi.CData, "IndexSearchOp"]) -> Annotate
     return result if result != _ffi.NULL else None
 
 
+def bbox_same_structure(
+    bboxtype: Annotated[_ffi.CData, "MeosType"],
+    box1: Annotated[_ffi.CData, "const void *"],
+    box2: Annotated[_ffi.CData, "const void *"],
+) -> Annotated[bool, "bool"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    box1_converted = _ffi.cast("const void *", box1)
+    box2_converted = _ffi.cast("const void *", box2)
+    result = _lib.bbox_same_structure(bboxtype_converted, box1_converted, box2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_index_op(
+    bboxtype: Annotated[_ffi.CData, "MeosType"], op: Annotated[_ffi.CData, "IndexSearchOp"]
+) -> Annotated[bool, "bool"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    op_converted = _ffi.cast("IndexSearchOp", op)
+    result = _lib.ensure_index_op(bboxtype_converted, op_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def index_op_is_valid(
+    bboxtype: Annotated[_ffi.CData, "MeosType"],
+    op: Annotated[_ffi.CData, "IndexSearchOp"],
+    box: Annotated[_ffi.CData, "const void *"],
+    query: Annotated[_ffi.CData, "const void *"],
+) -> Annotated[bool, "bool"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    op_converted = _ffi.cast("IndexSearchOp", op)
+    box_converted = _ffi.cast("const void *", box)
+    query_converted = _ffi.cast("const void *", query)
+    result = _lib.index_op_is_valid(bboxtype_converted, op_converted, box_converted, query_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def index_op_apply(
+    bboxtype: Annotated[_ffi.CData, "MeosType"],
+    op: Annotated[_ffi.CData, "IndexSearchOp"],
+    box: Annotated[_ffi.CData, "const void *"],
+    query: Annotated[_ffi.CData, "const void *"],
+) -> Annotated[bool, "bool"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    op_converted = _ffi.cast("IndexSearchOp", op)
+    box_converted = _ffi.cast("const void *", box)
+    query_converted = _ffi.cast("const void *", query)
+    result = _lib.index_op_apply(bboxtype_converted, op_converted, box_converted, query_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def index_query_project(
+    bboxtype: Annotated[_ffi.CData, "MeosType"],
+    query: Annotated[_ffi.CData, "const void *"],
+    box: Annotated[_ffi.CData, "const void *"],
+) -> Annotated[_ffi.CData, "void *"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    query_converted = _ffi.cast("const void *", query)
+    box_converted = _ffi.cast("const void *", box)
+    out_result = _ffi.new("void *")
+    _lib.index_query_project(bboxtype_converted, query_converted, box_converted, out_result)
+    _check_error()
+    return out_result if out_result != _ffi.NULL else None
+
+
+def index_distance_is_valid(
+    bboxtype: Annotated[_ffi.CData, "MeosType"],
+    box: Annotated[_ffi.CData, "const void *"],
+    query: Annotated[_ffi.CData, "const void *"],
+) -> Annotated[bool, "bool"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    box_converted = _ffi.cast("const void *", box)
+    query_converted = _ffi.cast("const void *", query)
+    result = _lib.index_distance_is_valid(bboxtype_converted, box_converted, query_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def index_distance_apply(
+    bboxtype: Annotated[_ffi.CData, "MeosType"],
+    box: Annotated[_ffi.CData, "const void *"],
+    query: Annotated[_ffi.CData, "const void *"],
+) -> Annotated[float, "double"]:
+    bboxtype_converted = _ffi.cast("MeosType", bboxtype)
+    box_converted = _ffi.cast("const void *", box)
+    query_converted = _ffi.cast("const void *", query)
+    result = _lib.index_distance_apply(bboxtype_converted, box_converted, query_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ensure_index_result(result: Annotated[_ffi.CData, "const MeosArray *"]) -> Annotated[bool, "bool"]:
     result_converted = _ffi.cast("const MeosArray *", result)
     result = _lib.ensure_index_result(result_converted)
@@ -24310,7 +24403,6 @@ def tbox_set(
 
 
 def float_set_tbox(d: float) -> Annotated[_ffi.CData, "TBox *"]:
-
     box = _ffi.new("TBox *")
     _lib.float_set_tbox(d, box)
     _check_error()
@@ -24318,7 +24410,6 @@ def float_set_tbox(d: float) -> Annotated[_ffi.CData, "TBox *"]:
 
 
 def int_set_tbox(i: int) -> Annotated[_ffi.CData, "TBox *"]:
-
     box = _ffi.new("TBox *")
     _lib.int_set_tbox(i, box)
     _check_error()
@@ -35021,6 +35112,36 @@ def overafter_tpointcloud_tpointcloud(
     return result if result != _ffi.NULL else None
 
 
+def nad_tpcbox_tpcbox(
+    box1: Annotated[_ffi.CData, "const TPCBox *"], box2: Annotated[_ffi.CData, "const TPCBox *"]
+) -> Annotated[float, "double"]:
+    box1_converted = _ffi.cast("const TPCBox *", box1)
+    box2_converted = _ffi.cast("const TPCBox *", box2)
+    result = _lib.nad_tpcbox_tpcbox(box1_converted, box2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tpointcloud_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"]
+) -> Annotated[float, "double"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.nad_tpointcloud_tpcbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tpointcloud_tpointcloud(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[float, "double"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.nad_tpointcloud_tpointcloud(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpc_extent_transfn(
     state: Annotated[_ffi.CData, "TPCBox *"] | None, temp: Annotated[_ffi.CData, "const Temporal *"] | None
 ) -> Annotated[_ffi.CData, "TPCBox *"]:
@@ -35244,11 +35365,11 @@ def tpose_as_geopose_stream(
     return result if result != _ffi.NULL else None
 
 
-def geopose_frames(count: Annotated[_ffi.CData, "int *"]) -> Annotated[_ffi.CData, "const GeoPoseFrame *"]:
-    count_converted = _ffi.cast("int *", count)
-    result = _lib.geopose_frames(count_converted)
+def geopose_frames() -> tuple[Annotated[_ffi.CData, "const GeoPoseFrame *"], Annotated[_ffi.CData, "int"]]:
+    count = _ffi.new("int *")
+    result = _lib.geopose_frames(count)
     _check_error()
-    return result if result != _ffi.NULL else None
+    return result if result != _ffi.NULL else None, count[0]
 
 
 def geopose_frame(frame_id: Annotated[_ffi.CData, "int32_t"]) -> Annotated[_ffi.CData, "const GeoPoseFrame *"]:
