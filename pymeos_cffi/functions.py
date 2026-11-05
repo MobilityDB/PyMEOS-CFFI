@@ -573,13 +573,12 @@ def rtree_insert(
 def rtree_load(
     rtree: Annotated[_ffi.CData, "RTree *"],
     boxes: Annotated[_ffi.CData, "const void *"],
-    ids: Annotated[_ffi.CData, "const int64_t *"],
-    count: int,
+    ids: list[Annotated[int, "int64_t"]],
 ) -> Annotated[bool, "bool"]:
     rtree_converted = _ffi.cast("RTree *", rtree)
     boxes_converted = _ffi.cast("const void *", boxes)
-    ids_converted = _ffi.cast("const int64_t *", ids)
-    result = _lib.rtree_load(rtree_converted, boxes_converted, ids_converted, count)
+    ids_converted = ids
+    result = _lib.rtree_load(rtree_converted, boxes_converted, ids_converted, len(ids))
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -787,13 +786,12 @@ def sptree_insert(
 def sptree_load(
     sptree: Annotated[_ffi.CData, "SPTree *"],
     boxes: Annotated[_ffi.CData, "const void *"],
-    ids: Annotated[_ffi.CData, "const int64_t *"],
-    count: int,
+    ids: list[Annotated[int, "int64_t"]],
 ) -> Annotated[bool, "bool"]:
     sptree_converted = _ffi.cast("SPTree *", sptree)
     boxes_converted = _ffi.cast("const void *", boxes)
-    ids_converted = _ffi.cast("const int64_t *", ids)
-    result = _lib.sptree_load(sptree_converted, boxes_converted, ids_converted, count)
+    ids_converted = ids
+    result = _lib.sptree_load(sptree_converted, boxes_converted, ids_converted, len(ids))
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -17150,6 +17148,20 @@ def tgeo_affine(
     return result if result != _ffi.NULL else None
 
 
+def tgeo_force2d(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tgeo_force2d(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeo_force3d(temp: Annotated[_ffi.CData, "const Temporal *"], zvalue: float) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tgeo_force3d(temp_converted, zvalue)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tgeo_rotate(
     temp: Annotated[_ffi.CData, "const Temporal *"], angle: float, x0: float, y0: float
 ) -> Annotated[_ffi.CData, "Temporal *"]:
@@ -33266,6 +33278,13 @@ def pcpatch_to_tpcbox(pa: Annotated[_ffi.CData, "const Pcpatch *"]) -> Annotated
     return result if result != _ffi.NULL else None
 
 
+def tpointcloud_to_tpcbox(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "TPCBox *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpointcloud_to_tpcbox(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpcbox_hasx(box: Annotated[_ffi.CData, "const TPCBox *"]) -> Annotated[bool, "bool"]:
     box_converted = _ffi.cast("const TPCBox *", box)
     result = _lib.tpcbox_hasx(box_converted)
@@ -35486,6 +35505,13 @@ def tpose_rotate_y(
     return result if result != _ffi.NULL else None
 
 
+def tpose_force2d(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpose_force2d(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpose_rotate_z(
     temp: Annotated[_ffi.CData, "const Temporal *"], angle: float
 ) -> Annotated[_ffi.CData, "Temporal *"]:
@@ -35560,6 +35586,13 @@ def pose_make_point3d_ypr(
 ) -> Annotated[_ffi.CData, "Pose *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     result = _lib.pose_make_point3d_ypr(gs_converted, yaw, pitch, roll)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def pose_to_geog(pose: Annotated[_ffi.CData, "const Pose *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    pose_converted = _ffi.cast("const Pose *", pose)
+    result = _lib.pose_to_geog(pose_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -40475,6 +40508,13 @@ def trgeometry_delete_tstzspanset(
     temp_converted = _ffi.cast("const Temporal *", temp)
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.trgeometry_delete_tstzspanset(temp_converted, ss_converted, connect)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def trgeometry_force2d(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.trgeometry_force2d(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
