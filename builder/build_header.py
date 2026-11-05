@@ -20,90 +20,7 @@ import re
 import subprocess
 import sys
 
-# ---------------------------------------------------------------------------
-# Base-type vocabulary. The PG / MEOS integer typedefs are not standard C, so
-# CFFI needs them declared; ``int...`` lets CFFI take the real size from the
-# compiled ``#include``. Standard types (char / int / double / the
-# ``<stdint.h>`` ``*_t`` / ``size_t``) are already known to CFFI.
-# ---------------------------------------------------------------------------
-BASE_TYPEDEFS = """typedef int... int8;
-typedef int... int16;
-typedef int... int32;
-typedef int... int64;
-typedef int... uint8;
-typedef int... uint16;
-typedef int... uint32;
-typedef int... uint64;
-typedef int... lwflags_t;
-typedef int... Datum;
-typedef int... Oid;
-typedef int... DateADT;
-typedef int... TimeADT;
-typedef int... TimeOffset;
-typedef int... Timestamp;
-typedef int... TimestampTz;
-typedef double float8;
-typedef float float4;
-
-typedef void (*error_handler_fn)(int, int, const char *);
-"""
-
-# The PROJ context is reached only through its own boundary; reproduce the
-# hand-written opaque declaration verbatim.
-PREAMBLE = """struct pj_ctx;
-typedef struct pj_ctx PJ_CONTEXT;
-"""
-
-# Standard C spellings CFFI already knows — never re-typedef or opaque-declare.
-_KNOWN_C = {
-    "void",
-    "bool",
-    "_Bool",
-    "char",
-    "signed char",
-    "unsigned char",
-    "short",
-    "unsigned short",
-    "int",
-    "unsigned int",
-    "long",
-    "unsigned long",
-    "long long",
-    "unsigned long long",
-    "float",
-    "double",
-    "size_t",
-    "int8_t",
-    "int16_t",
-    "int32_t",
-    "int64_t",
-    "uint8_t",
-    "uint16_t",
-    "uint32_t",
-    "uint64_t",
-}
-_BASE_NAMES = {
-    "int8",
-    "int16",
-    "int32",
-    "int64",
-    "uint8",
-    "uint16",
-    "uint32",
-    "uint64",
-    "lwflags_t",
-    "Datum",
-    "Oid",
-    "DateADT",
-    "TimeADT",
-    "TimeOffset",
-    "Timestamp",
-    "TimestampTz",
-    "float8",
-    "float4",
-    "error_handler_fn",
-}
-_PREAMBLE_NAMES = {"PJ_CONTEXT"}
+from objects import CatalogTypes, base_name
 
 # Internal memory-layout accessors that meos_internal.h declares BOTH as an
 # extern function AND a function-like macro. The macro wins in the set_source
@@ -137,14 +54,6 @@ UNDEFINED_TYPES = (
 )
 
 
-def _base_name(ctype: str) -> str:
-    s = re.sub(r"\b(const|struct|union|enum)\b", " ", ctype)
-    s = s.replace("*", " ")
-    s = re.sub(r"\[.*?\]", " ", s)
-    s = re.sub(r"\(.*", " ", s)  # function-pointer tail
-    return " ".join(s.split())
-
-
 def _member_decl(ctype: str, name: str) -> str:
     """Render ``ctype name`` as a C declaration (arrays / function pointers)."""
     s = ctype.strip()
@@ -157,6 +66,13 @@ def _member_decl(ctype: str, name: str) -> str:
 
 
 class Emitter:
+    """The cdef of the catalog: every slot spelled as #CatalogTypes spells its canonical,
+    the names the spellings use declared from the catalog's own lists. A name the
+    catalog defines (``TimestampTz``, ``Datum``, ``text``) is declared by its
+    ``typedefs`` definition, a type of its own a slot names (``H3Index``) over its width,
+    a callback (``meos_malloc_fn``) by its ``callbacks`` signature, and a structure
+    spelled by its tag (``struct Cbuffer``) under that tag."""
+
     def __init__(self, idl: dict, defined: set[str], installed: set[str] | None = None):
         # Third-party code MobilityDB vendors (pgpointcloud's pc_api.h and
         # hashtable.h, PostgreSQL's numeric) is flagged ``vendored`` by the
@@ -166,46 +82,36 @@ class Emitter:
         self.enums = [e for e in idl["enums"] if not e.get("vendored")]
         self.macros = [m for m in idl.get("macros", []) if not m.get("vendored")]
         self.functions = [f for f in idl["functions"] if not f.get("vendored")]
+        self.callbacks = idl.get("callbacks", [])
+        self.types = CatalogTypes(idl)
         self.struct_names = {s["name"] for s in self.structs}
-        self.enum_names = {e["name"] for e in self.enums}
         self.defined = defined
         self.installed = installed
-        # External types the catalog references but does not define. Split by
-        # how they are used: a value-typed one is a pointer / function-pointer
-        # typedef (e.g. Numeric = NumericData *) → declare as a void pointer; a
-        # pointer-only one is an opaque struct handle.
-        self.opaque_value: set[str] = set()
-        self.opaque_ptr: set[str] = set()
+        # The bases the emitted spellings use, gathered as they are spelled: the
+        # structure tags, the vendored structures and the callbacks to declare.
+        self.used: set[str] = set()
 
-    def _note_type(self, ctype: str) -> None:
-        base = _base_name(ctype)
-        if not base or " " in base or not re.match(r"^[A-Za-z_]\w*$", base):
-            return
-        if (
-            base in _KNOWN_C
-            or base in _BASE_NAMES
-            or base in _PREAMBLE_NAMES
-            or base in self.struct_names
-            or base in self.enum_names
-        ):
-            return
-        if "*" in ctype:
-            self.opaque_ptr.add(base)
-        else:
-            self.opaque_value.add(base)
+    def _spell(self, slot: dict, where: str) -> str:
+        spelling = self.types.spell(slot, where)
+        self.used.add(base_name(spelling))
+        return spelling
+
+    def _tags(self) -> set[str]:
+        return {b[len("struct ") :] for b in self.used if b.startswith("struct ")}
 
     # -- structs: a concrete MEOS struct is a partial struct whose catalog
     # fields are declared and closed by ``...;``, so CFFI takes the real
     # layout from the headers ``set_source`` ``#include``s and Python reads the
     # fields (``temptype``, ``Interval.day``, ``STBox.srid`` …) by name. A field
     # is declared when its type is a scalar, an enum, or a MEOS struct already
-    # declared by value; pointer, flexible-array and external-typed fields stay
+    # declared by value; pointer, flexible-array and function-pointer fields stay
     # behind the ``...;``, which CFFI allows to cover any undeclared member.
-    def _field_declarable(self, ctype: str, laid_out: set[str]) -> bool:
-        if "*" in ctype or "(" in ctype or "[]" in ctype:
+    def _field_declarable(self, spelling: str, laid_out: set[str]) -> bool:
+        if "*" in spelling or "(" in spelling or "[]" in spelling:
             return False
-        base = _base_name(ctype)
-        return base in _KNOWN_C or base in _BASE_NAMES or base in self.enum_names or base in laid_out
+        base = base_name(spelling)
+        kind = self.types.kind(base)
+        return kind in ("int", "float", "bool", "enum") or base.removeprefix("struct ") in laid_out
 
     def _struct_order(self) -> list[dict]:
         # A struct embedding another by value (TBox holds two Span) comes after
@@ -219,8 +125,8 @@ class Emitter:
                 return
             done.add(s["name"])
             for f in s["fields"]:
-                dep = by_name.get(_base_name(f["cType"]))
-                if dep is not None and "*" not in f["cType"]:
+                dep = by_name.get(base_name(f["canonical"]).removeprefix("struct "))
+                if dep is not None and "*" not in f["canonical"]:
                     visit(dep)
             order.append(s)
 
@@ -228,25 +134,44 @@ class Emitter:
             visit(s)
         return order
 
+    def _spell_fields(self) -> None:
+        # The fields of every laid-out struct, spelled before any struct is emitted so
+        # the tags and the types of their own they name are all known
+        self.fields = {}
+        for s in self.structs:
+            if s["fields"] and s["file"].startswith("meos"):
+                self.fields[s["name"]] = [
+                    (f.get("name"), self._spell(f, f"field {f.get('name')} of {s['name']}")) for f in s["fields"]
+                ]
+
     def emit_structs(self) -> str:
+        # A structure the spellings name by its tag (struct Cbuffer, struct NumericData)
+        # is declared under the tag alone: CFFI writes a declared typedef name into the
+        # C it compiles, and the headers give some tags no typedef of their name
         out = []
         laid_out: set[str] = set()
+        tags = self._tags()
         for s in self._struct_order():
-            if s["fields"] and s["file"].startswith("meos"):
+            name = s["name"]
+            if name in self.fields:
                 fields = [
-                    f"  {_member_decl(f['cType'], f['name'])};"
-                    for f in s["fields"]
-                    if f.get("name") and self._field_declarable(f["cType"], laid_out)
+                    f"  {_member_decl(spelling, field)};"
+                    for field, spelling in self.fields[name]
+                    if field and self._field_declarable(spelling, laid_out)
                 ]
                 body = "\n".join(fields + ["  ...;"])
-                out.append(f"typedef struct {{\n{body}\n}} {s['name']};")
-                laid_out.add(s["name"])
+                if name in tags:
+                    out.append(f"struct {name} {{\n{body}\n}};")
+                else:
+                    out.append(f"typedef struct {{\n{body}\n}} {name};")
+                laid_out.add(name)
+            elif name in tags:
+                out.append(f"struct {name};")
             else:
-                # Forward-declared / opaque MEOS struct (Cbuffer, SkipList …) or
-                # an external ABI struct from a non-MEOS header (ArrowArray,
-                # NumericData, SERIALIZED_*): fully opaque, used only through a
-                # pointer, so CFFI needs no layout.
-                out.append(f"typedef ... {s['name']};")
+                # Forward-declared / opaque MEOS struct (SkipList …) or an external
+                # ABI struct from a non-MEOS header: fully opaque, used only through
+                # a pointer, so CFFI needs no layout.
+                out.append(f"typedef ... {name};")
         return "\n".join(out)
 
     def emit_enums(self) -> str:
@@ -277,7 +202,7 @@ class Emitter:
             # behind (the internal pgtypes.h umbrella): the compiled unit sees
             # no prototype, so C would call it as returning int.
             return f"header {fn['file']} not installed"
-        sig = fn["returnType"]["c"] + " " + " ".join(p["cType"] for p in fn["params"])
+        sig = " ".join(s["canonical"] for s in [fn["returnType"], *fn["params"]])
         for t in UNDEFINED_TYPES:
             if t in sig:
                 return f"undefined type {t}"
@@ -290,39 +215,63 @@ class Emitter:
             if reason:
                 print(f"Removing function ({reason}): {fn['name']}")
                 continue
-            self._note_type(fn["returnType"]["c"])
+            ret = self._spell(fn["returnType"], f"the return of {fn['name']}")
             params = []
             for i, p in enumerate(fn["params"]):
-                self._note_type(p["cType"])
-                params.append(_member_decl(p["cType"], p.get("name") or f"arg{i + 1}"))
+                name = p.get("name") or f"arg{i + 1}"
+                params.append(_member_decl(self._spell(p, f"parameter {name} of {fn['name']}"), name))
             args = ", ".join(params) if params else "void"
-            out.append(f"extern {fn['returnType']['c']} {fn['name']}({args});")
+            out.append(f"extern {ret} {fn['name']}({args});")
         return "\n".join(out)
 
+    def emit_callbacks(self) -> str:
+        # Every MEOS callback, and a vendored one a spelling uses, as the function-pointer
+        # typedef the catalog's callbacks list states
+        out = []
+        for cb in self.callbacks:
+            if cb.get("vendored") and cb["name"] not in self.used:
+                continue
+            where = f"callback {cb['name']}"
+            ret = self._spell(cb["returnType"], f"the return of {where}")
+            params = ", ".join(self._spell(p, f"parameter {p['name']} of {where}") for p in cb["params"]) or "void"
+            out.append(f"typedef {ret} (*{cb['name']})({params});")
+        return "\n".join(out)
+
+    def emit_typedefs(self) -> str:
+        # The names the catalog defines, by their definition, and the types of their
+        # own the slots name, over their width
+        defs = {t: self.types.typedefs[t] for t in sorted(self.types.typedefs)}
+        for t, d in defs.items():
+            self._spell({"canonical": d}, f"the definition of {t}")
+        lines = [f"typedef {d} {t};" for t, d in defs.items()]
+        lines += [f"typedef {w} {t};" for t, w in sorted(self.types.own.items())]
+        return "\n".join(lines)
+
     def emit_opaque(self) -> str:
-        # Emitted after structs/functions so the sets are fully populated. A
-        # value-typed external is a pointer typedef (e.g. Numeric = NumericData
-        # *) → a void pointer; a pointer-only external is a fully opaque handle
-        # CFFI resolves from set_source (never dereferenced from Python).
-        lines = []
-        for n in sorted(self.opaque_value - self.opaque_ptr):
-            lines.append(f"typedef void *{n};")
-        for n in sorted(self.opaque_ptr | (self.opaque_value & self.opaque_ptr)):
-            lines.append(f"typedef ... {n};")
+        # A structure tag no laid-out or opaque MEOS struct declares (struct pj_ctx,
+        # struct NumericData of a vendored header) is an incomplete struct; a vendored
+        # structure a spelling names bare is an opaque handle
+        lines = [f"struct {t};" for t in sorted(self._tags() - self.struct_names)]
+        bare = {b for b in self.used if b in self.types.structs}
+        lines += [f"typedef ... {n};" for n in sorted(bare - self.struct_names)]
         return "\n".join(lines)
 
     def generate(self) -> str:
-        structs = self.emit_structs()
         functions = self.emit_functions()
+        callbacks = self.emit_callbacks()
+        self._spell_fields()
+        typedefs = self.emit_typedefs()
+        structs = self.emit_structs()
         enums = self.emit_enums()
         macros = self.emit_macros()
         opaque = self.emit_opaque()
         return "\n".join(
             [
-                BASE_TYPEDEFS,
-                PREAMBLE,
                 "// -------------------- external opaque types --------------------",
                 opaque,
+                "",
+                "// -------------------- defined types --------------------",
+                typedefs,
                 "",
                 "// -------------------- enums --------------------",
                 enums,
@@ -332,6 +281,9 @@ class Emitter:
                 "",
                 "// -------------------- structs --------------------",
                 structs,
+                "",
+                "// -------------------- callbacks --------------------",
+                callbacks,
                 "",
                 "// -------------------- functions --------------------",
                 functions,
