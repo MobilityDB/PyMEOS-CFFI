@@ -1,6 +1,6 @@
 # ![MEOS Logo](https://raw.githubusercontent.com/MobilityDB/PyMEOS/master/docs/images/PyMEOS%20Logo.png)
 
-[MEOS (Mobility Engine, Open Source)](https://github.com/MobilityDB/MEOS) is a C library which enables the manipulation of
+[MEOS (Mobility Engine, Open Source)](https://libmeos.org) is a C library which enables the manipulation of
 temporal and spatio-temporal data based on [MobilityDB](https://mobilitydb.com/)'s data types and functions.
 
 PyMEOS CFFI is a Python library that wraps the MEOS C library using CFFI, providing a set of python functions
@@ -26,6 +26,6 @@ If the pre-built distribution is not available for your system, `pip` will try t
 need to make sure you have the following requirements:
 
 - C compiler
-- [MEOS Library](https://github.com/MobilityDB/MEOS)
+- [MEOS Library](https://github.com/MobilityDB/MobilityDB/tree/master/meos), built from MobilityDB
 
 If the installation fails, you can submit an issue in the [PyMEOS issue tracker](https://github.com/MobilityDB/PyMEOS/issues)
