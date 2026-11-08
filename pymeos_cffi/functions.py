@@ -30523,9 +30523,11 @@ def nsegment_make(rid: int, pos1: float, pos2: float) -> Annotated[_ffi.CData, "
     return result if result != _ffi.NULL else None
 
 
-def geompoint_to_npoint(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[_ffi.CData, "Npoint *"]:
+def geompoint_to_npoint(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], tolerance: float
+) -> Annotated[_ffi.CData, "Npoint *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geompoint_to_npoint(gs_converted)
+    result = _lib.geompoint_to_npoint(gs_converted, tolerance)
     _check_error()
     return result if result != _ffi.NULL else None
 
