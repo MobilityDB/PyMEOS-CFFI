@@ -474,6 +474,21 @@ def meos_array_destroy_free(array: Annotated[_ffi.CData, "struct MeosArray *"] |
     _check_error()
 
 
+def indexsearchop_name(op: Annotated[_ffi.CData, "IndexSearchOp"]) -> Annotated[str, "const char *"]:
+    op_converted = _ffi.cast("IndexSearchOp", op)
+    result = _lib.indexsearchop_name(op_converted)
+    _check_error()
+    result = _read_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def indexsearchop_from_string(string: str) -> Annotated[_ffi.CData, "IndexSearchOp"]:
+    string_converted = string.encode("utf-8")
+    result = _lib.indexsearchop_from_string(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def index_result_create() -> Annotated[_ffi.CData, "struct MeosArray *"]:
     result = _lib.index_result_create()
     _check_error()
@@ -688,6 +703,21 @@ def rtree_nn_cursor_close(cursor: Annotated[_ffi.CData, "struct RTreeNNCursor *"
     cursor_converted = _ffi.cast("struct RTreeNNCursor *", cursor) if cursor is not None else _ffi.NULL
     _lib.rtree_nn_cursor_close(cursor_converted)
     _check_error()
+
+
+def sptreekind_name(kind: Annotated[_ffi.CData, "SPTreeKind"]) -> Annotated[str, "const char *"]:
+    kind_converted = _ffi.cast("SPTreeKind", kind)
+    result = _lib.sptreekind_name(kind_converted)
+    _check_error()
+    result = _read_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def sptreekind_from_string(string: str) -> Annotated[_ffi.CData, "SPTreeKind"]:
+    string_converted = string.encode("utf-8")
+    result = _lib.sptreekind_from_string(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
 
 
 def sptree_create_intspan(kind: Annotated[_ffi.CData, "SPTreeKind"]) -> Annotated[_ffi.CData, "struct SPTree *"]:
@@ -1750,6 +1780,13 @@ def timestamptz_to_spanset(t: int) -> Annotated[_ffi.CData, "SpanSet *"]:
     return result if result != _ffi.NULL else None
 
 
+def timestamptz_to_unix_us(t: int) -> Annotated[int, "int64_t"]:
+    t_converted = _ffi.cast("TimestampTz", t)
+    result = _lib.timestamptz_to_unix_us(t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tstzset_to_dateset(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.tstzset_to_dateset(s_converted)
@@ -1767,6 +1804,13 @@ def tstzspan_to_datespan(s: Annotated[_ffi.CData, "const Span *"]) -> Annotated[
 def tstzspanset_to_datespanset(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> Annotated[_ffi.CData, "SpanSet *"]:
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.tstzspanset_to_datespanset(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def unix_us_to_timestamptz(us: int) -> Annotated[int, "TimestampTz"]:
+    us_converted = _ffi.cast("int64_t", us)
+    result = _lib.unix_us_to_timestamptz(us_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -7650,6 +7694,13 @@ def wkb_variant_from_endian(endian: str | None) -> Annotated[int, "uint8_t"]:
     return result if result != _ffi.NULL else None
 
 
+def interptype_name(interp: InterpolationType) -> Annotated[str, "const char *"]:
+    result = _lib.interptype_name(interp)
+    _check_error()
+    result = _read_string(result)
+    return result if result != _ffi.NULL else None
+
+
 def interptype_from_string(string: str) -> Annotated[InterpolationType, "interpType"]:
     string_converted = string.encode("utf-8")
     result = _lib.interptype_from_string(string_converted)
@@ -13013,6 +13064,86 @@ def temporal_ext_kalman_filter(
     return result if result != _ffi.NULL else None
 
 
+def temporal_reachability_filter(
+    temp: Annotated[_ffi.CData, "const Temporal *"], maxspeed: float
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.temporal_reachability_filter(temp_converted, maxspeed)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_reachability_filter_transfn(
+    state: Annotated[_ffi.CData, "struct ReachabilityState *"] | None,
+    inst: Annotated[_ffi.CData, "const TInstant *"],
+    maxspeed: float,
+) -> Annotated[_ffi.CData, "struct ReachabilityState *"]:
+    state_converted = _ffi.cast("struct ReachabilityState *", state) if state is not None else _ffi.NULL
+    inst_converted = _ffi.cast("const TInstant *", inst)
+    result = _lib.temporal_reachability_filter_transfn(state_converted, inst_converted, maxspeed)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_reachability_filter_finalfn(
+    state: Annotated[_ffi.CData, "struct ReachabilityState *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    state_converted = _ffi.cast("struct ReachabilityState *", state)
+    result = _lib.temporal_reachability_filter_finalfn(state_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def reachabilitystate_instants(
+    state: Annotated[_ffi.CData, "struct ReachabilityState *"],
+) -> tuple[Annotated[_ffi.CData, "TInstant **"], Annotated[_ffi.CData, "int"]]:
+    state_converted = _ffi.cast("struct ReachabilityState *", state)
+    count = _ffi.new("int *")
+    result = _lib.reachabilitystate_instants(state_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def reachabilitystate_kept(state: Annotated[_ffi.CData, "const struct ReachabilityState *"]) -> Annotated[int, "int"]:
+    state_converted = _ffi.cast("const struct ReachabilityState *", state)
+    result = _lib.reachabilitystate_kept(state_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def reachabilitystate_reports(
+    state: Annotated[_ffi.CData, "const struct ReachabilityState *"],
+) -> Annotated[int, "int"]:
+    state_converted = _ffi.cast("const struct ReachabilityState *", state)
+    result = _lib.reachabilitystate_reports(state_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def reachabilitystate_unreachable(
+    state: Annotated[_ffi.CData, "const struct ReachabilityState *"],
+) -> Annotated[int, "int"]:
+    state_converted = _ffi.cast("const struct ReachabilityState *", state)
+    result = _lib.reachabilitystate_unreachable(state_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def reachabilitystate_deserialize(bytes: bytes) -> Annotated[_ffi.CData, "struct ReachabilityState *"]:
+    bytes_converted = _ffi.new("uint8_t []", bytes)
+    result = _lib.reachabilitystate_deserialize(bytes_converted, len(bytes))
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def reachabilitystate_serialize(state: Annotated[_ffi.CData, "const struct ReachabilityState *"]) -> bytes:
+    state_converted = _ffi.cast("const struct ReachabilityState *", state)
+    size_out = _ffi.new("size_t *")
+    result = _lib.reachabilitystate_serialize(state_converted, size_out)
+    _check_error()
+    return _take_bytes(result, size_out[0])
+
+
 def temporal_time_bins(
     temp: Annotated[_ffi.CData, "const Temporal *"],
     duration: Annotated[_ffi.CData, "const Interval *"],
@@ -13564,13 +13695,6 @@ def meosoper_from_string(name: str) -> Annotated[_ffi.CData, "MeosOper"]:
     return result if result != _ffi.NULL else None
 
 
-def interptype_name(interp: InterpolationType) -> Annotated[str, "const char *"]:
-    result = _lib.interptype_name(interp)
-    _check_error()
-    result = _read_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def meos_typeof_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "MeosType"]:
     hexwkb_converted = hexwkb.encode("utf-8")
     result = _lib.meos_typeof_hexwkb(hexwkb_converted)
@@ -13581,6 +13705,14 @@ def meos_typeof_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "MeosType"]:
 def meostype_name(type: Annotated[_ffi.CData, "MeosType"]) -> Annotated[str, "const char *"]:
     type_converted = _ffi.cast("MeosType", type)
     result = _lib.meostype_name(type_converted)
+    _check_error()
+    result = _read_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def meostype_camel_name(type: Annotated[_ffi.CData, "MeosType"]) -> Annotated[str, "const char *"]:
+    type_converted = _ffi.cast("MeosType", type)
+    result = _lib.meostype_camel_name(type_converted)
     _check_error()
     result = _read_string(result)
     return result if result != _ffi.NULL else None
@@ -15297,6 +15429,20 @@ def geoset_to_geo(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CDa
     return result if result != _ffi.NULL else None
 
 
+def geomset_to_geogset(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.geomset_to_geogset(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geogset_to_geomset(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.geogset_to_geomset(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def geoset_end_value(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.geoset_end_value(s_converted)
@@ -15621,6 +15767,20 @@ def stbox_to_gbox(box: Annotated[_ffi.CData, "const STBox *"]) -> Annotated[_ffi
 def stbox_to_geo(box: Annotated[_ffi.CData, "const STBox *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     box_converted = _ffi.cast("const STBox *", box)
     result = _lib.stbox_to_geo(box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_to_geom(box: Annotated[_ffi.CData, "const STBox *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.stbox_to_geom(box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_to_geog(box: Annotated[_ffi.CData, "const STBox *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.stbox_to_geog(box_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -19275,6 +19435,13 @@ def cbuffer_to_geom(cb: Annotated[_ffi.CData, "const struct Cbuffer *"]) -> Anno
     return result if result != _ffi.NULL else None
 
 
+def cbuffer_to_geog(cb: Annotated[_ffi.CData, "const struct Cbuffer *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    cb_converted = _ffi.cast("const struct Cbuffer *", cb)
+    result = _lib.cbuffer_to_geog(cb_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def cbuffer_to_stbox(cb: Annotated[_ffi.CData, "const struct Cbuffer *"]) -> Annotated[_ffi.CData, "STBox *"]:
     cb_converted = _ffi.cast("const struct Cbuffer *", cb)
     result = _lib.cbuffer_to_stbox(cb_converted)
@@ -19927,6 +20094,13 @@ def tcbuffer_to_tfloat(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annot
 def tcbuffer_to_tgeompoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tcbuffer_to_tgeompoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tcbuffer_to_tgeogpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tcbuffer_to_tgeogpoint(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -29598,9 +29772,17 @@ def contains_tjsonb_tjsonb(
     return result if result != _ffi.NULL else None
 
 
-def null_handle_type_from_string(string: str) -> Annotated[_ffi.CData, "nullHandleType"]:
+def nullhandletype_name(type: Annotated[_ffi.CData, "nullHandleType"]) -> Annotated[str, "const char *"]:
+    type_converted = _ffi.cast("nullHandleType", type)
+    result = _lib.nullhandletype_name(type_converted)
+    _check_error()
+    result = _read_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def nullhandletype_from_string(string: str) -> Annotated[_ffi.CData, "nullHandleType"]:
     string_converted = string.encode("utf-8")
-    result = _lib.null_handle_type_from_string(string_converted)
+    result = _lib.nullhandletype_from_string(string_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -30546,6 +30728,13 @@ def npoint_to_geompoint(np: Annotated[_ffi.CData, "const Npoint *"]) -> Annotate
     return result if result != _ffi.NULL else None
 
 
+def npoint_to_geog(np: Annotated[_ffi.CData, "const Npoint *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    np_converted = _ffi.cast("const Npoint *", np)
+    result = _lib.npoint_to_geog(np_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def npoint_to_nsegment(np: Annotated[_ffi.CData, "const Npoint *"]) -> Annotated[_ffi.CData, "Nsegment *"]:
     np_converted = _ffi.cast("const Npoint *", np)
     result = _lib.npoint_to_nsegment(np_converted)
@@ -30563,6 +30752,13 @@ def npoint_to_stbox(np: Annotated[_ffi.CData, "const Npoint *"]) -> Annotated[_f
 def nsegment_to_geom(ns: Annotated[_ffi.CData, "const Nsegment *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     ns_converted = _ffi.cast("const Nsegment *", ns)
     result = _lib.nsegment_to_geom(ns_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nsegment_to_geog(ns: Annotated[_ffi.CData, "const Nsegment *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    ns_converted = _ffi.cast("const Nsegment *", ns)
+    result = _lib.nsegment_to_geog(ns_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -31091,6 +31287,13 @@ def tgeompoint_to_tnpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> An
 def tnpoint_to_tgeompoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tnpoint_to_tgeompoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnpoint_to_tgeogpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tnpoint_to_tgeogpoint(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -31908,26 +32111,28 @@ def meos_pc_schema_register(pcid: int, schema: Annotated[_ffi.CData, "struct PCS
 
 
 def meos_pc_schema_from_dims(
-    pcid: int, srid: int, compression: str, dims: Annotated[_ffi.CData, "const PCDimensionSpec *"], ndims: int
+    pcid: int, srid: int, compression: str, dims: list[Annotated[_ffi.CData, "PCDimensionSpec"]]
 ) -> Annotated[_ffi.CData, "struct PCSCHEMA *"]:
     pcid_converted = _ffi.cast("uint32_t", pcid)
     srid_converted = _ffi.cast("int32_t", srid)
     compression_converted = compression.encode("utf-8")
-    dims_converted = _ffi.cast("const PCDimensionSpec *", dims)
-    result = _lib.meos_pc_schema_from_dims(pcid_converted, srid_converted, compression_converted, dims_converted, ndims)
+    dims_converted = dims
+    result = _lib.meos_pc_schema_from_dims(
+        pcid_converted, srid_converted, compression_converted, dims_converted, len(dims)
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def meos_pc_schema_register_dims(
-    pcid: int, srid: int, compression: str, dims: Annotated[_ffi.CData, "const PCDimensionSpec *"], ndims: int
+    pcid: int, srid: int, compression: str, dims: list[Annotated[_ffi.CData, "PCDimensionSpec"]]
 ) -> Annotated[bool, "bool"]:
     pcid_converted = _ffi.cast("uint32_t", pcid)
     srid_converted = _ffi.cast("int32_t", srid)
     compression_converted = compression.encode("utf-8")
-    dims_converted = _ffi.cast("const PCDimensionSpec *", dims)
+    dims_converted = dims
     result = _lib.meos_pc_schema_register_dims(
-        pcid_converted, srid_converted, compression_converted, dims_converted, ndims
+        pcid_converted, srid_converted, compression_converted, dims_converted, len(dims)
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -32184,6 +32389,13 @@ def pcpatch_mem_size(pa: Annotated[_ffi.CData, "const struct Pcpatch *"]) -> Ann
 def pcpatch_to_geom(pa: Annotated[_ffi.CData, "const struct Pcpatch *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     pa_converted = _ffi.cast("const struct Pcpatch *", pa)
     result = _lib.pcpatch_to_geom(pa_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def pcpatch_to_geog(pa: Annotated[_ffi.CData, "const struct Pcpatch *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    pa_converted = _ffi.cast("const struct Pcpatch *", pa)
+    result = _lib.pcpatch_to_geog(pa_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -33257,9 +33469,23 @@ def tpcpoint_to_tgeompoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> A
     return result if result != _ffi.NULL else None
 
 
+def tpcpoint_to_tgeogpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_to_tgeogpoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpcpatch_to_tgeometry(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tpcpatch_to_tgeometry(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_to_tgeography(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpatch_to_tgeography(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -35515,6 +35741,20 @@ def tpose_to_tpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotate
     return result if result != _ffi.NULL else None
 
 
+def tpose_to_tgeompoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpose_to_tgeompoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpose_to_tgeogpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpose_to_tgeogpoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpose_end_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "struct Pose *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tpose_end_value(temp_converted)
@@ -36147,6 +36387,13 @@ def posechain_to_point(pc: Annotated[_ffi.CData, "const struct PoseChain *"]) ->
     return result if result != _ffi.NULL else None
 
 
+def posechain_to_geog(pc: Annotated[_ffi.CData, "const struct PoseChain *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    pc_converted = _ffi.cast("const struct PoseChain *", pc)
+    result = _lib.posechain_to_geog(pc_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def posechain_to_stbox(pc: Annotated[_ffi.CData, "const struct PoseChain *"]) -> Annotated[_ffi.CData, "STBox *"]:
     pc_converted = _ffi.cast("const struct PoseChain *", pc)
     result = _lib.posechain_to_stbox(pc_converted)
@@ -36649,6 +36896,20 @@ def tposechainseqset_from_base_tstzspanset(
 def tposechain_to_tpose(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tposechain_to_tpose(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tposechain_to_tgeompoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tposechain_to_tgeompoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tposechain_to_tgeogpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tposechain_to_tgeogpoint(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -37791,6 +38052,13 @@ def tquadbin_to_tbigint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Anno
     return result if result != _ffi.NULL else None
 
 
+def tquadbin_to_tgeogpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tquadbin_to_tgeogpoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tquadbin_at_value(
     temp: Annotated[_ffi.CData, "const Temporal *"], cell: int
 ) -> Annotated[_ffi.CData, "Temporal *"]:
@@ -38043,9 +38311,17 @@ def raquet_pixtype_size(pixtype: Annotated[_ffi.CData, "MeosPixType"]) -> Annota
     return result if result != _ffi.NULL else None
 
 
-def raquet_pixtype_from_string(string: str) -> Annotated[_ffi.CData, "MeosPixType"]:
+def meospixtype_name(pixtype: Annotated[_ffi.CData, "MeosPixType"]) -> Annotated[str, "const char *"]:
+    pixtype_converted = _ffi.cast("MeosPixType", pixtype)
+    result = _lib.meospixtype_name(pixtype_converted)
+    _check_error()
+    result = _read_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def meospixtype_from_string(string: str) -> Annotated[_ffi.CData, "MeosPixType"]:
     string_converted = string.encode("utf-8")
-    result = _lib.raquet_pixtype_from_string(string_converted)
+    result = _lib.meospixtype_from_string(string_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -39473,9 +39749,23 @@ def trgeometry_to_tgeompoint(temp: Annotated[_ffi.CData, "const Temporal *"]) ->
     return result if result != _ffi.NULL else None
 
 
+def trgeometry_to_tgeogpoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.trgeometry_to_tgeogpoint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def trgeometry_to_tgeometry(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.trgeometry_to_tgeometry(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def trgeometry_to_tgeography(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.trgeometry_to_tgeography(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -40371,6 +40661,66 @@ def shortestline_trgeometry_trgeometry(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.shortestline_trgeometry_trgeometry(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tdisjoint_geo_trgeometry(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tdisjoint_geo_trgeometry(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tdisjoint_trgeometry_geo(
+    temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.tdisjoint_trgeometry_geo(temp_converted, gs_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tdisjoint_trgeometry_trgeometry(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.tdisjoint_trgeometry_trgeometry(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintersects_geo_trgeometry(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tintersects_geo_trgeometry(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintersects_trgeometry_geo(
+    temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.tintersects_trgeometry_geo(temp_converted, gs_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintersects_trgeometry_trgeometry(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.tintersects_trgeometry_trgeometry(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -41468,6 +41818,13 @@ def tbigint_to_ts2cell(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annot
 def ts2cell_to_tbigint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.ts2cell_to_tbigint(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ts2cell_to_tgeompoint(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ts2cell_to_tgeompoint(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
