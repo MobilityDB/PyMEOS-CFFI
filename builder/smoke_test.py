@@ -54,8 +54,8 @@ for name in ("set_as_hexwkb", "temporal_as_hexwkb", "tspatial_as_hexewkb", "npoi
 # output parameter: the wrapper takes no such argument and reads the string by its
 # terminator.
 for name in (
-    "tfloat_out",
-    "ttext_out",
+    "temporal_out",
+    "set_out",
     "geo_as_text",
     "temporal_as_mfjson",
     "temporal_as_hexwkb",
@@ -81,6 +81,6 @@ assert f.temporal_out(temp, 15) == f.temporal_out(temp, 15) == text
 assert f.temporal_subtype(temp) == f.temporal_subtype(temp) == "Sequence"
 # A value holding a character UTF-8 writes in two bytes reads back whole.
 ttext = '{"Zürich"@2001-01-01 00:00:00+00, "Liège"@2001-01-02 00:00:00+00}'
-assert f.ttext_out(f.ttext_in(ttext)) == ttext, f"ttext_out returned {f.ttext_out(f.ttext_in(ttext))!r}"
+assert f.temporal_out(f.ttext_in(ttext), 0) == ttext, f"temporal_out returned {f.temporal_out(f.ttext_in(ttext), 0)!r}"
 meos_finalize()
 print(f"PyMEOS CFFI build + shape smoke test OK on {label}")
