@@ -13104,6 +13104,24 @@ def reachabilitystate_instants(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def reachabilitystate_close(
+    state: Annotated[_ffi.CData, "struct ReachabilityState *"],
+) -> tuple[Annotated[_ffi.CData, "TInstant **"], Annotated[_ffi.CData, "int"]]:
+    state_converted = _ffi.cast("struct ReachabilityState *", state)
+    count = _ffi.new("int *")
+    result = _lib.reachabilitystate_close(state_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def reachabilitystate_free(
+    state: Annotated[_ffi.CData, "struct ReachabilityState *"] | None,
+) -> Annotated[None, "void"]:
+    state_converted = _ffi.cast("struct ReachabilityState *", state) if state is not None else _ffi.NULL
+    _lib.reachabilitystate_free(state_converted)
+    _check_error()
+
+
 def reachabilitystate_kept(state: Annotated[_ffi.CData, "const struct ReachabilityState *"]) -> Annotated[int, "int"]:
     state_converted = _ffi.cast("const struct ReachabilityState *", state)
     result = _lib.reachabilitystate_kept(state_converted)
@@ -14534,36 +14552,6 @@ def geo_typename(type: int) -> Annotated[str, "const char *"]:
     return result if result != _ffi.NULL else None
 
 
-def geog_area(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], use_spheroid: bool) -> Annotated[float, "double"]:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geog_area(gs_converted, use_spheroid)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geog_centroid(
-    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], use_spheroid: bool
-) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geog_centroid(gs_converted, use_spheroid)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geog_length(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], use_spheroid: bool) -> Annotated[float, "double"]:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geog_length(gs_converted, use_spheroid)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geog_perimeter(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], use_spheroid: bool) -> Annotated[float, "double"]:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geog_perimeter(gs_converted, use_spheroid)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def geom_azimuth(
     gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[_ffi.CData, "double"]:
@@ -14575,27 +14563,6 @@ def geom_azimuth(
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
     return None
-
-
-def geom_area(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[float, "double"]:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geom_area(gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geom_length(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[float, "double"]:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geom_length(gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geom_perimeter(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[float, "double"]:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geom_perimeter(gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
 
 
 def line_numpoints(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[int, "int"]:
@@ -14871,13 +14838,6 @@ def geom_buffer(
     return result if result != _ffi.NULL else None
 
 
-def geom_centroid(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geom_centroid(gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def geom_convex_hull(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     result = _lib.geom_convex_hull(gs_converted)
@@ -14935,16 +14895,6 @@ def geom_minimum_bounding_radius(
 def geom_oriented_envelope(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     result = _lib.geom_oriented_envelope(gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geom_shortestline(
-    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
-) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geom_shortestline(gs1_converted, gs2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -15111,52 +15061,12 @@ def geom_dwithin(
     return result if result != _ffi.NULL else None
 
 
-def geom_dwithin2d(
-    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"], dist: float
-) -> Annotated[bool, "bool"]:
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geom_dwithin2d(gs1_converted, gs2_converted, dist)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geom_dwithin3d(
-    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"], dist: float
-) -> Annotated[bool, "bool"]:
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geom_dwithin3d(gs1_converted, gs2_converted, dist)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def geom_intersects(
     gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[bool, "bool"]:
     gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
     gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
     result = _lib.geom_intersects(gs1_converted, gs2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geom_intersects2d(
-    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
-) -> Annotated[bool, "bool"]:
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geom_intersects2d(gs1_converted, gs2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geom_intersects3d(
-    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
-) -> Annotated[bool, "bool"]:
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geom_intersects3d(gs1_converted, gs2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -15256,18 +15166,6 @@ def geog_distance(
     return result if result != _ffi.NULL else None
 
 
-def geog_shortestline(
-    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"],
-    gs2: Annotated[_ffi.CData, "const GSERIALIZED *"],
-    use_spheroid: bool,
-) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geog_shortestline(gs1_converted, gs2_converted, use_spheroid)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def geom_distance(
     gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[float, "double"]:
@@ -15294,26 +15192,6 @@ def geom_max_distance(
     gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
     gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
     result = _lib.geom_max_distance(gs1_converted, gs2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geom_max_distance2d(
-    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
-) -> Annotated[float, "double"]:
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geom_max_distance2d(gs1_converted, gs2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geom_max_distance3d(
-    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
-) -> Annotated[float, "double"]:
-    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
-    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
-    result = _lib.geom_max_distance3d(gs1_converted, gs2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -15645,6 +15523,15 @@ def stbox_as_hexwkb(box: Annotated[_ffi.CData, "const STBox *"], variant: int) -
     variant_converted = _ffi.cast("uint8_t", variant)
     size_out = _ffi.new("size_t *")
     result = _lib.stbox_as_hexwkb(box_converted, variant_converted, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def stbox_as_text(box: Annotated[_ffi.CData, "const STBox *"], maxdd: int) -> Annotated[str, "char *"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    size_out = _ffi.new("size_t *")
+    result = _lib.stbox_as_text(box_converted, maxdd, size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
@@ -16736,24 +16623,18 @@ def tpoint_as_mvtgeom(
     extent: int,
     buffer: int,
     clip_geom: bool,
-) -> tuple[
-    Annotated[bool, "bool"],
-    Annotated[list, "GSERIALIZED **"],
-    Annotated[list, "int64_t *"],
-    Annotated[_ffi.CData, "int"],
-]:
+) -> tuple[Annotated[_ffi.CData, "GSERIALIZED *"], Annotated[list, "int64_t *"], Annotated[_ffi.CData, "int"]]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     bounds_converted = _ffi.cast("const STBox *", bounds)
     extent_converted = _ffi.cast("int32_t", extent)
     buffer_converted = _ffi.cast("int32_t", buffer)
-    gsarr = _ffi.new("GSERIALIZED **")
     timesarr = _ffi.new("int64_t **")
     count = _ffi.new("int *")
     result = _lib.tpoint_as_mvtgeom(
-        temp_converted, bounds_converted, extent_converted, buffer_converted, clip_geom, gsarr, timesarr, count
+        temp_converted, bounds_converted, extent_converted, buffer_converted, clip_geom, timesarr, count
     )
     _check_error()
-    return result if result != _ffi.NULL else None, gsarr[0], timesarr[0], count[0]
+    return result if result != _ffi.NULL else None, timesarr[0], count[0]
 
 
 def tpoint_tfloat_to_geomeas(
@@ -17246,52 +17127,12 @@ def tpoint_at_elevation(
     return result if result != _ffi.NULL else None
 
 
-def tpoint_at_geom(
-    temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.tpoint_at_geom(temp_converted, gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tpoint_at_value(
-    temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "GSERIALIZED *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    gs_converted = _ffi.cast("GSERIALIZED *", gs)
-    result = _lib.tpoint_at_value(temp_converted, gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def tpoint_minus_elevation(
     temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Span *"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     s_converted = _ffi.cast("const Span *", s)
     result = _lib.tpoint_minus_elevation(temp_converted, s_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tpoint_minus_geom(
-    temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.tpoint_minus_geom(temp_converted, gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tpoint_minus_value(
-    temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "GSERIALIZED *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    gs_converted = _ffi.cast("GSERIALIZED *", gs)
-    result = _lib.tpoint_minus_value(temp_converted, gs_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -21751,14 +21592,6 @@ def th3index_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[s
 def th3index_from_mfjson(mfjson: str) -> Annotated[_ffi.CData, "Temporal *"]:
     mfjson_converted = mfjson.encode("utf-8")
     result = _lib.th3index_from_mfjson(mfjson_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def th3index_make(value: int, t: int) -> Annotated[_ffi.CData, "Temporal *"]:
-    value_converted = _ffi.cast("H3Index", value)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.th3index_make(value_converted, t_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -27148,6 +26981,146 @@ def datum_geo_round(value: int, size: int) -> Annotated[int, "Datum"]:
 def point_round(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], maxdd: int) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     result = _lib.point_round(gs_converted, maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geog_centroid(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], use_spheroid: bool
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.geog_centroid(gs_converted, use_spheroid)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geog_shortestline(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"],
+    gs2: Annotated[_ffi.CData, "const GSERIALIZED *"],
+    use_spheroid: bool,
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geog_shortestline(gs1_converted, gs2_converted, use_spheroid)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_centroid(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.geom_centroid(gs_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_shortestline(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_shortestline(gs1_converted, gs2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_dwithin2d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"], dist: float
+) -> Annotated[bool, "bool"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_dwithin2d(gs1_converted, gs2_converted, dist)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_dwithin3d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"], dist: float
+) -> Annotated[bool, "bool"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_dwithin3d(gs1_converted, gs2_converted, dist)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_intersects2d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[bool, "bool"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_intersects2d(gs1_converted, gs2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_intersects3d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[bool, "bool"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_intersects3d(gs1_converted, gs2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geog_area(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], use_spheroid: bool) -> Annotated[float, "double"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.geog_area(gs_converted, use_spheroid)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geog_length(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], use_spheroid: bool) -> Annotated[float, "double"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.geog_length(gs_converted, use_spheroid)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geog_perimeter(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], use_spheroid: bool) -> Annotated[float, "double"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.geog_perimeter(gs_converted, use_spheroid)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_area(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[float, "double"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.geom_area(gs_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_length(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[float, "double"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.geom_length(gs_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_max_distance2d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[float, "double"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_max_distance2d(gs1_converted, gs2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_max_distance3d(
+    gs1: Annotated[_ffi.CData, "const GSERIALIZED *"], gs2: Annotated[_ffi.CData, "const GSERIALIZED *"]
+) -> Annotated[float, "double"]:
+    gs1_converted = _ffi.cast("const GSERIALIZED *", gs1)
+    gs2_converted = _ffi.cast("const GSERIALIZED *", gs2)
+    result = _lib.geom_max_distance3d(gs1_converted, gs2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_perimeter(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[float, "double"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    result = _lib.geom_perimeter(gs_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -32830,6 +32803,15 @@ def tpcbox_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "TPCBox *"]:
     return result if result != _ffi.NULL else None
 
 
+def tpcbox_as_text(box: Annotated[_ffi.CData, "const TPCBox *"], maxdd: int) -> Annotated[str, "char *"]:
+    box_converted = _ffi.cast("const TPCBox *", box)
+    size_out = _ffi.new("size_t *")
+    result = _lib.tpcbox_as_text(box_converted, maxdd, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
 def tpcbox_in(string: str) -> Annotated[_ffi.CData, "TPCBox *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tpcbox_in(string_converted)
@@ -37889,14 +37871,6 @@ def tquadbin_from_mfjson(mfjson: str) -> Annotated[_ffi.CData, "Temporal *"]:
     return result if result != _ffi.NULL else None
 
 
-def tquadbin_make(value: int, t: int) -> Annotated[_ffi.CData, "Temporal *"]:
-    value_converted = _ffi.cast("Quadbin", value)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.tquadbin_make(value_converted, t_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def tquadbininst_make(value: int, t: int) -> Annotated[_ffi.CData, "TInstant *"]:
     value_converted = _ffi.cast("Quadbin", value)
     t_converted = _ffi.cast("TimestampTz", t)
@@ -40276,21 +40250,19 @@ def trgeometry_as_tinstant(temp: Annotated[_ffi.CData, "const Temporal *"]) -> A
 
 
 def trgeometry_as_tsequence(
-    temp: Annotated[_ffi.CData, "const Temporal *"], interp_str: str | None
+    temp: Annotated[_ffi.CData, "const Temporal *"], interp: InterpolationType
 ) -> Annotated[_ffi.CData, "TSequence *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
-    interp_str_converted = interp_str.encode("utf-8") if interp_str is not None else _ffi.NULL
-    result = _lib.trgeometry_as_tsequence(temp_converted, interp_str_converted)
+    result = _lib.trgeometry_as_tsequence(temp_converted, interp)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def trgeometry_as_tsequenceset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], interp_str: str | None
+    temp: Annotated[_ffi.CData, "const Temporal *"], interp: InterpolationType
 ) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
-    interp_str_converted = interp_str.encode("utf-8") if interp_str is not None else _ffi.NULL
-    result = _lib.trgeometry_as_tsequenceset(temp_converted, interp_str_converted)
+    result = _lib.trgeometry_as_tsequenceset(temp_converted, interp)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -41655,14 +41627,6 @@ def ts2cell_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[st
 def ts2cell_from_mfjson(mfjson: str) -> Annotated[_ffi.CData, "Temporal *"]:
     mfjson_converted = mfjson.encode("utf-8")
     result = _lib.ts2cell_from_mfjson(mfjson_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def ts2cell_make(value: int, t: int) -> Annotated[_ffi.CData, "Temporal *"]:
-    value_converted = _ffi.cast("S2CellId", value)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.ts2cell_make(value_converted, t_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
