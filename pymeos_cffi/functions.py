@@ -1085,15 +1085,6 @@ def bigintset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def bigintset_out(set: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    set_converted = _ffi.cast("const Set *", set)
-    size_out = _ffi.new("size_t *")
-    result = _lib.bigintset_out(set_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def bigintspan_expand(s: Annotated[_ffi.CData, "const Span *"], value: int) -> Annotated[_ffi.CData, "Span *"]:
     s_converted = _ffi.cast("const Span *", s)
     value_converted = _ffi.cast("int64_t", value)
@@ -1109,28 +1100,10 @@ def bigintspan_in(string: str) -> Annotated[_ffi.CData, "Span *"]:
     return result if result != _ffi.NULL else None
 
 
-def bigintspan_out(s: Annotated[_ffi.CData, "const Span *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Span *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.bigintspan_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def bigintspanset_in(string: str) -> Annotated[_ffi.CData, "SpanSet *"]:
     string_converted = string.encode("utf-8")
     result = _lib.bigintspanset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def bigintspanset_out(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> Annotated[str, "char *"]:
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    size_out = _ffi.new("size_t *")
-    result = _lib.bigintspanset_out(ss_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -1141,28 +1114,10 @@ def dateset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def dateset_out(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.dateset_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def datespan_in(string: str) -> Annotated[_ffi.CData, "Span *"]:
     string_converted = string.encode("utf-8")
     result = _lib.datespan_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def datespan_out(s: Annotated[_ffi.CData, "const Span *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Span *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.datespan_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -1173,28 +1128,10 @@ def datespanset_in(string: str) -> Annotated[_ffi.CData, "SpanSet *"]:
     return result if result != _ffi.NULL else None
 
 
-def datespanset_out(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> Annotated[str, "char *"]:
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    size_out = _ffi.new("size_t *")
-    result = _lib.datespanset_out(ss_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def floatset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     string_converted = string.encode("utf-8")
     result = _lib.floatset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def floatset_out(set: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    set_converted = _ffi.cast("const Set *", set)
-    size_out = _ffi.new("size_t *")
-    result = _lib.floatset_out(set_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -1212,15 +1149,6 @@ def floatspan_in(string: str) -> Annotated[_ffi.CData, "Span *"]:
     return result if result != _ffi.NULL else None
 
 
-def floatspan_out(s: Annotated[_ffi.CData, "const Span *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Span *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.floatspan_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def floatspanset_in(string: str) -> Annotated[_ffi.CData, "SpanSet *"]:
     string_converted = string.encode("utf-8")
     result = _lib.floatspanset_in(string_converted)
@@ -1228,28 +1156,10 @@ def floatspanset_in(string: str) -> Annotated[_ffi.CData, "SpanSet *"]:
     return result if result != _ffi.NULL else None
 
 
-def floatspanset_out(ss: Annotated[_ffi.CData, "const SpanSet *"], maxdd: int) -> Annotated[str, "char *"]:
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    size_out = _ffi.new("size_t *")
-    result = _lib.floatspanset_out(ss_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def intset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     string_converted = string.encode("utf-8")
     result = _lib.intset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def intset_out(set: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    set_converted = _ffi.cast("const Set *", set)
-    size_out = _ffi.new("size_t *")
-    result = _lib.intset_out(set_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -1268,28 +1178,10 @@ def intspan_in(string: str) -> Annotated[_ffi.CData, "Span *"]:
     return result if result != _ffi.NULL else None
 
 
-def intspan_out(s: Annotated[_ffi.CData, "const Span *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Span *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.intspan_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def intspanset_in(string: str) -> Annotated[_ffi.CData, "SpanSet *"]:
     string_converted = string.encode("utf-8")
     result = _lib.intspanset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def intspanset_out(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> Annotated[str, "char *"]:
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    size_out = _ffi.new("size_t *")
-    result = _lib.intspanset_out(ss_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -1326,6 +1218,15 @@ def set_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
+def set_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    size_out = _ffi.new("size_t *")
+    result = _lib.set_out(s_converted, maxdd, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
 def span_as_hexwkb(s: Annotated[_ffi.CData, "const Span *"], variant: int) -> Annotated[str, "char *"]:
     s_converted = _ffi.cast("const Span *", s)
     variant_converted = _ffi.cast("uint8_t", variant)
@@ -1356,6 +1257,15 @@ def span_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "Span *"]:
     wkb_converted = _ffi.new("uint8_t []", wkb)
     result = _lib.span_from_wkb(wkb_converted, len(wkb))
     _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_out(s: Annotated[_ffi.CData, "const Span *"], maxdd: int) -> Annotated[str, "char *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    size_out = _ffi.new("size_t *")
+    result = _lib.span_out(s_converted, maxdd, size_out)
+    _check_error()
+    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -1392,19 +1302,19 @@ def spanset_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "SpanSet *"]:
     return result if result != _ffi.NULL else None
 
 
+def spanset_out(ss: Annotated[_ffi.CData, "const SpanSet *"], maxdd: int) -> Annotated[str, "char *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    size_out = _ffi.new("size_t *")
+    result = _lib.spanset_out(ss_converted, maxdd, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
 def textset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     string_converted = string.encode("utf-8")
     result = _lib.textset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def textset_out(set: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    set_converted = _ffi.cast("const Set *", set)
-    size_out = _ffi.new("size_t *")
-    result = _lib.textset_out(set_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -1415,15 +1325,6 @@ def tstzset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def tstzset_out(set: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    set_converted = _ffi.cast("const Set *", set)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tstzset_out(set_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def tstzspan_in(string: str) -> Annotated[_ffi.CData, "Span *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tstzspan_in(string_converted)
@@ -1431,28 +1332,10 @@ def tstzspan_in(string: str) -> Annotated[_ffi.CData, "Span *"]:
     return result if result != _ffi.NULL else None
 
 
-def tstzspan_out(s: Annotated[_ffi.CData, "const Span *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Span *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tstzspan_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def tstzspanset_in(string: str) -> Annotated[_ffi.CData, "SpanSet *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tstzspanset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tstzspanset_out(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> Annotated[str, "char *"]:
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tstzspanset_out(ss_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -7647,15 +7530,6 @@ def tbool_in(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     return result if result != _ffi.NULL else None
 
 
-def tbool_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tbool_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def temporal_as_hexwkb(temp: Annotated[_ffi.CData, "const Temporal *"], variant: int) -> Annotated[str, "char *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     variant_converted = _ffi.cast("uint8_t", variant)
@@ -7722,6 +7596,15 @@ def temporal_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "Temporal *"]:
     return result if result != _ffi.NULL else None
 
 
+def temporal_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    size_out = _ffi.new("size_t *")
+    result = _lib.temporal_out(temp_converted, maxdd, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
 def tfloat_from_mfjson(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tfloat_from_mfjson(string_converted)
@@ -7733,15 +7616,6 @@ def tfloat_in(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tfloat_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tfloat_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tfloat_out(temp_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -7773,24 +7647,6 @@ def tbigint_in(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     return result if result != _ffi.NULL else None
 
 
-def tint_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tint_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
-def tbigint_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tbigint_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def ttext_from_mfjson(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     string_converted = string.encode("utf-8")
     result = _lib.ttext_from_mfjson(string_converted)
@@ -7802,15 +7658,6 @@ def ttext_in(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     string_converted = string.encode("utf-8")
     result = _lib.ttext_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def ttext_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.ttext_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -14114,6 +13961,13 @@ def meostype_length(type: Annotated[_ffi.CData, "MeosType"]) -> Annotated[int, "
     return result if result != _ffi.NULL else None
 
 
+def wkb_header_states_type(type: Annotated[_ffi.CData, "MeosType"]) -> Annotated[bool, "bool"]:
+    type_converted = _ffi.cast("MeosType", type)
+    result = _lib.wkb_header_states_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def talphanum_type(type: Annotated[_ffi.CData, "MeosType"]) -> Annotated[bool, "bool"]:
     type_converted = _ffi.cast("MeosType", type)
     result = _lib.talphanum_type(type_converted)
@@ -15240,15 +15094,6 @@ def geomset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def spatialset_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.spatialset_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def spatialset_as_text(set: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
     set_converted = _ffi.cast("const Set *", set)
     size_out = _ffi.new("size_t *")
@@ -16294,15 +16139,6 @@ def stbox_sortkey(box: Annotated[_ffi.CData, "const STBox *"]) -> bytes:
     return _take_bytes(result, size[0])
 
 
-def tspatial_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tspatial_out(temp_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def tgeogpoint_from_mfjson(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tgeogpoint_from_mfjson(string_converted)
@@ -16681,12 +16517,22 @@ def bearing_point_point(
     return None
 
 
+def bearing_point_tpoint(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.bearing_point_tpoint(gs_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def bearing_tpoint_point(
-    temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"], invert: bool
+    temp: Annotated[_ffi.CData, "const Temporal *"], gs: Annotated[_ffi.CData, "const GSERIALIZED *"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.bearing_tpoint_point(temp_converted, gs_converted, invert)
+    result = _lib.bearing_tpoint_point(temp_converted, gs_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -18701,6 +18547,50 @@ def atouches_tgeoarr_tgeoarr(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def econtains_tgeoarr_tgeoarr(
+    arr1: list[Annotated[_ffi.CData, "Temporal *"]], arr2: list[Annotated[_ffi.CData, "Temporal *"]]
+) -> tuple[Annotated[_ffi.CData, "int *"], Annotated[_ffi.CData, "int"]]:
+    arr1_converted = [_ffi.cast("Temporal *", x) for x in arr1]
+    arr2_converted = [_ffi.cast("Temporal *", x) for x in arr2]
+    count = _ffi.new("int *")
+    result = _lib.econtains_tgeoarr_tgeoarr(arr1_converted, len(arr1), arr2_converted, len(arr2), count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def acontains_tgeoarr_tgeoarr(
+    arr1: list[Annotated[_ffi.CData, "Temporal *"]], arr2: list[Annotated[_ffi.CData, "Temporal *"]]
+) -> tuple[Annotated[_ffi.CData, "int *"], Annotated[_ffi.CData, "int"]]:
+    arr1_converted = [_ffi.cast("Temporal *", x) for x in arr1]
+    arr2_converted = [_ffi.cast("Temporal *", x) for x in arr2]
+    count = _ffi.new("int *")
+    result = _lib.acontains_tgeoarr_tgeoarr(arr1_converted, len(arr1), arr2_converted, len(arr2), count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def ecovers_tgeoarr_tgeoarr(
+    arr1: list[Annotated[_ffi.CData, "Temporal *"]], arr2: list[Annotated[_ffi.CData, "Temporal *"]]
+) -> tuple[Annotated[_ffi.CData, "int *"], Annotated[_ffi.CData, "int"]]:
+    arr1_converted = [_ffi.cast("Temporal *", x) for x in arr1]
+    arr2_converted = [_ffi.cast("Temporal *", x) for x in arr2]
+    count = _ffi.new("int *")
+    result = _lib.ecovers_tgeoarr_tgeoarr(arr1_converted, len(arr1), arr2_converted, len(arr2), count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def acovers_tgeoarr_tgeoarr(
+    arr1: list[Annotated[_ffi.CData, "Temporal *"]], arr2: list[Annotated[_ffi.CData, "Temporal *"]]
+) -> tuple[Annotated[_ffi.CData, "int *"], Annotated[_ffi.CData, "int"]]:
+    arr1_converted = [_ffi.cast("Temporal *", x) for x in arr1]
+    arr2_converted = [_ffi.cast("Temporal *", x) for x in arr2]
+    count = _ffi.new("int *")
+    result = _lib.acovers_tgeoarr_tgeoarr(arr1_converted, len(arr1), arr2_converted, len(arr2), count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
 def edisjoint_tgeoarr_tgeoarr(
     arr1: list[Annotated[_ffi.CData, "Temporal *"]], arr2: list[Annotated[_ffi.CData, "Temporal *"]]
 ) -> tuple[Annotated[_ffi.CData, "int *"], Annotated[_ffi.CData, "int"]]:
@@ -18760,6 +18650,30 @@ def ttouches_tgeoarr_tgeoarr(
     count = _ffi.new("int *")
     periods = _ffi.new("SpanSet ***")
     result = _lib.ttouches_tgeoarr_tgeoarr(arr1_converted, len(arr1), arr2_converted, len(arr2), count, periods)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0], periods[0]
+
+
+def tcontains_tgeoarr_tgeoarr(
+    arr1: list[Annotated[_ffi.CData, "Temporal *"]], arr2: list[Annotated[_ffi.CData, "Temporal *"]]
+) -> tuple[Annotated[_ffi.CData, "int *"], Annotated[_ffi.CData, "int"], Annotated[list, "SpanSet ***"]]:
+    arr1_converted = [_ffi.cast("Temporal *", x) for x in arr1]
+    arr2_converted = [_ffi.cast("Temporal *", x) for x in arr2]
+    count = _ffi.new("int *")
+    periods = _ffi.new("SpanSet ***")
+    result = _lib.tcontains_tgeoarr_tgeoarr(arr1_converted, len(arr1), arr2_converted, len(arr2), count, periods)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0], periods[0]
+
+
+def tcovers_tgeoarr_tgeoarr(
+    arr1: list[Annotated[_ffi.CData, "Temporal *"]], arr2: list[Annotated[_ffi.CData, "Temporal *"]]
+) -> tuple[Annotated[_ffi.CData, "int *"], Annotated[_ffi.CData, "int"], Annotated[list, "SpanSet ***"]]:
+    arr1_converted = [_ffi.cast("Temporal *", x) for x in arr1]
+    arr2_converted = [_ffi.cast("Temporal *", x) for x in arr2]
+    count = _ffi.new("int *")
+    periods = _ffi.new("SpanSet ***")
+    result = _lib.tcovers_tgeoarr_tgeoarr(arr1_converted, len(arr1), arr2_converted, len(arr2), count, periods)
     _check_error()
     return result if result != _ffi.NULL else None, count[0], periods[0]
 
@@ -19594,15 +19508,6 @@ def cbufferset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     string_converted = string.encode("utf-8")
     result = _lib.cbufferset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def cbufferset_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.cbufferset_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -21580,15 +21485,6 @@ def th3indexseqset_in(string: str) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     return result if result != _ffi.NULL else None
 
 
-def th3index_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.th3index_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def th3index_from_mfjson(mfjson: str) -> Annotated[_ffi.CData, "Temporal *"]:
     mfjson_converted = mfjson.encode("utf-8")
     result = _lib.th3index_from_mfjson(mfjson_converted)
@@ -22074,15 +21970,6 @@ def h3indexset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def h3indexset_out(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.h3indexset_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def h3indexset_make(values: list[int]) -> Annotated[_ffi.CData, "Set *"]:
     values_converted = [_ffi.cast("uint64_t", x) for x in values]
     result = _lib.h3indexset_make(values_converted, len(values))
@@ -22536,15 +22423,6 @@ def set_in(string: str, settype: Annotated[_ffi.CData, "MeosType"]) -> Annotated
     return result if result != _ffi.NULL else None
 
 
-def set_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.set_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def span_in(string: str, spantype: Annotated[_ffi.CData, "MeosType"]) -> Annotated[_ffi.CData, "Span *"]:
     string_converted = string.encode("utf-8")
     spantype_converted = _ffi.cast("MeosType", spantype)
@@ -22553,29 +22431,11 @@ def span_in(string: str, spantype: Annotated[_ffi.CData, "MeosType"]) -> Annotat
     return result if result != _ffi.NULL else None
 
 
-def span_out(s: Annotated[_ffi.CData, "const Span *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Span *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.span_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def spanset_in(string: str, spantype: Annotated[_ffi.CData, "MeosType"]) -> Annotated[_ffi.CData, "SpanSet *"]:
     string_converted = string.encode("utf-8")
     spantype_converted = _ffi.cast("MeosType", spantype)
     result = _lib.spanset_in(string_converted, spantype_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def spanset_out(ss: Annotated[_ffi.CData, "const SpanSet *"], maxdd: int) -> Annotated[str, "char *"]:
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    size_out = _ffi.new("size_t *")
-    result = _lib.spanset_out(ss_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -24234,15 +24094,6 @@ def temporal_in(string: str, temptype: Annotated[_ffi.CData, "MeosType"]) -> Ann
     temptype_converted = _ffi.cast("MeosType", temptype)
     result = _lib.temporal_in(string_converted, temptype_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def temporal_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.temporal_out(temp_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -28954,15 +28805,6 @@ def jsonbset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def jsonbset_out(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.jsonbset_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def jsonbset_make(values: list[Annotated[_ffi.CData, "Jsonb *"]]) -> Annotated[_ffi.CData, "Set *"]:
     values_converted = [_ffi.cast("Jsonb *", x) for x in values]
     result = _lib.jsonbset_make(values_converted, len(values))
@@ -29025,12 +28867,22 @@ def jsonbset_values(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def concat_jsonb_jsonbset(
+    jb: Annotated[_ffi.CData, "const Jsonb *"], s: Annotated[_ffi.CData, "const Set *"]
+) -> Annotated[_ffi.CData, "Set *"]:
+    jb_converted = _ffi.cast("const Jsonb *", jb)
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.concat_jsonb_jsonbset(jb_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def concat_jsonbset_jsonb(
-    s: Annotated[_ffi.CData, "const Set *"], jb: Annotated[_ffi.CData, "const Jsonb *"], invert: bool
+    s: Annotated[_ffi.CData, "const Set *"], jb: Annotated[_ffi.CData, "const Jsonb *"]
 ) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
     jb_converted = _ffi.cast("const Jsonb *", jb)
-    result = _lib.concat_jsonbset_jsonb(s_converted, jb_converted, invert)
+    result = _lib.concat_jsonbset_jsonb(s_converted, jb_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -29550,15 +29402,6 @@ def tjsonb_in(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     return result if result != _ffi.NULL else None
 
 
-def tjsonb_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tjsonb_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def tjsonbinst_in(string: str) -> Annotated[_ffi.CData, "TInstant *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tjsonbinst_in(string_converted)
@@ -29705,12 +29548,22 @@ def tjsonb_unnest(
     return result if result != _ffi.NULL else None, values[0], count[0]
 
 
+def concat_jsonb_tjsonb(
+    jb: Annotated[_ffi.CData, "const Jsonb *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    jb_converted = _ffi.cast("const Jsonb *", jb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.concat_jsonb_tjsonb(jb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def concat_tjsonb_jsonb(
-    temp: Annotated[_ffi.CData, "const Temporal *"], jb: Annotated[_ffi.CData, "const Jsonb *"], invert: bool
+    temp: Annotated[_ffi.CData, "const Temporal *"], jb: Annotated[_ffi.CData, "const Jsonb *"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     jb_converted = _ffi.cast("const Jsonb *", jb)
-    result = _lib.concat_tjsonb_jsonb(temp_converted, jb_converted, invert)
+    result = _lib.concat_tjsonb_jsonb(temp_converted, jb_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -29725,12 +29578,52 @@ def concat_tjsonb_tjsonb(
     return result if result != _ffi.NULL else None
 
 
-def contains_tjsonb_jsonb(
-    temp: Annotated[_ffi.CData, "const Temporal *"], jb: Annotated[_ffi.CData, "const Jsonb *"], invert: bool
+def contained_jsonb_tjsonb(
+    jb: Annotated[_ffi.CData, "const Jsonb *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    jb_converted = _ffi.cast("const Jsonb *", jb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contained_jsonb_tjsonb(jb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tjsonb_jsonb(
+    temp: Annotated[_ffi.CData, "const Temporal *"], jb: Annotated[_ffi.CData, "const Jsonb *"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     jb_converted = _ffi.cast("const Jsonb *", jb)
-    result = _lib.contains_tjsonb_jsonb(temp_converted, jb_converted, invert)
+    result = _lib.contained_tjsonb_jsonb(temp_converted, jb_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tjsonb_tjsonb(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contained_tjsonb_tjsonb(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_jsonb_tjsonb(
+    jb: Annotated[_ffi.CData, "const Jsonb *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    jb_converted = _ffi.cast("const Jsonb *", jb)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contains_jsonb_tjsonb(jb_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_tjsonb_jsonb(
+    temp: Annotated[_ffi.CData, "const Temporal *"], jb: Annotated[_ffi.CData, "const Jsonb *"]
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    jb_converted = _ffi.cast("const Jsonb *", jb)
+    result = _lib.contains_tjsonb_jsonb(temp_converted, jb_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -31015,15 +30908,6 @@ def npointset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def npointset_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.npointset_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def npointset_make(values: list[Annotated[_ffi.CData, "Npoint"]]) -> Annotated[_ffi.CData, "Set *"]:
     values_converted = values
     result = _lib.npointset_make(values_converted, len(values))
@@ -31190,15 +31074,6 @@ def tnpoint_from_mfjson(mfjson: str) -> Annotated[_ffi.CData, "Temporal *"]:
     mfjson_converted = mfjson.encode("utf-8")
     result = _lib.tnpoint_from_mfjson(mfjson_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tnpoint_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tnpoint_out(temp_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -32450,15 +32325,6 @@ def pcpointset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def pcpointset_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.pcpointset_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def pcpointset_make(values: list[Annotated[_ffi.CData, "struct Pcpoint *"]]) -> Annotated[_ffi.CData, "Set *"]:
     values_converted = [_ffi.cast("struct Pcpoint *", x) for x in values]
     result = _lib.pcpointset_make(values_converted, len(values))
@@ -32601,15 +32467,6 @@ def pcpatchset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     string_converted = string.encode("utf-8")
     result = _lib.pcpatchset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def pcpatchset_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.pcpatchset_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -33363,15 +33220,6 @@ def tpcpoint_in(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     return result if result != _ffi.NULL else None
 
 
-def tpcpoint_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tpcpoint_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def tpcpoint_from_mfjson(mfjson: str) -> Annotated[_ffi.CData, "Temporal *"]:
     mfjson_converted = mfjson.encode("utf-8")
     result = _lib.tpcpoint_from_mfjson(mfjson_converted)
@@ -33383,15 +33231,6 @@ def tpcpatch_in(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tpcpatch_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tpcpatch_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tpcpatch_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -35483,15 +35322,6 @@ def poseset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def poseset_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.poseset_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def poseset_make(values: list[Annotated[_ffi.CData, "struct Pose *"]]) -> Annotated[_ffi.CData, "Set *"]:
     values_converted = [_ffi.cast("struct Pose *", x) for x in values]
     result = _lib.poseset_make(values_converted, len(values))
@@ -36650,15 +36480,6 @@ def posechainset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def posechainset_out(s: Annotated[_ffi.CData, "const Set *"], maxdd: int) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.posechainset_out(s_converted, maxdd, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def posechainset_make(values: list[Annotated[_ffi.CData, "struct PoseChain *"]]) -> Annotated[_ffi.CData, "Set *"]:
     values_converted = [_ffi.cast("struct PoseChain *", x) for x in values]
     result = _lib.posechainset_make(values_converted, len(values))
@@ -37705,15 +37526,6 @@ def quadbinset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def quadbinset_out(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.quadbinset_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def quadbinset_make(values: list[int]) -> Annotated[_ffi.CData, "Set *"]:
     values_converted = [_ffi.cast("uint64_t", x) for x in values]
     result = _lib.quadbinset_make(values_converted, len(values))
@@ -37852,15 +37664,6 @@ def tquadbinseqset_in(string: str) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tquadbinseqset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tquadbin_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.tquadbin_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -41465,15 +41268,6 @@ def s2cellset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     return result if result != _ffi.NULL else None
 
 
-def s2cellset_out(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[str, "char *"]:
-    s_converted = _ffi.cast("const Set *", s)
-    size_out = _ffi.new("size_t *")
-    result = _lib.s2cellset_out(s_converted, size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def s2cellset_make(values: list[int]) -> Annotated[_ffi.CData, "Set *"]:
     values_converted = [_ffi.cast("uint64_t", x) for x in values]
     result = _lib.s2cellset_make(values_converted, len(values))
@@ -41612,15 +41406,6 @@ def ts2cellseqset_in(string: str) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     string_converted = string.encode("utf-8")
     result = _lib.ts2cellseqset_in(string_converted)
     _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def ts2cell_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    size_out = _ffi.new("size_t *")
-    result = _lib.ts2cell_out(temp_converted, size_out)
-    _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
