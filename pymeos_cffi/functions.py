@@ -12074,12 +12074,12 @@ def nad_bigintspan_tbox(
     return result if result != _ffi.NULL else None
 
 
-def nad_tboxfloat_tboxfloat(
+def nad_tbox_tbox(
     box1: Annotated[_ffi.CData, "const TBox *"], box2: Annotated[_ffi.CData, "const TBox *"]
 ) -> Annotated[float, "double"]:
     box1_converted = _ffi.cast("const TBox *", box1)
     box2_converted = _ffi.cast("const TBox *", box2)
-    result = _lib.nad_tboxfloat_tboxfloat(box1_converted, box2_converted)
+    result = _lib.nad_tbox_tbox(box1_converted, box2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12090,16 +12090,6 @@ def nad_floatspan_tbox(
     s_converted = _ffi.cast("const Span *", s)
     box_converted = _ffi.cast("const TBox *", box)
     result = _lib.nad_floatspan_tbox(s_converted, box_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def nad_tboxint_tboxint(
-    box1: Annotated[_ffi.CData, "const TBox *"], box2: Annotated[_ffi.CData, "const TBox *"]
-) -> Annotated[int, "int"]:
-    box1_converted = _ffi.cast("const TBox *", box1)
-    box2_converted = _ffi.cast("const TBox *", box2)
-    result = _lib.nad_tboxint_tboxint(box1_converted, box2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12185,16 +12175,6 @@ def nad_tbigint_tbigint(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.nad_tbigint_tbigint(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def nad_tboxbigint_tboxbigint(
-    box1: Annotated[_ffi.CData, "const TBox *"], box2: Annotated[_ffi.CData, "const TBox *"]
-) -> Annotated[int, "int64_t"]:
-    box1_converted = _ffi.cast("const TBox *", box1)
-    box2_converted = _ffi.cast("const TBox *", box2)
-    result = _lib.nad_tboxbigint_tboxbigint(box1_converted, box2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -26458,12 +26438,12 @@ def tdistance_tnumber_number(
     return result if result != _ffi.NULL else None
 
 
-def nad_tbox_tbox(
+def nad_tbox_tbox_intl(
     box1: Annotated[_ffi.CData, "const TBox *"], box2: Annotated[_ffi.CData, "const TBox *"]
 ) -> Annotated[int, "Datum"]:
     box1_converted = _ffi.cast("const TBox *", box1)
     box2_converted = _ffi.cast("const TBox *", box2)
-    result = _lib.nad_tbox_tbox(box1_converted, box2_converted)
+    result = _lib.nad_tbox_tbox_intl(box1_converted, box2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -28713,7 +28693,7 @@ def jsonb_path_match(
     vars: Annotated[_ffi.CData, "const Jsonb *"],
     silent: bool,
     tz: bool,
-) -> Annotated[bool, "bool"]:
+) -> Annotated[int, "int"]:
     jb_converted = _ffi.cast("const Jsonb *", jb)
     jp_converted = _ffi.cast("const JsonPath *", jp)
     vars_converted = _ffi.cast("const Jsonb *", vars)
