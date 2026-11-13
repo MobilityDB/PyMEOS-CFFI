@@ -9788,6 +9788,56 @@ def always_ne_ttext_text(temp: Annotated[_ffi.CData, "const Temporal *"], txt: s
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_tbox_tnumber(
+    box: Annotated[_ffi.CData, "const TBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_temporal_temporal(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.always_overlaps_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_temporal_tstzspan(
+    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Span *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.always_overlaps_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tnumber_tbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.always_overlaps_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tstzspan_temporal(
+    s: Annotated[_ffi.CData, "const Span *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_bool_tbool(b: bool, temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[int, "int"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.ever_eq_bool_tbool(b, temp_converted)
@@ -10232,6 +10282,56 @@ def ever_ne_ttext_text(temp: Annotated[_ffi.CData, "const Temporal *"], txt: str
     temp_converted = _ffi.cast("const Temporal *", temp)
     txt_converted = cstring_to_text(txt)
     result = _lib.ever_ne_ttext_text(temp_converted, txt_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tbox_tnumber(
+    box: Annotated[_ffi.CData, "const TBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_temporal_temporal(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.ever_overlaps_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_temporal_tstzspan(
+    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Span *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.ever_overlaps_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tnumber_tbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.ever_overlaps_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tstzspan_temporal(
+    s: Annotated[_ffi.CData, "const Span *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_tstzspan_temporal(s_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -17023,6 +17123,36 @@ def always_ne_tgeo_tgeo(
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_stbox_tgeo(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_stbox_tgeo(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tgeo_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.always_overlaps_tgeo_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tgeo_tgeo(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.always_overlaps_tgeo_tgeo(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_geo_tgeo(
     gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -17079,6 +17209,36 @@ def ever_ne_tgeo_tgeo(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.ever_ne_tgeo_tgeo(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_stbox_tgeo(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_stbox_tgeo(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tgeo_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.ever_overlaps_tgeo_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tgeo_tgeo(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.ever_overlaps_tgeo_tgeo(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20144,6 +20304,26 @@ def always_ne_tcbuffer_tcbuffer(
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_stbox_tcbuffer(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_stbox_tcbuffer(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tcbuffer_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.always_overlaps_tcbuffer_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_cbuffer_tcbuffer(
     cb: Annotated[_ffi.CData, "const struct Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -20200,6 +20380,26 @@ def ever_ne_tcbuffer_tcbuffer(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.ever_ne_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_stbox_tcbuffer(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_stbox_tcbuffer(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tcbuffer_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.ever_overlaps_tcbuffer_stbox(temp_converted, box_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -31528,6 +31728,26 @@ def always_ne_tnpoint_tnpoint(
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_stbox_tnpoint(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_stbox_tnpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tnpoint_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.always_overlaps_tnpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_npoint_tnpoint(
     np: Annotated[_ffi.CData, "const Npoint *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -31584,6 +31804,26 @@ def ever_ne_tnpoint_tnpoint(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.ever_ne_tnpoint_tnpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_stbox_tnpoint(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_stbox_tnpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tnpoint_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.ever_overlaps_tnpoint_stbox(temp_converted, box_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -33424,6 +33664,26 @@ def tpcpoint_minus_value(
     return result if result != _ffi.NULL else None
 
 
+def tpcpoint_at_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.tpcpoint_at_tpcbox(temp_converted, box_converted, border_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_minus_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.tpcpoint_minus_tpcbox(temp_converted, box_converted, border_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpcpoint_pcid(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[int, "uint32_t"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tpcpoint_pcid(temp_converted)
@@ -33560,6 +33820,46 @@ def tpcpatch_minus_value(
     temp_converted = _ffi.cast("const Temporal *", temp)
     pa_converted = _ffi.cast("const struct Pcpatch *", pa)
     result = _lib.tpcpatch_minus_value(temp_converted, pa_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_at_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.tpcpatch_at_tpcbox(temp_converted, box_converted, border_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_minus_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.tpcpatch_minus_tpcbox(temp_converted, box_converted, border_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_at_tpcbox_fine(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.tpcpatch_at_tpcbox_fine(temp_converted, box_converted, border_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpatch_minus_tpcbox_fine(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.tpcpatch_minus_tpcbox_fine(temp_converted, box_converted, border_inc)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -33722,6 +34022,46 @@ def always_ne_tpcpoint_tpcpoint(
     return result if result != _ffi.NULL else None
 
 
+def ever_overlaps_tpcbox_tpcpoint(
+    box: Annotated[_ffi.CData, "const TPCBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const TPCBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_tpcbox_tpcpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tpcpoint_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.ever_overlaps_tpcpoint_tpcbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tpcbox_tpcpoint(
+    box: Annotated[_ffi.CData, "const TPCBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const TPCBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_tpcbox_tpcpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tpcpoint_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.always_overlaps_tpcpoint_tpcbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_pcpatch_tpcpatch(
     pa: Annotated[_ffi.CData, "const struct Pcpatch *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -33838,6 +34178,46 @@ def always_ne_tpcpatch_tpcpatch(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.always_ne_tpcpatch_tpcpatch(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tpcbox_tpcpatch(
+    box: Annotated[_ffi.CData, "const TPCBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const TPCBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_tpcbox_tpcpatch(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tpcpatch_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.ever_overlaps_tpcpatch_tpcbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tpcbox_tpcpatch(
+    box: Annotated[_ffi.CData, "const TPCBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const TPCBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_tpcbox_tpcpatch(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tpcpatch_tpcbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const TPCBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TPCBox *", box)
+    result = _lib.always_overlaps_tpcpatch_tpcbox(temp_converted, box_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -35931,6 +36311,36 @@ def always_ne_tpose_tpose(
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_stbox_tpose(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_stbox_tpose(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tpose_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.always_overlaps_tpose_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tpose_tpose(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.always_overlaps_tpose_tpose(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_pose_tpose(
     pose: Annotated[_ffi.CData, "const struct Pose *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -35987,6 +36397,36 @@ def ever_ne_tpose_tpose(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.ever_ne_tpose_tpose(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_stbox_tpose(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_stbox_tpose(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tpose_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.ever_overlaps_tpose_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tpose_tpose(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.ever_overlaps_tpose_tpose(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -39398,10 +39838,10 @@ def trgeometry_from_mfjson(mfjson: str) -> Annotated[_ffi.CData, "Temporal *"]:
     return result if result != _ffi.NULL else None
 
 
-def trgeometry_out(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[str, "char *"]:
+def trgeometry_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[str, "char *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     size_out = _ffi.new("size_t *")
-    result = _lib.trgeometry_out(temp_converted, size_out)
+    result = _lib.trgeometry_out(temp_converted, maxdd, size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
@@ -39527,20 +39967,6 @@ def trgeometry_to_tgeography(temp: Annotated[_ffi.CData, "const Temporal *"]) ->
     return result if result != _ffi.NULL else None
 
 
-def trgeometry_end_instant(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "TInstant *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.trgeometry_end_instant(temp_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_end_sequence(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "TSequence *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.trgeometry_end_sequence(temp_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def trgeometry_end_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.trgeometry_end_value(temp_converted)
@@ -39553,25 +39979,6 @@ def trgeometry_geom(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotate
     result = _lib.trgeometry_geom(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
-
-
-def trgeometry_instant_n(
-    temp: Annotated[_ffi.CData, "const Temporal *"], n: int
-) -> Annotated[_ffi.CData, "TInstant *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.trgeometry_instant_n(temp_converted, n)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_instants(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-) -> tuple[Annotated[_ffi.CData, "TInstant **"], Annotated[_ffi.CData, "int"]]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    count = _ffi.new("int *")
-    result = _lib.trgeometry_instants(temp_converted, count)
-    _check_error()
-    return result if result != _ffi.NULL else None, count[0]
 
 
 def trgeometry_points(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Set *"]:
@@ -39598,49 +40005,6 @@ def trgeometry_pitch(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotat
 def trgeometry_roll(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.trgeometry_roll(temp_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_segments(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-) -> tuple[Annotated[_ffi.CData, "TSequence **"], Annotated[_ffi.CData, "int"]]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    count = _ffi.new("int *")
-    result = _lib.trgeometry_segments(temp_converted, count)
-    _check_error()
-    return result if result != _ffi.NULL else None, count[0]
-
-
-def trgeometry_sequence_n(
-    temp: Annotated[_ffi.CData, "const Temporal *"], i: int
-) -> Annotated[_ffi.CData, "TSequence *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.trgeometry_sequence_n(temp_converted, i)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_sequences(
-    temp: Annotated[_ffi.CData, "const Temporal *"],
-) -> tuple[Annotated[_ffi.CData, "TSequence **"], Annotated[_ffi.CData, "int"]]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    count = _ffi.new("int *")
-    result = _lib.trgeometry_sequences(temp_converted, count)
-    _check_error()
-    return result if result != _ffi.NULL else None, count[0]
-
-
-def trgeometry_start_instant(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "TInstant *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.trgeometry_start_instant(temp_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_start_sequence(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "TSequence *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.trgeometry_start_sequence(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -39872,101 +40236,9 @@ def trgeometry_twcentroid(temp: Annotated[_ffi.CData, "const Temporal *"]) -> An
     return result if result != _ffi.NULL else None
 
 
-def trgeometry_append_tinstant(
-    temp: Annotated[_ffi.CData, "Temporal *"],
-    inst: Annotated[_ffi.CData, "const TInstant *"],
-    interp: InterpolationType,
-    maxdist: float,
-    maxt: Annotated[_ffi.CData, "const Interval *"] | None,
-    expand: bool,
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("Temporal *", temp)
-    inst_converted = _ffi.cast("const TInstant *", inst)
-    maxt_converted = _ffi.cast("const Interval *", maxt) if maxt is not None else _ffi.NULL
-    result = _lib.trgeometry_append_tinstant(temp_converted, inst_converted, interp, maxdist, maxt_converted, expand)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_append_tsequence(
-    temp: Annotated[_ffi.CData, "Temporal *"], seq: Annotated[_ffi.CData, "const TSequence *"], expand: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("Temporal *", temp)
-    seq_converted = _ffi.cast("const TSequence *", seq)
-    result = _lib.trgeometry_append_tsequence(temp_converted, seq_converted, expand)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_delete_timestamptz(
-    temp: Annotated[_ffi.CData, "const Temporal *"], t: int, connect: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.trgeometry_delete_timestamptz(temp_converted, t_converted, connect)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_delete_tstzset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"], connect: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Set *", s)
-    result = _lib.trgeometry_delete_tstzset(temp_converted, s_converted, connect)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_delete_tstzspan(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Span *"], connect: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Span *", s)
-    result = _lib.trgeometry_delete_tstzspan(temp_converted, s_converted, connect)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_delete_tstzspanset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], ss: Annotated[_ffi.CData, "const SpanSet *"], connect: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.trgeometry_delete_tstzspanset(temp_converted, ss_converted, connect)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def trgeometry_force2d(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.trgeometry_force2d(temp_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_merge(
-    temp1: Annotated[_ffi.CData, "const Temporal *"] | None, temp2: Annotated[_ffi.CData, "const Temporal *"] | None
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp1_converted = _ffi.cast("const Temporal *", temp1) if temp1 is not None else _ffi.NULL
-    temp2_converted = _ffi.cast("const Temporal *", temp2) if temp2 is not None else _ffi.NULL
-    result = _lib.trgeometry_merge(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_merge_array(temparr: list[Annotated[_ffi.CData, "Temporal *"]]) -> Annotated[_ffi.CData, "Temporal *"]:
-    temparr_converted = [_ffi.cast("Temporal *", x) for x in temparr]
-    result = _lib.trgeometry_merge_array(temparr_converted, len(temparr))
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_round(
-    temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.trgeometry_round(temp_converted, maxdd)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -40007,15 +40279,6 @@ def trgeometry_rotate_z(
     return result if result != _ffi.NULL else None
 
 
-def trgeometry_set_interp(
-    temp: Annotated[_ffi.CData, "const Temporal *"], interp: InterpolationType
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.trgeometry_set_interp(temp_converted, interp)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def trgeometry_translate(
     temp: Annotated[_ffi.CData, "const Temporal *"], deltax: float, deltay: float, deltaz: float
 ) -> Annotated[_ffi.CData, "Temporal *"]:
@@ -40046,76 +40309,6 @@ def trgeometry_as_tsequenceset(
 ) -> Annotated[_ffi.CData, "TSequenceSet *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.trgeometry_as_tsequenceset(temp_converted, interp)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_after_timestamptz(
-    temp: Annotated[_ffi.CData, "const Temporal *"], t: int, strict: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.trgeometry_after_timestamptz(temp_converted, t_converted, strict)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_before_timestamptz(
-    temp: Annotated[_ffi.CData, "const Temporal *"], t: int, strict: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.trgeometry_before_timestamptz(temp_converted, t_converted, strict)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_restrict_values(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"], atfunc: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Set *", s)
-    result = _lib.trgeometry_restrict_values(temp_converted, s_converted, atfunc)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_restrict_timestamptz(
-    temp: Annotated[_ffi.CData, "const Temporal *"], t: int, atfunc: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.trgeometry_restrict_timestamptz(temp_converted, t_converted, atfunc)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_restrict_tstzset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"], atfunc: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Set *", s)
-    result = _lib.trgeometry_restrict_tstzset(temp_converted, s_converted, atfunc)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_restrict_tstzspan(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Span *"], atfunc: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Span *", s)
-    result = _lib.trgeometry_restrict_tstzspan(temp_converted, s_converted, atfunc)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_restrict_tstzspanset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], ss: Annotated[_ffi.CData, "const SpanSet *"], atfunc: bool
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.trgeometry_restrict_tstzspanset(temp_converted, ss_converted, atfunc)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -40176,106 +40369,6 @@ def trgeometry_minus_value(
     temp_converted = _ffi.cast("const Temporal *", temp)
     pose_converted = _ffi.cast("const struct Pose *", pose)
     result = _lib.trgeometry_minus_value(temp_converted, pose_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_at_values(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Set *", s)
-    result = _lib.trgeometry_at_values(temp_converted, s_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_minus_values(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Set *", s)
-    result = _lib.trgeometry_minus_values(temp_converted, s_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_at_timestamptz(
-    temp: Annotated[_ffi.CData, "const Temporal *"], t: int
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.trgeometry_at_timestamptz(temp_converted, t_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_minus_timestamptz(
-    temp: Annotated[_ffi.CData, "const Temporal *"], t: int
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    t_converted = _ffi.cast("TimestampTz", t)
-    result = _lib.trgeometry_minus_timestamptz(temp_converted, t_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_at_tstzset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Set *", s)
-    result = _lib.trgeometry_at_tstzset(temp_converted, s_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_minus_tstzset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Set *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Set *", s)
-    result = _lib.trgeometry_minus_tstzset(temp_converted, s_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_at_tstzspan(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Span *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Span *", s)
-    result = _lib.trgeometry_at_tstzspan(temp_converted, s_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_minus_tstzspan(
-    temp: Annotated[_ffi.CData, "const Temporal *"], s: Annotated[_ffi.CData, "const Span *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    s_converted = _ffi.cast("const Span *", s)
-    result = _lib.trgeometry_minus_tstzspan(temp_converted, s_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_at_tstzspanset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], ss: Annotated[_ffi.CData, "const SpanSet *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.trgeometry_at_tstzspanset(temp_converted, ss_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def trgeometry_minus_tstzspanset(
-    temp: Annotated[_ffi.CData, "const Temporal *"], ss: Annotated[_ffi.CData, "const SpanSet *"]
-) -> Annotated[_ffi.CData, "Temporal *"]:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.trgeometry_minus_tstzspanset(temp_converted, ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -40570,6 +40663,26 @@ def always_ne_trgeometry_trgeometry(
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_stbox_trgeometry(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_stbox_trgeometry(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_trgeometry_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.always_overlaps_trgeometry_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_geo_trgeometry(
     gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -40626,6 +40739,26 @@ def ever_ne_trgeometry_trgeometry(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.ever_ne_trgeometry_trgeometry(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_stbox_trgeometry(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_stbox_trgeometry(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_trgeometry_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.ever_overlaps_trgeometry_stbox(temp_converted, box_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
