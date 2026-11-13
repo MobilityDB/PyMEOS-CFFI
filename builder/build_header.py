@@ -40,13 +40,11 @@ MACRO_ALIASED_FUNCTIONS = {
 # Signatures mentioning these external opaque types are dropped: the value can
 # only be produced/consumed through the owning third-party library (its real
 # layout lives outside the MEOS public headers), never at the CFFI boundary —
-# the same treatment the hand-written builder gives json_object. TimeTzADT is
-# PostgreSQL's time-with-zone type; PCPATCH / PCPOINT / SERIALIZED_* are
-# pgPointCloud's on-disk types.
+# the same treatment the hand-written builder gives json_object. PCPATCH /
+# PCPOINT / SERIALIZED_* are pgPointCloud's on-disk types.
 UNDEFINED_TYPES = (
     "json_object",
     "GEOSContextHandle_t",
-    "TimeTzADT",
     "PCPATCH",
     "PCPOINT",
     "SERIALIZED_PATCH",
