@@ -1,11 +1,10 @@
 import logging
 import os
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from typing import Annotated, Any
 
 import _meos_cffi
 import shapely.geometry as spg
-from dateutil.parser import parse
 from shapely import get_srid, set_srid, wkt
 from shapely.geometry.base import BaseGeometry
 
@@ -73,32 +72,81 @@ def get_address(value: "Any") -> Annotated[_ffi.CData, "Any *"]:
     return _ffi.addressof(value)
 
 
+# The casts of the time types. Each is a generated wrapper of a MEOS conversion (MobilityDB
+# doc/specs/meos-bindings-algebra.md, section 5) and a constructor of the host type: MEOS raises
+# for a value it cannot state, the constructor for one the host type cannot state. A wrapper of a
+# conversion with out-parameters answers (found, *outs) (#interval_to_parts, #time_to_parts).
+
+_UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+_UNIX_EPOCH_NAIVE = datetime(1970, 1, 1)
+_UNIX_EPOCH_ORDINAL = date(1970, 1, 1).toordinal()
+_MICROSECOND = timedelta(microseconds=1)
+
+
 def datetime_to_timestamptz(dt: datetime) -> Annotated[int, "TimestampTz"]:
-    return _lib.timestamptz_in(dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1)
+    """An aware datetime as its instant; a naive one read in the time zone of MEOS"""
+    if dt.utcoffset() is None:
+        return timestamp_to_timestamptz(datetime_to_timestamp(dt))
+    return unix_us_to_timestamptz((dt - _UNIX_EPOCH) // _MICROSECOND)
 
 
 def timestamptz_to_datetime(ts: Annotated[int, "TimestampTz"]) -> datetime:
-    return parse(timestamptz_out(ts))
+    return _UNIX_EPOCH + timedelta(microseconds=timestamptz_to_unix_us(ts))
+
+
+def datetime_to_timestamp(dt: datetime) -> Annotated[int, "Timestamp"]:
+    return unix_us_to_timestamp((dt - _UNIX_EPOCH_NAIVE) // _MICROSECOND)
+
+
+def timestamp_to_datetime(ts: Annotated[int, "Timestamp"]) -> datetime:
+    return _UNIX_EPOCH_NAIVE + timedelta(microseconds=timestamp_to_unix_us(ts))
 
 
 def date_to_date_adt(dt: date) -> Annotated[int, "DateADT"]:
-    return _lib.date_in(dt.strftime("%Y-%m-%d").encode("utf-8"))
+    return unix_days_to_date(dt.toordinal() - _UNIX_EPOCH_ORDINAL)
 
 
 def date_adt_to_date(ts: Annotated[int, "DateADT"]) -> date:
-    return parse(date_out(ts)).date()
+    return date.fromordinal(date_to_unix_days(ts) + _UNIX_EPOCH_ORDINAL)
 
 
-def timedelta_to_interval(td: timedelta) -> Any:
-    return _ffi.new(
-        "Interval *",
-        {"time": td.microseconds + td.seconds * 1000000, "day": td.days, "month": 0},
+def timedelta_to_interval(td: timedelta) -> Annotated[_ffi.CData, "Interval *"]:
+    return interval_from_parts(0, td.days, td.seconds * 1_000_000 + td.microseconds)
+
+
+def interval_to_timedelta(interval: Annotated[_ffi.CData, "const Interval *"]) -> timedelta:
+    """A month has no fixed length, so an interval with months has no timedelta"""
+    _, months, days, us = interval_to_parts(interval)
+    if months != 0:
+        raise ValueError(f"An interval of {months} month(s) has no fixed duration")
+    return timedelta(days=days, microseconds=us)
+
+
+def time_to_time_adt(t: time) -> Annotated[int, "TimeADT"]:
+    if t.tzinfo is not None:
+        raise ValueError(f"A time has no time zone: {t}")
+    return time_from_parts((datetime.combine(date.min, t) - datetime.min) // _MICROSECOND)
+
+
+def time_adt_to_time(t: Annotated[int, "TimeADT"]) -> time:
+    """24:00:00 raises the ValueError of time, which ends its day before it"""
+    _, us = time_to_parts(t)
+    seconds, microsecond = divmod(us, 1_000_000)
+    return time(seconds // 3600, seconds // 60 % 60, seconds % 60, microsecond)
+
+
+def timetz_to_timetz_adt(t: time) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    """The offset in whole seconds east of UTC, as MEOS holds it"""
+    us = (datetime.combine(date.min, t.replace(tzinfo=None)) - datetime.min) // _MICROSECOND
+    return timetz_from_parts(us, t.utcoffset() // timedelta(seconds=1))
+
+
+def timetz_adt_to_timetz(t: Annotated[_ffi.CData, "const TimeTzADT *"]) -> time:
+    _, us, offset = timetz_to_parts(t)
+    seconds, microsecond = divmod(us, 1_000_000)
+    return time(
+        seconds // 3600, seconds // 60 % 60, seconds % 60, microsecond, tzinfo=timezone(timedelta(seconds=offset))
     )
-
-
-def interval_to_timedelta(interval: Any) -> timedelta:
-    # TODO fix for months/years
-    return timedelta(days=interval.day, microseconds=interval.time)
 
 
 def geo_to_gserialized(geom: BaseGeometry, geodetic: bool) -> Annotated[_ffi.CData, "GSERIALIZED *"]:

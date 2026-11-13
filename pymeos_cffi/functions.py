@@ -1,11 +1,10 @@
 import logging
 import os
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from typing import Annotated, Any
 
 import _meos_cffi
 import shapely.geometry as spg
-from dateutil.parser import parse
 from shapely import get_srid, set_srid, wkt
 from shapely.geometry.base import BaseGeometry
 
@@ -73,32 +72,81 @@ def get_address(value: "Any") -> Annotated[_ffi.CData, "Any *"]:
     return _ffi.addressof(value)
 
 
+# The casts of the time types. Each is a generated wrapper of a MEOS conversion (MobilityDB
+# doc/specs/meos-bindings-algebra.md, section 5) and a constructor of the host type: MEOS raises
+# for a value it cannot state, the constructor for one the host type cannot state. A wrapper of a
+# conversion with out-parameters answers (found, *outs) (#interval_to_parts, #time_to_parts).
+
+_UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+_UNIX_EPOCH_NAIVE = datetime(1970, 1, 1)
+_UNIX_EPOCH_ORDINAL = date(1970, 1, 1).toordinal()
+_MICROSECOND = timedelta(microseconds=1)
+
+
 def datetime_to_timestamptz(dt: datetime) -> Annotated[int, "TimestampTz"]:
-    return _lib.timestamptz_in(dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1)
+    """An aware datetime as its instant; a naive one read in the time zone of MEOS"""
+    if dt.utcoffset() is None:
+        return timestamp_to_timestamptz(datetime_to_timestamp(dt))
+    return unix_us_to_timestamptz((dt - _UNIX_EPOCH) // _MICROSECOND)
 
 
 def timestamptz_to_datetime(ts: Annotated[int, "TimestampTz"]) -> datetime:
-    return parse(timestamptz_out(ts))
+    return _UNIX_EPOCH + timedelta(microseconds=timestamptz_to_unix_us(ts))
+
+
+def datetime_to_timestamp(dt: datetime) -> Annotated[int, "Timestamp"]:
+    return unix_us_to_timestamp((dt - _UNIX_EPOCH_NAIVE) // _MICROSECOND)
+
+
+def timestamp_to_datetime(ts: Annotated[int, "Timestamp"]) -> datetime:
+    return _UNIX_EPOCH_NAIVE + timedelta(microseconds=timestamp_to_unix_us(ts))
 
 
 def date_to_date_adt(dt: date) -> Annotated[int, "DateADT"]:
-    return _lib.date_in(dt.strftime("%Y-%m-%d").encode("utf-8"))
+    return unix_days_to_date(dt.toordinal() - _UNIX_EPOCH_ORDINAL)
 
 
 def date_adt_to_date(ts: Annotated[int, "DateADT"]) -> date:
-    return parse(date_out(ts)).date()
+    return date.fromordinal(date_to_unix_days(ts) + _UNIX_EPOCH_ORDINAL)
 
 
-def timedelta_to_interval(td: timedelta) -> Any:
-    return _ffi.new(
-        "Interval *",
-        {"time": td.microseconds + td.seconds * 1000000, "day": td.days, "month": 0},
+def timedelta_to_interval(td: timedelta) -> Annotated[_ffi.CData, "Interval *"]:
+    return interval_from_parts(0, td.days, td.seconds * 1_000_000 + td.microseconds)
+
+
+def interval_to_timedelta(interval: Annotated[_ffi.CData, "const Interval *"]) -> timedelta:
+    """A month has no fixed length, so an interval with months has no timedelta"""
+    _, months, days, us = interval_to_parts(interval)
+    if months != 0:
+        raise ValueError(f"An interval of {months} month(s) has no fixed duration")
+    return timedelta(days=days, microseconds=us)
+
+
+def time_to_time_adt(t: time) -> Annotated[int, "TimeADT"]:
+    if t.tzinfo is not None:
+        raise ValueError(f"A time has no time zone: {t}")
+    return time_from_parts((datetime.combine(date.min, t) - datetime.min) // _MICROSECOND)
+
+
+def time_adt_to_time(t: Annotated[int, "TimeADT"]) -> time:
+    """24:00:00 raises the ValueError of time, which ends its day before it"""
+    _, us = time_to_parts(t)
+    seconds, microsecond = divmod(us, 1_000_000)
+    return time(seconds // 3600, seconds // 60 % 60, seconds % 60, microsecond)
+
+
+def timetz_to_timetz_adt(t: time) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    """The offset in whole seconds east of UTC, as MEOS holds it"""
+    us = (datetime.combine(date.min, t.replace(tzinfo=None)) - datetime.min) // _MICROSECOND
+    return timetz_from_parts(us, t.utcoffset() // timedelta(seconds=1))
+
+
+def timetz_adt_to_timetz(t: Annotated[_ffi.CData, "const TimeTzADT *"]) -> time:
+    _, us, offset = timetz_to_parts(t)
+    seconds, microsecond = divmod(us, 1_000_000)
+    return time(
+        seconds // 3600, seconds // 60 % 60, seconds % 60, microsecond, tzinfo=timezone(timedelta(seconds=offset))
     )
-
-
-def interval_to_timedelta(interval: Any) -> timedelta:
-    # TODO fix for months/years
-    return timedelta(days=interval.day, microseconds=interval.time)
 
 
 def geo_to_gserialized(geom: BaseGeometry, geodetic: bool) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
@@ -45112,6 +45160,16 @@ def unistr(txt: str) -> Annotated[str, "text *"]:
     return result if result != _ffi.NULL else None
 
 
+def date_timetz_to_timestamptz(
+    date: int, timetz: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[int, "TimestampTz"]:
+    date_converted = _ffi.cast("DateADT", date)
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    result = _lib.date_timetz_to_timestamptz(date_converted, timetz_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def interval_to_time(interv: Annotated[_ffi.CData, "const Interval *"]) -> Annotated[int, "TimeADT"]:
     interv_converted = _ffi.cast("const Interval *", interv)
     result = _lib.interval_to_time(interv_converted)
@@ -45135,10 +45193,30 @@ def minus_time_time(time1: int, time2: int) -> Annotated[_ffi.CData, "Interval *
     return result if result != _ffi.NULL else None
 
 
+def minus_timetz_interval(
+    timetz: Annotated[_ffi.CData, "const TimeTzADT *"], interv: Annotated[_ffi.CData, "const Interval *"]
+) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    interv_converted = _ffi.cast("const Interval *", interv)
+    result = _lib.minus_timetz_interval(timetz_converted, interv_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def plus_time_interval(time: int, interv: Annotated[_ffi.CData, "Interval *"]) -> Annotated[int, "TimeADT"]:
     time_converted = _ffi.cast("TimeADT", time)
     interv_converted = _ffi.cast("Interval *", interv)
     result = _lib.plus_time_interval(time_converted, interv_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def plus_timetz_interval(
+    timetz: Annotated[_ffi.CData, "const TimeTzADT *"], interv: Annotated[_ffi.CData, "const Interval *"]
+) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    interv_converted = _ffi.cast("const Interval *", interv)
+    result = _lib.plus_timetz_interval(timetz_converted, interv_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -45292,6 +45370,13 @@ def time_to_parts(time: int) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CD
     return result if result != _ffi.NULL else None, us[0]
 
 
+def time_to_timetz(time: int) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    time_converted = _ffi.cast("TimeADT", time)
+    result = _lib.time_to_timetz(time_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def timestamp_to_time(ts: int) -> Annotated[int, "TimeADT"]:
     ts_converted = _ffi.cast("Timestamp", ts)
     result = _lib.timestamp_to_time(ts_converted)
@@ -45302,6 +45387,236 @@ def timestamp_to_time(ts: int) -> Annotated[int, "TimeADT"]:
 def timestamptz_to_time(tztz: int) -> Annotated[int, "TimeADT"]:
     tztz_converted = _ffi.cast("TimestampTz", tztz)
     result = _lib.timestamptz_to_time(tztz_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timestamptz_to_timetz(tztz: int) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    tztz_converted = _ffi.cast("TimestampTz", tztz)
+    result = _lib.timestamptz_to_timetz(tztz_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_at_local(timetz: Annotated[_ffi.CData, "const TimeTzADT *"]) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    result = _lib.timetz_at_local(timetz_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_cmp(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[int, "int32_t"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_cmp(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_eq(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[bool, "bool"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_eq(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_extract(
+    timetz: Annotated[_ffi.CData, "const TimeTzADT *"], units: str
+) -> Annotated[_ffi.CData, "struct NumericData *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    units_converted = cstring_to_text(units)
+    result = _lib.timetz_extract(timetz_converted, units_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_ge(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[bool, "bool"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_ge(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_gt(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[bool, "bool"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_gt(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_hash(timetz: Annotated[_ffi.CData, "const TimeTzADT *"]) -> Annotated[int, "uint32_t"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    result = _lib.timetz_hash(timetz_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_hash_extended(timetz: Annotated[_ffi.CData, "const TimeTzADT *"], seed: int) -> Annotated[int, "uint64_t"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    seed_converted = _ffi.cast("int64_t", seed)
+    result = _lib.timetz_hash_extended(timetz_converted, seed_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_in(string: str, typmod: int) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    string_converted = string.encode("utf-8")
+    typmod_converted = _ffi.cast("int32_t", typmod)
+    result = _lib.timetz_in(string_converted, typmod_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_izone(
+    timetz: Annotated[_ffi.CData, "const TimeTzADT *"], zone: Annotated[_ffi.CData, "const Interval *"]
+) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    zone_converted = _ffi.cast("const Interval *", zone)
+    result = _lib.timetz_izone(timetz_converted, zone_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_larger(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_larger(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_le(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[bool, "bool"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_le(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_lt(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[bool, "bool"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_lt(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_ne(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[bool, "bool"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_ne(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_copy(timetz: Annotated[_ffi.CData, "const TimeTzADT *"]) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    result = _lib.timetz_copy(timetz_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_from_parts(us: int, offset: int) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    us_converted = _ffi.cast("int64_t", us)
+    offset_converted = _ffi.cast("int32_t", offset)
+    result = _lib.timetz_from_parts(us_converted, offset_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_out(timetz: Annotated[_ffi.CData, "const TimeTzADT *"]) -> Annotated[str, "char *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    size_out = _ffi.new("size_t *")
+    result = _lib.timetz_out(timetz_converted, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def timetz_overlaps(
+    ts1: Annotated[_ffi.CData, "const TimeTzADT *"],
+    te1: Annotated[_ffi.CData, "const TimeTzADT *"],
+    ts2: Annotated[_ffi.CData, "const TimeTzADT *"],
+    te2: Annotated[_ffi.CData, "const TimeTzADT *"],
+) -> Annotated[bool, "bool"]:
+    ts1_converted = _ffi.cast("const TimeTzADT *", ts1)
+    te1_converted = _ffi.cast("const TimeTzADT *", te1)
+    ts2_converted = _ffi.cast("const TimeTzADT *", ts2)
+    te2_converted = _ffi.cast("const TimeTzADT *", te2)
+    result = _lib.timetz_overlaps(ts1_converted, te1_converted, ts2_converted, te2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_part(timetz: Annotated[_ffi.CData, "const TimeTzADT *"], units: str) -> Annotated[float, "double"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    units_converted = cstring_to_text(units)
+    result = _lib.timetz_part(timetz_converted, units_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_scale(
+    timetz: Annotated[_ffi.CData, "const TimeTzADT *"], typmod: int
+) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    typmod_converted = _ffi.cast("int32_t", typmod)
+    result = _lib.timetz_scale(timetz_converted, typmod_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_smaller(
+    timetz1: Annotated[_ffi.CData, "const TimeTzADT *"], timetz2: Annotated[_ffi.CData, "const TimeTzADT *"]
+) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz1_converted = _ffi.cast("const TimeTzADT *", timetz1)
+    timetz2_converted = _ffi.cast("const TimeTzADT *", timetz2)
+    result = _lib.timetz_smaller(timetz1_converted, timetz2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_to_parts(
+    timetz: Annotated[_ffi.CData, "const TimeTzADT *"],
+) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "int64_t"], Annotated[_ffi.CData, "int32_t"]]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    us = _ffi.new("int64_t *")
+    offset = _ffi.new("int32_t *")
+    result = _lib.timetz_to_parts(timetz_converted, us, offset)
+    _check_error()
+    return result if result != _ffi.NULL else None, us[0], offset[0]
+
+
+def timetz_to_time(timetz: Annotated[_ffi.CData, "const TimeTzADT *"]) -> Annotated[int, "TimeADT"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    result = _lib.timetz_to_time(timetz_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timetz_zone(timetz: Annotated[_ffi.CData, "const TimeTzADT *"], zone: str) -> Annotated[_ffi.CData, "TimeTzADT *"]:
+    timetz_converted = _ffi.cast("const TimeTzADT *", timetz)
+    zone_converted = cstring_to_text(zone)
+    result = _lib.timetz_zone(timetz_converted, zone_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
