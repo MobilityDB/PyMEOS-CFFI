@@ -1487,6 +1487,13 @@ def date_to_spanset(d: int) -> Annotated[_ffi.CData, "SpanSet *"]:
     return result if result != _ffi.NULL else None
 
 
+def date_to_unix_days(d: int) -> Annotated[int, "int32_t"]:
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.date_to_unix_days(d_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def dateset_to_tstzset(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.dateset_to_tstzset(s_converted)
@@ -1614,6 +1621,32 @@ def intspanset_to_floatspanset(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> 
     return result if result != _ffi.NULL else None
 
 
+def interval_from_parts(months: int, days: int, us: int) -> Annotated[_ffi.CData, "Interval *"]:
+    months_converted = _ffi.cast("int32_t", months)
+    days_converted = _ffi.cast("int32_t", days)
+    us_converted = _ffi.cast("int64_t", us)
+    result = _lib.interval_from_parts(months_converted, days_converted, us_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def interval_to_parts(
+    interv: Annotated[_ffi.CData, "const Interval *"],
+) -> tuple[
+    Annotated[bool, "bool"],
+    Annotated[_ffi.CData, "int32_t"],
+    Annotated[_ffi.CData, "int32_t"],
+    Annotated[_ffi.CData, "int64_t"],
+]:
+    interv_converted = _ffi.cast("const Interval *", interv)
+    months = _ffi.new("int32_t *")
+    days = _ffi.new("int32_t *")
+    us = _ffi.new("int64_t *")
+    result = _lib.interval_to_parts(interv_converted, months, days, us)
+    _check_error()
+    return result if result != _ffi.NULL else None, months[0], days[0], us[0]
+
+
 def set_to_span(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Span *"]:
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.set_to_span(s_converted)
@@ -1638,6 +1671,13 @@ def span_to_spanset(s: Annotated[_ffi.CData, "const Span *"]) -> Annotated[_ffi.
 def text_to_set(txt: str) -> Annotated[_ffi.CData, "Set *"]:
     txt_converted = cstring_to_text(txt)
     result = _lib.text_to_set(txt_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timestamp_to_unix_us(ts: int) -> Annotated[int, "int64_t"]:
+    ts_converted = _ffi.cast("Timestamp", ts)
+    result = _lib.timestamp_to_unix_us(ts_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -1687,6 +1727,20 @@ def tstzspan_to_datespan(s: Annotated[_ffi.CData, "const Span *"]) -> Annotated[
 def tstzspanset_to_datespanset(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> Annotated[_ffi.CData, "SpanSet *"]:
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.tstzspanset_to_datespanset(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def unix_days_to_date(days: int) -> Annotated[int, "DateADT"]:
+    days_converted = _ffi.cast("int32_t", days)
+    result = _lib.unix_days_to_date(days_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def unix_us_to_timestamp(us: int) -> Annotated[int, "Timestamp"]:
+    us_converted = _ffi.cast("int64_t", us)
+    result = _lib.unix_us_to_timestamp(us_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -20324,6 +20378,16 @@ def always_overlaps_tcbuffer_stbox(
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_tcbuffer_tcbuffer(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.always_overlaps_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_cbuffer_tcbuffer(
     cb: Annotated[_ffi.CData, "const struct Cbuffer *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -20400,6 +20464,16 @@ def ever_overlaps_tcbuffer_stbox(
     temp_converted = _ffi.cast("const Temporal *", temp)
     box_converted = _ffi.cast("const STBox *", box)
     result = _lib.ever_overlaps_tcbuffer_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tcbuffer_tcbuffer(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.ever_overlaps_tcbuffer_tcbuffer(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -21385,6 +21459,66 @@ def tcellindex_cell_to_boundary(temp: Annotated[_ffi.CData, "const Temporal *"])
 def tcellindex_cell_area(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tcellindex_cell_area(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tcellindex_at_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.tcellindex_at_stbox(temp_converted, box_converted, border_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tcellindex_minus_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.tcellindex_minus_stbox(temp_converted, box_converted, border_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tcellindex_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.ever_overlaps_tcellindex_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tcellindex_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.always_overlaps_tcellindex_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_stbox_tcellindex(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_stbox_tcellindex(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_stbox_tcellindex(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_stbox_tcellindex(box_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -31748,6 +31882,16 @@ def always_overlaps_tnpoint_stbox(
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_tnpoint_tnpoint(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.always_overlaps_tnpoint_tnpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_npoint_tnpoint(
     np: Annotated[_ffi.CData, "const Npoint *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -31824,6 +31968,16 @@ def ever_overlaps_tnpoint_stbox(
     temp_converted = _ffi.cast("const Temporal *", temp)
     box_converted = _ffi.cast("const STBox *", box)
     result = _lib.ever_overlaps_tnpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tnpoint_tnpoint(
+    temp1: Annotated[_ffi.CData, "const Temporal *"], temp2: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.ever_overlaps_tnpoint_tnpoint(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -37260,12 +37414,32 @@ def tposechain_translate(
     return result if result != _ffi.NULL else None
 
 
+def tposechain_at_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.tposechain_at_stbox(temp_converted, box_converted, border_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tposechain_at_value(
     temp: Annotated[_ffi.CData, "const Temporal *"], pc: Annotated[_ffi.CData, "const struct PoseChain *"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     pc_converted = _ffi.cast("const struct PoseChain *", pc)
     result = _lib.tposechain_at_value(temp_converted, pc_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tposechain_minus_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"], border_inc: bool
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.tposechain_minus_stbox(temp_converted, box_converted, border_inc)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -37470,6 +37644,26 @@ def always_ne_tposechain_tposechain(
     return result if result != _ffi.NULL else None
 
 
+def always_overlaps_stbox_tposechain(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.always_overlaps_stbox_tposechain(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def always_overlaps_tposechain_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.always_overlaps_tposechain_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def ever_eq_posechain_tposechain(
     posechain: Annotated[_ffi.CData, "const struct PoseChain *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[int, "int"]:
@@ -37526,6 +37720,26 @@ def ever_ne_tposechain_tposechain(
     temp1_converted = _ffi.cast("const Temporal *", temp1)
     temp2_converted = _ffi.cast("const Temporal *", temp2)
     result = _lib.ever_ne_tposechain_tposechain(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_stbox_tposechain(
+    box: Annotated[_ffi.CData, "const STBox *"], temp: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[int, "int"]:
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ever_overlaps_stbox_tposechain(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ever_overlaps_tposechain_stbox(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box: Annotated[_ffi.CData, "const STBox *"]
+) -> Annotated[int, "int"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.ever_overlaps_tposechain_stbox(temp_converted, box_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -44953,6 +45167,13 @@ def time_extract(time: int, units: str) -> Annotated[_ffi.CData, "struct Numeric
     return result if result != _ffi.NULL else None
 
 
+def time_from_parts(us: int) -> Annotated[int, "TimeADT"]:
+    us_converted = _ffi.cast("int64_t", us)
+    result = _lib.time_from_parts(us_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def time_ge(time1: int, time2: int) -> Annotated[bool, "bool"]:
     time1_converted = _ffi.cast("TimeADT", time1)
     time2_converted = _ffi.cast("TimeADT", time2)
@@ -45061,6 +45282,14 @@ def time_to_interval(time: int) -> Annotated[_ffi.CData, "Interval *"]:
     result = _lib.time_to_interval(time_converted)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def time_to_parts(time: int) -> tuple[Annotated[bool, "bool"], Annotated[_ffi.CData, "int64_t"]]:
+    time_converted = _ffi.cast("TimeADT", time)
+    us = _ffi.new("int64_t *")
+    result = _lib.time_to_parts(time_converted, us)
+    _check_error()
+    return result if result != _ffi.NULL else None, us[0]
 
 
 def timestamp_to_time(ts: int) -> Annotated[int, "TimeADT"]:
