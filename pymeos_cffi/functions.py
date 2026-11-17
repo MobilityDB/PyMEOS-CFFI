@@ -3090,6 +3090,26 @@ def set_spans(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def set_merge_each_n_spans(
+    s: Annotated[_ffi.CData, "const Set *"], elems_per_span: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    s_converted = _ffi.cast("const Set *", s)
+    count = _ffi.new("int *")
+    result = _lib.set_merge_each_n_spans(s_converted, elems_per_span, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def set_merge_n_spans(
+    s: Annotated[_ffi.CData, "const Set *"], span_count: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    s_converted = _ffi.cast("const Set *", s)
+    count = _ffi.new("int *")
+    result = _lib.set_merge_n_spans(s_converted, span_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
 def set_split_each_n_spans(
     s: Annotated[_ffi.CData, "const Set *"], elems_per_span: int
 ) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
@@ -3116,6 +3136,26 @@ def spanset_spans(
     ss_converted = _ffi.cast("const SpanSet *", ss)
     count = _ffi.new("int *")
     result = _lib.spanset_spans(ss_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def spanset_merge_each_n_spans(
+    ss: Annotated[_ffi.CData, "const SpanSet *"], elems_per_span: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.spanset_merge_each_n_spans(ss_converted, elems_per_span, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def spanset_merge_n_spans(
+    ss: Annotated[_ffi.CData, "const SpanSet *"], span_count: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.spanset_merge_n_spans(ss_converted, span_count, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -10896,6 +10936,26 @@ def temporal_spans(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def temporal_merge_each_n_spans(
+    temp: Annotated[_ffi.CData, "const Temporal *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.temporal_merge_each_n_spans(temp_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def temporal_merge_n_spans(
+    temp: Annotated[_ffi.CData, "const Temporal *"], span_count: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.temporal_merge_n_spans(temp_converted, span_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
 def temporal_split_each_n_spans(
     temp: Annotated[_ffi.CData, "const Temporal *"], elem_count: int
 ) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
@@ -10912,6 +10972,26 @@ def temporal_split_n_spans(
     temp_converted = _ffi.cast("const Temporal *", temp)
     count = _ffi.new("int *")
     result = _lib.temporal_split_n_spans(temp_converted, span_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumber_merge_each_n_tboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tnumber_merge_each_n_tboxes(temp_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumber_merge_n_tboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box_count: int
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tnumber_merge_n_tboxes(temp_converted, box_count, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -15150,6 +15230,26 @@ def geo_stboxes(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def geo_merge_each_n_stboxes(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    count = _ffi.new("int *")
+    result = _lib.geo_merge_each_n_stboxes(gs_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def geo_merge_n_stboxes(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], box_count: int
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    count = _ffi.new("int *")
+    result = _lib.geo_merge_n_stboxes(gs_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
 def geo_split_each_n_stboxes(
     gs: Annotated[_ffi.CData, "const GSERIALIZED *"], elem_count: int
 ) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
@@ -17456,6 +17556,26 @@ def tgeo_space_time_boxes(
         border_inc,
         count,
     )
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tgeo_merge_each_n_stboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tgeo_merge_each_n_stboxes(temp_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tgeo_merge_n_stboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box_count: int
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tgeo_merge_n_stboxes(temp_converted, box_count, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -22660,11 +22780,27 @@ def tgeogpoint_great_circle_distance(
     return result if result != _ffi.NULL else None
 
 
+def meos_array_add_intl(
+    array: Annotated[_ffi.CData, "struct MeosArray *"], value: Annotated[_ffi.CData, "void *"]
+) -> Annotated[None, "void"]:
+    array_converted = _ffi.cast("struct MeosArray *", array)
+    value_converted = _ffi.cast("void *", value)
+    _lib.meos_array_add_intl(array_converted, value_converted)
+    _check_error()
+
+
 def meos_array_get_intl(
     array: Annotated[_ffi.CData, "const struct MeosArray *"], n: int
 ) -> Annotated[_ffi.CData, "void *"]:
     array_converted = _ffi.cast("const struct MeosArray *", array)
     result = _lib.meos_array_get_intl(array_converted, n)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def meos_array_count_intl(array: Annotated[_ffi.CData, "const struct MeosArray *"]) -> Annotated[int, "int"]:
+    array_converted = _ffi.cast("const struct MeosArray *", array)
+    result = _lib.meos_array_count_intl(array_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -24646,6 +24782,17 @@ def tinstant_make(
     return result if result != _ffi.NULL else None
 
 
+def tinstant_make_intl(
+    value: int, temptype: Annotated[_ffi.CData, "MeosType"], t: int
+) -> Annotated[_ffi.CData, "TInstant *"]:
+    value_converted = _ffi.cast("Datum", value)
+    temptype_converted = _ffi.cast("MeosType", temptype)
+    t_converted = _ffi.cast("TimestampTz", t)
+    result = _lib.tinstant_make_intl(value_converted, temptype_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tinstant_make_free(
     value: int, temptype: Annotated[_ffi.CData, "MeosType"], t: int
 ) -> Annotated[_ffi.CData, "TInstant *"]:
@@ -24868,6 +25015,140 @@ def tsequenceset_set_tstzspan(ss: Annotated[_ffi.CData, "const TSequenceSet *"])
     _lib.tsequenceset_set_tstzspan(ss_converted, s)
     _check_error()
     return s[0]
+
+
+def tinstant_spans(inst: Annotated[_ffi.CData, "const TInstant *"]) -> Annotated[_ffi.CData, "Span *"]:
+    inst_converted = _ffi.cast("const TInstant *", inst)
+    result = _lib.tinstant_spans(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_spans(
+    seq: Annotated[_ffi.CData, "const TSequence *"],
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    seq_converted = _ffi.cast("const TSequence *", seq)
+    count = _ffi.new("int *")
+    result = _lib.tsequence_spans(seq_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequenceset_spans(
+    ss: Annotated[_ffi.CData, "const TSequenceSet *"],
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const TSequenceSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.tsequenceset_spans(ss_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequence_split_n_spans(
+    seq: Annotated[_ffi.CData, "const TSequence *"], span_count: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    seq_converted = _ffi.cast("const TSequence *", seq)
+    count = _ffi.new("int *")
+    result = _lib.tsequence_split_n_spans(seq_converted, span_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequenceset_split_n_spans(
+    ss: Annotated[_ffi.CData, "const TSequenceSet *"], span_count: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const TSequenceSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.tsequenceset_split_n_spans(ss_converted, span_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequence_split_each_n_spans(
+    seq: Annotated[_ffi.CData, "const TSequence *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    seq_converted = _ffi.cast("const TSequence *", seq)
+    count = _ffi.new("int *")
+    result = _lib.tsequence_split_each_n_spans(seq_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequenceset_split_each_n_spans(
+    ss: Annotated[_ffi.CData, "const TSequenceSet *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const TSequenceSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.tsequenceset_split_each_n_spans(ss_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumberinst_tboxes(inst: Annotated[_ffi.CData, "const TInstant *"]) -> Annotated[_ffi.CData, "TBox *"]:
+    inst_converted = _ffi.cast("const TInstant *", inst)
+    result = _lib.tnumberinst_tboxes(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_tboxes(
+    seq: Annotated[_ffi.CData, "const TSequence *"],
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    seq_converted = _ffi.cast("const TSequence *", seq)
+    count = _ffi.new("int *")
+    result = _lib.tnumberseq_tboxes(seq_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumberseqset_tboxes(
+    ss: Annotated[_ffi.CData, "const TSequenceSet *"],
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const TSequenceSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.tnumberseqset_tboxes(ss_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumberseq_split_n_tboxes(
+    seq: Annotated[_ffi.CData, "const TSequence *"], box_count: int
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    seq_converted = _ffi.cast("const TSequence *", seq)
+    count = _ffi.new("int *")
+    result = _lib.tnumberseq_split_n_tboxes(seq_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumberseqset_split_n_tboxes(
+    ss: Annotated[_ffi.CData, "const TSequenceSet *"], box_count: int
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const TSequenceSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.tnumberseqset_split_n_tboxes(ss_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumberseq_split_each_n_tboxes(
+    seq: Annotated[_ffi.CData, "const TSequence *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    seq_converted = _ffi.cast("const TSequence *", seq)
+    count = _ffi.new("int *")
+    result = _lib.tnumberseq_split_each_n_tboxes(seq_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumberseqset_split_each_n_tboxes(
+    ss: Annotated[_ffi.CData, "const TSequenceSet *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const TSequenceSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.tnumberseqset_split_each_n_tboxes(ss_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
 
 
 def temporal_end_inst(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "const TInstant *"]:
@@ -28255,6 +28536,13 @@ def tpointseq_linear_trajectory(
     return result if result != _ffi.NULL else None
 
 
+def tgeoinst_stboxes(inst: Annotated[_ffi.CData, "const TInstant *"]) -> Annotated[_ffi.CData, "STBox *"]:
+    inst_converted = _ffi.cast("const TInstant *", inst)
+    result = _lib.tgeoinst_stboxes(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tgeoseq_stboxes(
     seq: Annotated[_ffi.CData, "const TSequence *"],
 ) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
@@ -28271,6 +28559,16 @@ def tgeoseq_split_n_stboxes(
     seq_converted = _ffi.cast("const TSequence *", seq)
     count = _ffi.new("int *")
     result = _lib.tgeoseq_split_n_stboxes(seq_converted, max_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tgeoseq_split_each_n_stboxes(
+    seq: Annotated[_ffi.CData, "const TSequence *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    seq_converted = _ffi.cast("const TSequence *", seq)
+    count = _ffi.new("int *")
+    result = _lib.tgeoseq_split_each_n_stboxes(seq_converted, elem_count, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -28323,6 +28621,16 @@ def tgeoseqset_split_n_stboxes(
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
     count = _ffi.new("int *")
     result = _lib.tgeoseqset_split_n_stboxes(ss_converted, max_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tgeoseqset_split_each_n_stboxes(
+    ss: Annotated[_ffi.CData, "const TSequenceSet *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const TSequenceSet *", ss)
+    count = _ffi.new("int *")
+    result = _lib.tgeoseqset_split_each_n_stboxes(ss_converted, elem_count, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -33148,6 +33456,56 @@ def tpointcloud_to_tpcbox(temp: Annotated[_ffi.CData, "const Temporal *"]) -> An
     result = _lib.tpointcloud_to_tpcbox(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def tpointcloud_tpcboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+) -> tuple[Annotated[_ffi.CData, "TPCBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tpointcloud_tpcboxes(temp_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointcloud_split_n_tpcboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box_count: int
+) -> tuple[Annotated[_ffi.CData, "TPCBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tpointcloud_split_n_tpcboxes(temp_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointcloud_split_each_n_tpcboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "TPCBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tpointcloud_split_each_n_tpcboxes(temp_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointcloud_merge_n_tpcboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box_count: int
+) -> tuple[Annotated[_ffi.CData, "TPCBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tpointcloud_merge_n_tpcboxes(temp_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointcloud_merge_each_n_tpcboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "TPCBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.tpointcloud_merge_each_n_tpcboxes(temp_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
 
 
 def tpcbox_hasx(box: Annotated[_ffi.CData, "const TPCBox *"]) -> Annotated[bool, "bool"]:
@@ -40447,6 +40805,26 @@ def trgeometry_split_n_stboxes(
     temp_converted = _ffi.cast("const Temporal *", temp)
     count = _ffi.new("int *")
     result = _lib.trgeometry_split_n_stboxes(temp_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def trgeometry_merge_each_n_stboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], elem_count: int
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.trgeometry_merge_each_n_stboxes(temp_converted, elem_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def trgeometry_merge_n_stboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], box_count: int
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    count = _ffi.new("int *")
+    result = _lib.trgeometry_merge_n_stboxes(temp_converted, box_count, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
