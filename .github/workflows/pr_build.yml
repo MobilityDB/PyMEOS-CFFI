@@ -145,7 +145,7 @@ jobs:
       - name: Install MEOS build deps (macOS)
         uses: tecolicom/actions-use-homebrew-tools@v1
         with:
-          tools: cmake libpq proj json-c h3 gdal
+          tools: cmake libpq proj json-c gdal
 
       - name: Build and install the all-families MEOS
         shell: bash
@@ -156,13 +156,21 @@ jobs:
           git -C MobilityDB fetch -q --depth 1 https://github.com/MobilityDB/MobilityDB \
             "$MOBILITYDB_SHA"
           git -C MobilityDB checkout -q FETCH_HEAD
-          mkdir MobilityDB/build
-          cd MobilityDB/build
           # The Homebrew libraries it links are built for the runner's macOS.
           MACOSX_DEPLOYMENT_TARGET="$(sw_vers -productVersion | cut -d. -f1).0"
           export MACOSX_DEPLOYMENT_TARGET
+          # MobilityDB supports one H3 release, H3_REQUIRED_VERSION of its
+          # CMakeLists.txt, and its configure refuses any other, so the release is
+          # the one this commit names, built by its own install-h3.sh into the
+          # prefix MEOS is installed into, as provision-meos builds it on Linux.
+          prefix=${{ matrix.ld_prefix }}
+          sudo --preserve-env=MACOSX_DEPLOYMENT_TARGET \
+            bash MobilityDB/.github/scripts/install-h3.sh "$prefix"
+          mkdir MobilityDB/build
+          cd MobilityDB/build
           cmake .. -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
+            -DH3_LIBRARY="$prefix/lib/libh3.dylib" -DH3_INCLUDE_DIR="$prefix/include/h3" \
+            -DCMAKE_INSTALL_PREFIX="$prefix"
           make -j"$(sysctl -n hw.ncpu)"
           sudo make install
 
