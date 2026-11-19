@@ -3110,6 +3110,17 @@ def set_merge_n_spans(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def set_merge_query_spans(
+    s: Annotated[_ffi.CData, "const Set *"], query: Annotated[_ffi.CData, "const Span *"]
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    s_converted = _ffi.cast("const Set *", s)
+    query_converted = _ffi.cast("const Span *", query)
+    count = _ffi.new("int *")
+    result = _lib.set_merge_query_spans(s_converted, query_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
 def set_split_each_n_spans(
     s: Annotated[_ffi.CData, "const Set *"], elems_per_span: int
 ) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
@@ -3156,6 +3167,17 @@ def spanset_merge_n_spans(
     ss_converted = _ffi.cast("const SpanSet *", ss)
     count = _ffi.new("int *")
     result = _lib.spanset_merge_n_spans(ss_converted, span_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def spanset_merge_query_spans(
+    ss: Annotated[_ffi.CData, "const SpanSet *"], query: Annotated[_ffi.CData, "const Span *"]
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    query_converted = _ffi.cast("const Span *", query)
+    count = _ffi.new("int *")
+    result = _lib.spanset_merge_query_spans(ss_converted, query_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -10956,6 +10978,17 @@ def temporal_merge_n_spans(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def temporal_merge_query_spans(
+    temp: Annotated[_ffi.CData, "const Temporal *"], query: Annotated[_ffi.CData, "const Span *"]
+) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    query_converted = _ffi.cast("const Span *", query)
+    count = _ffi.new("int *")
+    result = _lib.temporal_merge_query_spans(temp_converted, query_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
 def temporal_split_each_n_spans(
     temp: Annotated[_ffi.CData, "const Temporal *"], elem_count: int
 ) -> tuple[Annotated[_ffi.CData, "Span *"], Annotated[_ffi.CData, "int"]]:
@@ -10992,6 +11025,17 @@ def tnumber_merge_n_tboxes(
     temp_converted = _ffi.cast("const Temporal *", temp)
     count = _ffi.new("int *")
     result = _lib.tnumber_merge_n_tboxes(temp_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tnumber_merge_query_tboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], query: Annotated[_ffi.CData, "const TBox *"]
+) -> tuple[Annotated[_ffi.CData, "TBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    query_converted = _ffi.cast("const TBox *", query)
+    count = _ffi.new("int *")
+    result = _lib.tnumber_merge_query_tboxes(temp_converted, query_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -15250,6 +15294,17 @@ def geo_merge_n_stboxes(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def geo_merge_query_stboxes(
+    gs: Annotated[_ffi.CData, "const GSERIALIZED *"], query: Annotated[_ffi.CData, "const STBox *"]
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    query_converted = _ffi.cast("const STBox *", query)
+    count = _ffi.new("int *")
+    result = _lib.geo_merge_query_stboxes(gs_converted, query_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
 def geo_split_each_n_stboxes(
     gs: Annotated[_ffi.CData, "const GSERIALIZED *"], elem_count: int
 ) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
@@ -17576,6 +17631,17 @@ def tgeo_merge_n_stboxes(
     temp_converted = _ffi.cast("const Temporal *", temp)
     count = _ffi.new("int *")
     result = _lib.tgeo_merge_n_stboxes(temp_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tgeo_merge_query_stboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], query: Annotated[_ffi.CData, "const STBox *"]
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    query_converted = _ffi.cast("const STBox *", query)
+    count = _ffi.new("int *")
+    result = _lib.tgeo_merge_query_stboxes(temp_converted, query_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -32566,6 +32632,25 @@ def pcpoint_hex_out(pt: Annotated[_ffi.CData, "const struct Pcpoint *"], maxdd: 
     return result if result != _ffi.NULL else None
 
 
+def pcpoint_as_hexwkb(pt: Annotated[_ffi.CData, "const struct Pcpoint *"], variant: int) -> Annotated[str, "char *"]:
+    pt_converted = _ffi.cast("const struct Pcpoint *", pt)
+    variant_converted = _ffi.cast("uint8_t", variant)
+    size_out = _ffi.new("size_t *")
+    result = _lib.pcpoint_as_hexwkb(pt_converted, variant_converted, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def pcpoint_as_wkb(pt: Annotated[_ffi.CData, "const struct Pcpoint *"], variant: int) -> bytes:
+    pt_converted = _ffi.cast("const struct Pcpoint *", pt)
+    variant_converted = _ffi.cast("uint8_t", variant)
+    size_out = _ffi.new("size_t *")
+    result = _lib.pcpoint_as_wkb(pt_converted, variant_converted, size_out)
+    _check_error()
+    return _take_bytes(result, size_out[0])
+
+
 def pcpoint_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "struct Pcpoint *"]:
     hexwkb_converted = hexwkb.encode("utf-8")
     result = _lib.pcpoint_from_hexwkb(hexwkb_converted)
@@ -32573,12 +32658,10 @@ def pcpoint_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "struct Pcpoint *"
     return result if result != _ffi.NULL else None
 
 
-def pcpoint_as_hexwkb(pt: Annotated[_ffi.CData, "const struct Pcpoint *"]) -> Annotated[str, "char *"]:
-    pt_converted = _ffi.cast("const struct Pcpoint *", pt)
-    size_out = _ffi.new("size_t *")
-    result = _lib.pcpoint_as_hexwkb(pt_converted, size_out)
+def pcpoint_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "struct Pcpoint *"]:
+    wkb_converted = _ffi.new("uint8_t []", wkb)
+    result = _lib.pcpoint_from_wkb(wkb_converted, len(wkb))
     _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -32871,6 +32954,25 @@ def pcpatch_hex_out(pa: Annotated[_ffi.CData, "const struct Pcpatch *"], maxdd: 
     return result if result != _ffi.NULL else None
 
 
+def pcpatch_as_hexwkb(pa: Annotated[_ffi.CData, "const struct Pcpatch *"], variant: int) -> Annotated[str, "char *"]:
+    pa_converted = _ffi.cast("const struct Pcpatch *", pa)
+    variant_converted = _ffi.cast("uint8_t", variant)
+    size_out = _ffi.new("size_t *")
+    result = _lib.pcpatch_as_hexwkb(pa_converted, variant_converted, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def pcpatch_as_wkb(pa: Annotated[_ffi.CData, "const struct Pcpatch *"], variant: int) -> bytes:
+    pa_converted = _ffi.cast("const struct Pcpatch *", pa)
+    variant_converted = _ffi.cast("uint8_t", variant)
+    size_out = _ffi.new("size_t *")
+    result = _lib.pcpatch_as_wkb(pa_converted, variant_converted, size_out)
+    _check_error()
+    return _take_bytes(result, size_out[0])
+
+
 def pcpatch_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "struct Pcpatch *"]:
     hexwkb_converted = hexwkb.encode("utf-8")
     result = _lib.pcpatch_from_hexwkb(hexwkb_converted)
@@ -32878,12 +32980,10 @@ def pcpatch_from_hexwkb(hexwkb: str) -> Annotated[_ffi.CData, "struct Pcpatch *"
     return result if result != _ffi.NULL else None
 
 
-def pcpatch_as_hexwkb(pa: Annotated[_ffi.CData, "const struct Pcpatch *"]) -> Annotated[str, "char *"]:
-    pa_converted = _ffi.cast("const struct Pcpatch *", pa)
-    size_out = _ffi.new("size_t *")
-    result = _lib.pcpatch_as_hexwkb(pa_converted, size_out)
+def pcpatch_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "struct Pcpatch *"]:
+    wkb_converted = _ffi.new("uint8_t []", wkb)
+    result = _lib.pcpatch_from_wkb(wkb_converted, len(wkb))
     _check_error()
-    result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
@@ -33494,6 +33594,17 @@ def tpointcloud_merge_n_tpcboxes(
     temp_converted = _ffi.cast("const Temporal *", temp)
     count = _ffi.new("int *")
     result = _lib.tpointcloud_merge_n_tpcboxes(temp_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointcloud_merge_query_tpcboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], query: Annotated[_ffi.CData, "const TPCBox *"]
+) -> tuple[Annotated[_ffi.CData, "TPCBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    query_converted = _ffi.cast("const TPCBox *", query)
+    count = _ffi.new("int *")
+    result = _lib.tpointcloud_merge_query_tpcboxes(temp_converted, query_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
@@ -39192,6 +39303,14 @@ def raquet_as_hexwkb(rq: Annotated[_ffi.CData, "const struct Raquet *"], variant
     return result if result != _ffi.NULL else None
 
 
+def raquet_as_coveragejson(rq: Annotated[_ffi.CData, "const struct Raquet *"]) -> Annotated[str, "char *"]:
+    rq_converted = _ffi.cast("const struct Raquet *", rq)
+    result = _lib.raquet_as_coveragejson(rq_converted)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
 def raquet_make(
     quadbin: int,
     width: int,
@@ -39239,6 +39358,15 @@ def raquet_read_bytes(data: bytes, quadbin: int) -> Annotated[_ffi.CData, "struc
     data_converted = _ffi.new("uint8_t []", data)
     quadbin_converted = _ffi.cast("Quadbin", quadbin)
     result = _lib.raquet_read_bytes(data_converted, len(data), quadbin_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raquet_from_row(block: int, data: bytes, metadata: str, band: int) -> Annotated[_ffi.CData, "struct Raquet *"]:
+    block_converted = _ffi.cast("Quadbin", block)
+    data_converted = _ffi.new("uint8_t []", data)
+    metadata_converted = metadata.encode("utf-8")
+    result = _lib.raquet_from_row(block_converted, data_converted, len(data), metadata_converted, band)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -39323,6 +39451,63 @@ def raquet_mem_size(rq: Annotated[_ffi.CData, "const struct Raquet *"]) -> Annot
 def raster_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "struct Raster *"]:
     wkb_converted = _ffi.new("uint8_t []", wkb)
     result = _lib.raster_from_wkb(wkb_converted, len(wkb))
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_as_coveragejson(rast: Annotated[_ffi.CData, "const struct Raster *"]) -> Annotated[str, "char *"]:
+    rast_converted = _ffi.cast("const struct Raster *", rast)
+    result = _lib.raster_as_coveragejson(rast_converted)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def raster_as_gdal(
+    rast: Annotated[_ffi.CData, "const struct Raster *"], format: str, options: str | None, srid: int
+) -> bytes:
+    rast_converted = _ffi.cast("const struct Raster *", rast)
+    format_converted = format.encode("utf-8")
+    options_converted = options.encode("utf-8") if options is not None else _ffi.NULL
+    srid_converted = _ffi.cast("int32_t", srid)
+    size_out = _ffi.new("size_t *")
+    result = _lib.raster_as_gdal(rast_converted, format_converted, options_converted, srid_converted, size_out)
+    _check_error()
+    return _take_bytes(result, size_out[0])
+
+
+def raster_as_tiff(rast: Annotated[_ffi.CData, "const struct Raster *"], options: str | None, srid: int) -> bytes:
+    rast_converted = _ffi.cast("const struct Raster *", rast)
+    options_converted = options.encode("utf-8") if options is not None else _ffi.NULL
+    srid_converted = _ffi.cast("int32_t", srid)
+    size_out = _ffi.new("size_t *")
+    result = _lib.raster_as_tiff(rast_converted, options_converted, srid_converted, size_out)
+    _check_error()
+    return _take_bytes(result, size_out[0])
+
+
+def raster_as_png(rast: Annotated[_ffi.CData, "const struct Raster *"], options: str | None) -> bytes:
+    rast_converted = _ffi.cast("const struct Raster *", rast)
+    options_converted = options.encode("utf-8") if options is not None else _ffi.NULL
+    size_out = _ffi.new("size_t *")
+    result = _lib.raster_as_png(rast_converted, options_converted, size_out)
+    _check_error()
+    return _take_bytes(result, size_out[0])
+
+
+def raster_as_jpeg(rast: Annotated[_ffi.CData, "const struct Raster *"], options: str | None) -> bytes:
+    rast_converted = _ffi.cast("const struct Raster *", rast)
+    options_converted = options.encode("utf-8") if options is not None else _ffi.NULL
+    size_out = _ffi.new("size_t *")
+    result = _lib.raster_as_jpeg(rast_converted, options_converted, size_out)
+    _check_error()
+    return _take_bytes(result, size_out[0])
+
+
+def raster_from_gdal(data: bytes, srid: int) -> Annotated[_ffi.CData, "struct Raster *"]:
+    data_converted = _ffi.new("uint8_t []", data)
+    srid_converted = _ffi.cast("int32_t", srid)
+    result = _lib.raster_from_gdal(data_converted, len(data), srid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -40424,6 +40609,17 @@ def raster_tile_value_quadbin(
     return result if result != _ffi.NULL else None
 
 
+def tfloat_as_coveragejson(
+    temp: Annotated[_ffi.CData, "const Temporal *"], traj: Annotated[_ffi.CData, "const Temporal *"]
+) -> Annotated[str, "char *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    result = _lib.tfloat_as_coveragejson(temp_converted, traj_converted)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
 def raster_tile_value(
     traj: Annotated[_ffi.CData, "const Temporal *"], rq: Annotated[_ffi.CData, "const struct Raquet *"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
@@ -40440,6 +40636,275 @@ def raster_tile_value_array(
     traj_converted = _ffi.cast("const Temporal *", traj)
     rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
     result = _lib.raster_tile_value_array(traj_converted, rqarr_converted, len(rqarr))
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_tile_at_value(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rq: Annotated[_ffi.CData, "const struct Raquet *"],
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rq_converted = _ffi.cast("const struct Raquet *", rq)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.raster_tile_at_value(traj_converted, rq_converted, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_tile_minus_value(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rq: Annotated[_ffi.CData, "const struct Raquet *"],
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rq_converted = _ffi.cast("const struct Raquet *", rq)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.raster_tile_minus_value(traj_converted, rq_converted, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def eraster_tile_value(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rq: Annotated[_ffi.CData, "const struct Raquet *"],
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[int, "int"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rq_converted = _ffi.cast("const struct Raquet *", rq)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.eraster_tile_value(traj_converted, rq_converted, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def araster_tile_value(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rq: Annotated[_ffi.CData, "const struct Raquet *"],
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[int, "int"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rq_converted = _ffi.cast("const struct Raquet *", rq)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.araster_tile_value(traj_converted, rq_converted, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_tile_at_value_array(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.raster_tile_at_value_array(traj_converted, rqarr_converted, len(rqarr), vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_tile_minus_value_array(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.raster_tile_minus_value_array(traj_converted, rqarr_converted, len(rqarr), vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def eraster_tile_value_array(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[int, "int"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.eraster_tile_value_array(traj_converted, rqarr_converted, len(rqarr), vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def araster_tile_value_array(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[int, "int"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.araster_tile_value_array(traj_converted, rqarr_converted, len(rqarr), vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rasts: Annotated[list, "const struct Raster **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    band: int,
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
+    spans_converted = _ffi.cast("const Span *", spans)
+    result = _lib.raster_value_series(traj_converted, rasts_converted, spans_converted, count, band)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_at_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rasts: Annotated[list, "const struct Raster **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    band: int,
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
+    spans_converted = _ffi.cast("const Span *", spans)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.raster_at_value_series(traj_converted, rasts_converted, spans_converted, count, band, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_minus_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rasts: Annotated[list, "const struct Raster **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    band: int,
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
+    spans_converted = _ffi.cast("const Span *", spans)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.raster_minus_value_series(
+        traj_converted, rasts_converted, spans_converted, count, band, vspan_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def eraster_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rasts: Annotated[list, "const struct Raster **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    band: int,
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[int, "int"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
+    spans_converted = _ffi.cast("const Span *", spans)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.eraster_value_series(traj_converted, rasts_converted, spans_converted, count, band, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def araster_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rasts: Annotated[list, "const struct Raster **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    band: int,
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[int, "int"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
+    spans_converted = _ffi.cast("const Span *", spans)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.araster_value_series(traj_converted, rasts_converted, spans_converted, count, band, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_tile_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: Annotated[list, "const struct Raquet **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
+    spans_converted = _ffi.cast("const Span *", spans)
+    result = _lib.raster_tile_value_series(traj_converted, rqarr_converted, spans_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_tile_at_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: Annotated[list, "const struct Raquet **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
+    spans_converted = _ffi.cast("const Span *", spans)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.raster_tile_at_value_series(traj_converted, rqarr_converted, spans_converted, count, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def raster_tile_minus_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: Annotated[list, "const struct Raquet **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
+    spans_converted = _ffi.cast("const Span *", spans)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.raster_tile_minus_value_series(
+        traj_converted, rqarr_converted, spans_converted, count, vspan_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def eraster_tile_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: Annotated[list, "const struct Raquet **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[int, "int"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
+    spans_converted = _ffi.cast("const Span *", spans)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.eraster_tile_value_series(traj_converted, rqarr_converted, spans_converted, count, vspan_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def araster_tile_value_series(
+    traj: Annotated[_ffi.CData, "const Temporal *"],
+    rqarr: Annotated[list, "const struct Raquet **"],
+    spans: Annotated[_ffi.CData, "const Span *"],
+    count: int,
+    vspan: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[int, "int"]:
+    traj_converted = _ffi.cast("const Temporal *", traj)
+    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
+    spans_converted = _ffi.cast("const Span *", spans)
+    vspan_converted = _ffi.cast("const Span *", vspan)
+    result = _lib.araster_tile_value_series(traj_converted, rqarr_converted, spans_converted, count, vspan_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -40825,6 +41290,17 @@ def trgeometry_merge_n_stboxes(
     temp_converted = _ffi.cast("const Temporal *", temp)
     count = _ffi.new("int *")
     result = _lib.trgeometry_merge_n_stboxes(temp_converted, box_count, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def trgeometry_merge_query_stboxes(
+    temp: Annotated[_ffi.CData, "const Temporal *"], query: Annotated[_ffi.CData, "const STBox *"]
+) -> tuple[Annotated[_ffi.CData, "STBox *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    query_converted = _ffi.cast("const STBox *", query)
+    count = _ffi.new("int *")
+    result = _lib.trgeometry_merge_query_stboxes(temp_converted, query_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
