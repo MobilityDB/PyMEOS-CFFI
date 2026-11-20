@@ -252,6 +252,9 @@ def apply_input_arrays(function: str, params: list[Parameter], input_arrays: lis
     must then be MEOS's own and not one CFFI builds for the call."""
     by_name = {p.name: p for p in params}
     first_of_count: dict[str, str] = {}
+    # The count of an array MEOS takes NULL for is 0 when the caller passes None,
+    # as the NULL pointer the array then crosses as states no element.
+    count_of: dict[str, str] = {}
     for array in input_arrays:
         param = by_name.get(array["param"])
         length = by_name.get(array["lengthFrom"]["name"])
@@ -261,6 +264,9 @@ def apply_input_arrays(function: str, params: list[Parameter], input_arrays: lis
         element = types.spell(array["element"], f"the elements of {name} of {function}")
         nullable = param.ptype.endswith("| None")
         first = first_of_count.setdefault(length.name, name)
+        count = count_of.setdefault(
+            length.name, f"(len({name}) if {name} is not None else 0)" if nullable else f"len({name})"
+        )
 
         if element == "uint8_t":
             ptype = "bytes"
@@ -286,7 +292,7 @@ def apply_input_arrays(function: str, params: list[Parameter], input_arrays: lis
         if name != first:
             guard = f"{name} is not None and " if nullable else ""
             checks.append(
-                f"if {guard}len({name}) != len({first}):\n"
+                f"if {guard}len({name}) != {count}:\n"
                 f"        raise ValueError('{name} and {first} must have the same length')"
             )
         if nullable:
@@ -297,7 +303,7 @@ def apply_input_arrays(function: str, params: list[Parameter], input_arrays: lis
         param.cp_conversion = "\n    ".join([*checks, f"{name}_converted = {value}"])
 
         length.derived = True
-        length.converted_name = f"len({first})"
+        length.converted_name = count
         length.cp_conversion = None
 
 
