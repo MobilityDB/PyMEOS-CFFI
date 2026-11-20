@@ -14534,6 +14534,16 @@ def geo_as_hexewkb(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str
     return result if result != _ffi.NULL else None
 
 
+def geo_as_hexwkb(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str | None) -> Annotated[str, "char *"]:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    endian_converted = endian.encode("utf-8") if endian is not None else _ffi.NULL
+    size_out = _ffi.new("size_t *")
+    result = _lib.geo_as_hexwkb(gs_converted, endian_converted, size_out)
+    _check_error()
+    result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
 def geo_as_text(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], precision: int) -> Annotated[str, "char *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     size_out = _ffi.new("size_t *")
@@ -14541,6 +14551,15 @@ def geo_as_text(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], precision: int
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
+
+
+def geo_as_wkb(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str | None) -> bytes:
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    endian_converted = endian.encode("utf-8") if endian is not None else _ffi.NULL
+    size = _ffi.new("size_t *")
+    result = _lib.geo_as_wkb(gs_converted, endian_converted, size)
+    _check_error()
+    return _take_bytes(result, size[0])
 
 
 def geo_from_ewkb(wkb: bytes, srid: int) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
@@ -14575,6 +14594,27 @@ def geo_out(gs: Annotated[_ffi.CData, "const GSERIALIZED *"]) -> Annotated[str, 
     return result if result != _ffi.NULL else None
 
 
+def geog_from_ewkb(wkb: bytes) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    wkb_converted = _ffi.new("uint8_t []", wkb)
+    result = _lib.geog_from_ewkb(wkb_converted, len(wkb))
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geog_from_ewkt(ewkt: str) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    ewkt_converted = ewkt.encode("utf-8")
+    result = _lib.geog_from_ewkt(ewkt_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geog_from_geojson(geojson: str) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    geojson_converted = geojson.encode("utf-8")
+    result = _lib.geog_from_geojson(geojson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def geog_from_hexewkb(hexwkb: str) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     hexwkb_converted = hexwkb.encode("utf-8")
     result = _lib.geog_from_hexewkb(hexwkb_converted)
@@ -14586,6 +14626,13 @@ def geog_in(string: str, typmod: int) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     string_converted = string.encode("utf-8")
     typmod_converted = _ffi.cast("int32_t", typmod)
     result = _lib.geog_in(string_converted, typmod_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geom_from_ewkt(ewkt: str) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
+    ewkt_converted = ewkt.encode("utf-8")
+    result = _lib.geom_from_ewkt(ewkt_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -32757,6 +32804,16 @@ def pcpoint_to_tpcbox(pt: Annotated[_ffi.CData, "const struct Pcpoint *"]) -> An
     return result if result != _ffi.NULL else None
 
 
+def pcpoint_transform(
+    pt: Annotated[_ffi.CData, "const struct Pcpoint *"], pcid: int
+) -> Annotated[_ffi.CData, "struct Pcpoint *"]:
+    pt_converted = _ffi.cast("const struct Pcpoint *", pt)
+    pcid_converted = _ffi.cast("uint32_t", pcid)
+    result = _lib.pcpoint_transform(pt_converted, pcid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def meos_pc_schema(pcid: int) -> Annotated[_ffi.CData, "struct PCSCHEMA *"]:
     pcid_converted = _ffi.cast("uint32_t", pcid)
     result = _lib.meos_pc_schema(pcid_converted)
@@ -33074,6 +33131,16 @@ def pcpatch_to_geom(pa: Annotated[_ffi.CData, "const struct Pcpatch *"]) -> Anno
 def pcpatch_to_geog(pa: Annotated[_ffi.CData, "const struct Pcpatch *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     pa_converted = _ffi.cast("const struct Pcpatch *", pa)
     result = _lib.pcpatch_to_geog(pa_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def pcpatch_transform(
+    pa: Annotated[_ffi.CData, "const struct Pcpatch *"], pcid: int
+) -> Annotated[_ffi.CData, "struct Pcpatch *"]:
+    pa_converted = _ffi.cast("const struct Pcpatch *", pa)
+    pcid_converted = _ffi.cast("uint32_t", pcid)
+    result = _lib.pcpatch_transform(pa_converted, pcid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -33438,6 +33505,14 @@ def pcpatch_union_transfn(
     return result if result != _ffi.NULL else None
 
 
+def pointcloudset_transform(s: Annotated[_ffi.CData, "const Set *"], pcid: int) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    pcid_converted = _ffi.cast("uint32_t", pcid)
+    result = _lib.pointcloudset_transform(s_converted, pcid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpcbox_as_ewkb(box: Annotated[_ffi.CData, "const TPCBox *"], variant: int) -> bytes:
     box_converted = _ffi.cast("const TPCBox *", box)
     variant_converted = _ffi.cast("uint8_t", variant)
@@ -33554,6 +33629,16 @@ def pcpatch_to_tpcbox(pa: Annotated[_ffi.CData, "const struct Pcpatch *"]) -> An
 def tpointcloud_to_tpcbox(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "TPCBox *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tpointcloud_to_tpcbox(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointcloud_transform(
+    temp: Annotated[_ffi.CData, "const Temporal *"], pcid: int
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    pcid_converted = _ffi.cast("uint32_t", pcid)
+    result = _lib.tpointcloud_transform(temp_converted, pcid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -33775,10 +33860,10 @@ def tpcbox_round(box: Annotated[_ffi.CData, "const TPCBox *"], maxdd: int) -> An
     return result if result != _ffi.NULL else None
 
 
-def tpcbox_set_srid(box: Annotated[_ffi.CData, "const TPCBox *"], srid: int) -> Annotated[_ffi.CData, "TPCBox *"]:
+def tpcbox_transform(box: Annotated[_ffi.CData, "const TPCBox *"], pcid: int) -> Annotated[_ffi.CData, "TPCBox *"]:
     box_converted = _ffi.cast("const TPCBox *", box)
-    srid_converted = _ffi.cast("int32_t", srid)
-    result = _lib.tpcbox_set_srid(box_converted, srid_converted)
+    pcid_converted = _ffi.cast("uint32_t", pcid)
+    result = _lib.tpcbox_transform(box_converted, pcid_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -39305,7 +39390,8 @@ def raquet_as_hexwkb(rq: Annotated[_ffi.CData, "const struct Raquet *"], variant
 
 def raquet_as_coveragejson(rq: Annotated[_ffi.CData, "const struct Raquet *"]) -> Annotated[str, "char *"]:
     rq_converted = _ffi.cast("const struct Raquet *", rq)
-    result = _lib.raquet_as_coveragejson(rq_converted)
+    size_out = _ffi.new("size_t *")
+    result = _lib.raquet_as_coveragejson(rq_converted, size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
@@ -39457,49 +39543,52 @@ def raster_from_wkb(wkb: bytes) -> Annotated[_ffi.CData, "struct Raster *"]:
 
 def raster_as_coveragejson(rast: Annotated[_ffi.CData, "const struct Raster *"]) -> Annotated[str, "char *"]:
     rast_converted = _ffi.cast("const struct Raster *", rast)
-    result = _lib.raster_as_coveragejson(rast_converted)
+    size_out = _ffi.new("size_t *")
+    result = _lib.raster_as_coveragejson(rast_converted, size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
 
 
 def raster_as_gdal(
-    rast: Annotated[_ffi.CData, "const struct Raster *"], format: str, options: str | None, srid: int
+    rast: Annotated[_ffi.CData, "const struct Raster *"], format: str, options: list[str] | None, srid: int
 ) -> bytes:
     rast_converted = _ffi.cast("const struct Raster *", rast)
     format_converted = format.encode("utf-8")
-    options_converted = options.encode("utf-8") if options is not None else _ffi.NULL
+    options_converted = [cstring_to_text(x) for x in options] if options is not None else _ffi.NULL
     srid_converted = _ffi.cast("int32_t", srid)
     size_out = _ffi.new("size_t *")
-    result = _lib.raster_as_gdal(rast_converted, format_converted, options_converted, srid_converted, size_out)
+    result = _lib.raster_as_gdal(
+        rast_converted, format_converted, options_converted, len(options), srid_converted, size_out
+    )
     _check_error()
     return _take_bytes(result, size_out[0])
 
 
-def raster_as_tiff(rast: Annotated[_ffi.CData, "const struct Raster *"], options: str | None, srid: int) -> bytes:
+def raster_as_tiff(rast: Annotated[_ffi.CData, "const struct Raster *"], options: list[str] | None, srid: int) -> bytes:
     rast_converted = _ffi.cast("const struct Raster *", rast)
-    options_converted = options.encode("utf-8") if options is not None else _ffi.NULL
+    options_converted = [cstring_to_text(x) for x in options] if options is not None else _ffi.NULL
     srid_converted = _ffi.cast("int32_t", srid)
     size_out = _ffi.new("size_t *")
-    result = _lib.raster_as_tiff(rast_converted, options_converted, srid_converted, size_out)
+    result = _lib.raster_as_tiff(rast_converted, options_converted, len(options), srid_converted, size_out)
     _check_error()
     return _take_bytes(result, size_out[0])
 
 
-def raster_as_png(rast: Annotated[_ffi.CData, "const struct Raster *"], options: str | None) -> bytes:
+def raster_as_png(rast: Annotated[_ffi.CData, "const struct Raster *"], options: list[str] | None) -> bytes:
     rast_converted = _ffi.cast("const struct Raster *", rast)
-    options_converted = options.encode("utf-8") if options is not None else _ffi.NULL
+    options_converted = [cstring_to_text(x) for x in options] if options is not None else _ffi.NULL
     size_out = _ffi.new("size_t *")
-    result = _lib.raster_as_png(rast_converted, options_converted, size_out)
+    result = _lib.raster_as_png(rast_converted, options_converted, len(options), size_out)
     _check_error()
     return _take_bytes(result, size_out[0])
 
 
-def raster_as_jpeg(rast: Annotated[_ffi.CData, "const struct Raster *"], options: str | None) -> bytes:
+def raster_as_jpeg(rast: Annotated[_ffi.CData, "const struct Raster *"], options: list[str] | None) -> bytes:
     rast_converted = _ffi.cast("const struct Raster *", rast)
-    options_converted = options.encode("utf-8") if options is not None else _ffi.NULL
+    options_converted = [cstring_to_text(x) for x in options] if options is not None else _ffi.NULL
     size_out = _ffi.new("size_t *")
-    result = _lib.raster_as_jpeg(rast_converted, options_converted, size_out)
+    result = _lib.raster_as_jpeg(rast_converted, options_converted, len(options), size_out)
     _check_error()
     return _take_bytes(result, size_out[0])
 
@@ -39953,9 +40042,9 @@ def raster_set_values(
     height: int,
     values: list[float],
     nodata: list[bool] | None,
-    noset: list[bool] | None,
+    noset: Annotated[_ffi.CData, "const bool *"] | None,
+    nosetwidth: int,
     nosetheight: int,
-    count: int,
     keepnodata: bool,
 ) -> Annotated[_ffi.CData, "struct Raster *"]:
     rast_converted = _ffi.cast("const struct Raster *", rast)
@@ -39963,9 +40052,7 @@ def raster_set_values(
     if nodata is not None and len(nodata) != len(values):
         raise ValueError("nodata and values must have the same length")
     nodata_converted = nodata if nodata is not None else _ffi.NULL
-    if noset is not None and len(noset) != len(values):
-        raise ValueError("noset and values must have the same length")
-    noset_converted = noset if noset is not None else _ffi.NULL
+    noset_converted = _ffi.cast("const bool *", noset) if noset is not None else _ffi.NULL
     result = _lib.raster_set_values(
         rast_converted,
         band,
@@ -39976,9 +40063,9 @@ def raster_set_values(
         values_converted,
         nodata_converted,
         noset_converted,
-        len(values),
+        nosetwidth,
         nosetheight,
-        count,
+        len(values),
         keepnodata,
     )
     _check_error()
@@ -40614,7 +40701,8 @@ def tfloat_as_coveragejson(
 ) -> Annotated[str, "char *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     traj_converted = _ffi.cast("const Temporal *", traj)
-    result = _lib.tfloat_as_coveragejson(temp_converted, traj_converted)
+    size_out = _ffi.new("size_t *")
+    result = _lib.tfloat_as_coveragejson(temp_converted, traj_converted, size_out)
     _check_error()
     result = _take_string(result)
     return result if result != _ffi.NULL else None
