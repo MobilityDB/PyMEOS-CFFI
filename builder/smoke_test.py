@@ -82,5 +82,11 @@ assert f.temporal_subtype(temp) == f.temporal_subtype(temp) == "Sequence"
 # A value holding a character UTF-8 writes in two bytes reads back whole.
 ttext = '{"Zürich"@2001-01-01 00:00:00+00, "Liège"@2001-01-02 00:00:00+00}'
 assert f.temporal_out(f.ttext_in(ttext), 0) == ttext, f"temporal_out returned {f.temporal_out(f.ttext_in(ttext), 0)!r}"
+# An array MEOS takes NULL for is optional, and its count is 0 when it is None:
+# the creation options of a raster writer, absent or listed. GTiff is the writer
+# every GDAL MEOS links carries, the one GDAL's build keeps with no optional driver.
+rast = f.raster_add_band(f.raster_make_empty(2, 2, 0, 2, 1, -1, 0, 0, 3857), 1, "8BUI", 7, 0, False)
+assert f.raster_as_tiff(rast, None, 3857)[:2] in (b"II", b"MM"), "raster_as_tiff without options"
+assert f.raster_as_tiff(rast, ["TILED=NO"], 3857)[:2] in (b"II", b"MM"), "raster_as_tiff with options"
 meos_finalize()
 print(f"PyMEOS CFFI build + shape smoke test OK on {label}")

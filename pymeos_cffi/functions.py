@@ -32829,11 +32829,11 @@ def meos_pc_schema_register(pcid: int, schema: Annotated[_ffi.CData, "struct PCS
 
 
 def meos_pc_schema_from_dims(
-    pcid: int, srid: int, compression: str, dims: list[Annotated[_ffi.CData, "PCDimensionSpec"]]
+    pcid: int, srid: int, compression: str | None, dims: list[Annotated[_ffi.CData, "PCDimensionSpec"]]
 ) -> Annotated[_ffi.CData, "struct PCSCHEMA *"]:
     pcid_converted = _ffi.cast("uint32_t", pcid)
     srid_converted = _ffi.cast("int32_t", srid)
-    compression_converted = compression.encode("utf-8")
+    compression_converted = compression.encode("utf-8") if compression is not None else _ffi.NULL
     dims_converted = dims
     result = _lib.meos_pc_schema_from_dims(
         pcid_converted, srid_converted, compression_converted, dims_converted, len(dims)
@@ -34354,6 +34354,35 @@ def tpcpoint_end_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annot
 def tpcpoint_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "struct Pcpoint *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tpcpoint_value(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_get_x(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_get_x(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_get_y(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_get_y(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_get_z(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_get_z(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_get_dim(temp: Annotated[_ffi.CData, "const Temporal *"], name: str) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    name_converted = name.encode("utf-8")
+    result = _lib.tpcpoint_get_dim(temp_converted, name_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -39559,7 +39588,12 @@ def raster_as_gdal(
     srid_converted = _ffi.cast("int32_t", srid)
     size_out = _ffi.new("size_t *")
     result = _lib.raster_as_gdal(
-        rast_converted, format_converted, options_converted, len(options), srid_converted, size_out
+        rast_converted,
+        format_converted,
+        options_converted,
+        (len(options) if options is not None else 0),
+        srid_converted,
+        size_out,
     )
     _check_error()
     return _take_bytes(result, size_out[0])
@@ -39570,7 +39604,9 @@ def raster_as_tiff(rast: Annotated[_ffi.CData, "const struct Raster *"], options
     options_converted = [cstring_to_text(x) for x in options] if options is not None else _ffi.NULL
     srid_converted = _ffi.cast("int32_t", srid)
     size_out = _ffi.new("size_t *")
-    result = _lib.raster_as_tiff(rast_converted, options_converted, len(options), srid_converted, size_out)
+    result = _lib.raster_as_tiff(
+        rast_converted, options_converted, (len(options) if options is not None else 0), srid_converted, size_out
+    )
     _check_error()
     return _take_bytes(result, size_out[0])
 
@@ -39579,7 +39615,9 @@ def raster_as_png(rast: Annotated[_ffi.CData, "const struct Raster *"], options:
     rast_converted = _ffi.cast("const struct Raster *", rast)
     options_converted = [cstring_to_text(x) for x in options] if options is not None else _ffi.NULL
     size_out = _ffi.new("size_t *")
-    result = _lib.raster_as_png(rast_converted, options_converted, len(options), size_out)
+    result = _lib.raster_as_png(
+        rast_converted, options_converted, (len(options) if options is not None else 0), size_out
+    )
     _check_error()
     return _take_bytes(result, size_out[0])
 
@@ -39588,7 +39626,9 @@ def raster_as_jpeg(rast: Annotated[_ffi.CData, "const struct Raster *"], options
     rast_converted = _ffi.cast("const struct Raster *", rast)
     options_converted = [cstring_to_text(x) for x in options] if options is not None else _ffi.NULL
     size_out = _ffi.new("size_t *")
-    result = _lib.raster_as_jpeg(rast_converted, options_converted, len(options), size_out)
+    result = _lib.raster_as_jpeg(
+        rast_converted, options_converted, (len(options) if options is not None else 0), size_out
+    )
     _check_error()
     return _take_bytes(result, size_out[0])
 
@@ -39902,7 +39942,14 @@ def raster_clip(
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     nodata_converted = nodata if nodata is not None else _ffi.NULL
     result = _lib.raster_clip(
-        rast_converted, bands_converted, len(bands), gs_converted, nodata_converted, len(nodata), crop, touched
+        rast_converted,
+        bands_converted,
+        (len(bands) if bands is not None else 0),
+        gs_converted,
+        nodata_converted,
+        (len(nodata) if nodata is not None else 0),
+        crop,
+        touched,
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -40027,7 +40074,13 @@ def raster_value_count(
     searchvalues_converted = searchvalues if searchvalues is not None else _ffi.NULL
     count = _ffi.new("int *")
     result = _lib.raster_value_count(
-        rast_converted, band, exclude_nodata, searchvalues_converted, len(searchvalues), roundto, count
+        rast_converted,
+        band,
+        exclude_nodata,
+        searchvalues_converted,
+        (len(searchvalues) if searchvalues is not None else 0),
+        roundto,
+        count,
     )
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
@@ -40171,13 +40224,13 @@ def raster_map_algebra(
 
 def geomval_arr_free(gvarr: list[Annotated[_ffi.CData, "GeomVal"]] | None) -> Annotated[None, "void"]:
     gvarr_converted = gvarr if gvarr is not None else _ffi.NULL
-    _lib.geomval_arr_free(gvarr_converted, len(gvarr))
+    _lib.geomval_arr_free(gvarr_converted, (len(gvarr) if gvarr is not None else 0))
     _check_error()
 
 
 def pixel_arr_free(pixarr: list[Annotated[_ffi.CData, "Pixel"]] | None) -> Annotated[None, "void"]:
     pixarr_converted = pixarr if pixarr is not None else _ffi.NULL
-    _lib.pixel_arr_free(pixarr_converted, len(pixarr))
+    _lib.pixel_arr_free(pixarr_converted, (len(pixarr) if pixarr is not None else 0))
     _check_error()
 
 
