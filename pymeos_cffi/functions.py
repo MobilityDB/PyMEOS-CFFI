@@ -32829,11 +32829,11 @@ def meos_pc_schema_register(pcid: int, schema: Annotated[_ffi.CData, "struct PCS
 
 
 def meos_pc_schema_from_dims(
-    pcid: int, srid: int, compression: str, dims: list[Annotated[_ffi.CData, "PCDimensionSpec"]]
+    pcid: int, srid: int, compression: str | None, dims: list[Annotated[_ffi.CData, "PCDimensionSpec"]]
 ) -> Annotated[_ffi.CData, "struct PCSCHEMA *"]:
     pcid_converted = _ffi.cast("uint32_t", pcid)
     srid_converted = _ffi.cast("int32_t", srid)
-    compression_converted = compression.encode("utf-8")
+    compression_converted = compression.encode("utf-8") if compression is not None else _ffi.NULL
     dims_converted = dims
     result = _lib.meos_pc_schema_from_dims(
         pcid_converted, srid_converted, compression_converted, dims_converted, len(dims)
@@ -34354,6 +34354,35 @@ def tpcpoint_end_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annot
 def tpcpoint_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "struct Pcpoint *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tpcpoint_value(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_get_x(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_get_x(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_get_y(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_get_y(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_get_z(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpcpoint_get_z(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpcpoint_get_dim(temp: Annotated[_ffi.CData, "const Temporal *"], name: str) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    name_converted = name.encode("utf-8")
+    result = _lib.tpcpoint_get_dim(temp_converted, name_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
