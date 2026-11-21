@@ -40887,50 +40887,55 @@ def araster_tile_value_array(
 
 def raster_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rasts: Annotated[list, "const struct Raster **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rasts: list[Annotated[_ffi.CData, "struct Raster *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     band: int,
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
-    spans_converted = _ffi.cast("const Span *", spans)
-    result = _lib.raster_value_series(traj_converted, rasts_converted, spans_converted, count, band)
+    rasts_converted = [_ffi.cast("struct Raster *", x) for x in rasts]
+    if len(spans) != len(rasts):
+        raise ValueError("spans and rasts must have the same length")
+    spans_converted = spans
+    result = _lib.raster_value_series(traj_converted, rasts_converted, spans_converted, len(rasts), band)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_at_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rasts: Annotated[list, "const struct Raster **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rasts: list[Annotated[_ffi.CData, "struct Raster *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     band: int,
     vspan: Annotated[_ffi.CData, "const Span *"],
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
-    spans_converted = _ffi.cast("const Span *", spans)
+    rasts_converted = [_ffi.cast("struct Raster *", x) for x in rasts]
+    if len(spans) != len(rasts):
+        raise ValueError("spans and rasts must have the same length")
+    spans_converted = spans
     vspan_converted = _ffi.cast("const Span *", vspan)
-    result = _lib.raster_at_value_series(traj_converted, rasts_converted, spans_converted, count, band, vspan_converted)
+    result = _lib.raster_at_value_series(
+        traj_converted, rasts_converted, spans_converted, len(rasts), band, vspan_converted
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_minus_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rasts: Annotated[list, "const struct Raster **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rasts: list[Annotated[_ffi.CData, "struct Raster *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     band: int,
     vspan: Annotated[_ffi.CData, "const Span *"],
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
-    spans_converted = _ffi.cast("const Span *", spans)
+    rasts_converted = [_ffi.cast("struct Raster *", x) for x in rasts]
+    if len(spans) != len(rasts):
+        raise ValueError("spans and rasts must have the same length")
+    spans_converted = spans
     vspan_converted = _ffi.cast("const Span *", vspan)
     result = _lib.raster_minus_value_series(
-        traj_converted, rasts_converted, spans_converted, count, band, vspan_converted
+        traj_converted, rasts_converted, spans_converted, len(rasts), band, vspan_converted
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -40938,81 +40943,92 @@ def raster_minus_value_series(
 
 def eraster_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rasts: Annotated[list, "const struct Raster **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rasts: list[Annotated[_ffi.CData, "struct Raster *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     band: int,
     vspan: Annotated[_ffi.CData, "const Span *"],
 ) -> Annotated[int, "int"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
-    spans_converted = _ffi.cast("const Span *", spans)
+    rasts_converted = [_ffi.cast("struct Raster *", x) for x in rasts]
+    if len(spans) != len(rasts):
+        raise ValueError("spans and rasts must have the same length")
+    spans_converted = spans
     vspan_converted = _ffi.cast("const Span *", vspan)
-    result = _lib.eraster_value_series(traj_converted, rasts_converted, spans_converted, count, band, vspan_converted)
+    result = _lib.eraster_value_series(
+        traj_converted, rasts_converted, spans_converted, len(rasts), band, vspan_converted
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def araster_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rasts: Annotated[list, "const struct Raster **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rasts: list[Annotated[_ffi.CData, "struct Raster *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     band: int,
     vspan: Annotated[_ffi.CData, "const Span *"],
 ) -> Annotated[int, "int"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rasts_converted = [_ffi.cast("const struct Raster *", x) for x in rasts]
-    spans_converted = _ffi.cast("const Span *", spans)
+    rasts_converted = [_ffi.cast("struct Raster *", x) for x in rasts]
+    if len(spans) != len(rasts):
+        raise ValueError("spans and rasts must have the same length")
+    spans_converted = spans
     vspan_converted = _ffi.cast("const Span *", vspan)
-    result = _lib.araster_value_series(traj_converted, rasts_converted, spans_converted, count, band, vspan_converted)
+    result = _lib.araster_value_series(
+        traj_converted, rasts_converted, spans_converted, len(rasts), band, vspan_converted
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_tile_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rqarr: Annotated[list, "const struct Raquet **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
-    spans_converted = _ffi.cast("const Span *", spans)
-    result = _lib.raster_tile_value_series(traj_converted, rqarr_converted, spans_converted, count)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    if len(spans) != len(rqarr):
+        raise ValueError("spans and rqarr must have the same length")
+    spans_converted = spans
+    result = _lib.raster_tile_value_series(traj_converted, rqarr_converted, spans_converted, len(rqarr))
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_tile_at_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rqarr: Annotated[list, "const struct Raquet **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     vspan: Annotated[_ffi.CData, "const Span *"],
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
-    spans_converted = _ffi.cast("const Span *", spans)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    if len(spans) != len(rqarr):
+        raise ValueError("spans and rqarr must have the same length")
+    spans_converted = spans
     vspan_converted = _ffi.cast("const Span *", vspan)
-    result = _lib.raster_tile_at_value_series(traj_converted, rqarr_converted, spans_converted, count, vspan_converted)
+    result = _lib.raster_tile_at_value_series(
+        traj_converted, rqarr_converted, spans_converted, len(rqarr), vspan_converted
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def raster_tile_minus_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rqarr: Annotated[list, "const struct Raquet **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     vspan: Annotated[_ffi.CData, "const Span *"],
 ) -> Annotated[_ffi.CData, "Temporal *"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
-    spans_converted = _ffi.cast("const Span *", spans)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    if len(spans) != len(rqarr):
+        raise ValueError("spans and rqarr must have the same length")
+    spans_converted = spans
     vspan_converted = _ffi.cast("const Span *", vspan)
     result = _lib.raster_tile_minus_value_series(
-        traj_converted, rqarr_converted, spans_converted, count, vspan_converted
+        traj_converted, rqarr_converted, spans_converted, len(rqarr), vspan_converted
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -41020,32 +41036,38 @@ def raster_tile_minus_value_series(
 
 def eraster_tile_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rqarr: Annotated[list, "const struct Raquet **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     vspan: Annotated[_ffi.CData, "const Span *"],
 ) -> Annotated[int, "int"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
-    spans_converted = _ffi.cast("const Span *", spans)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    if len(spans) != len(rqarr):
+        raise ValueError("spans and rqarr must have the same length")
+    spans_converted = spans
     vspan_converted = _ffi.cast("const Span *", vspan)
-    result = _lib.eraster_tile_value_series(traj_converted, rqarr_converted, spans_converted, count, vspan_converted)
+    result = _lib.eraster_tile_value_series(
+        traj_converted, rqarr_converted, spans_converted, len(rqarr), vspan_converted
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def araster_tile_value_series(
     traj: Annotated[_ffi.CData, "const Temporal *"],
-    rqarr: Annotated[list, "const struct Raquet **"],
-    spans: Annotated[_ffi.CData, "const Span *"],
-    count: int,
+    rqarr: list[Annotated[_ffi.CData, "struct Raquet *"]],
+    spans: list[Annotated[_ffi.CData, "Span"]],
     vspan: Annotated[_ffi.CData, "const Span *"],
 ) -> Annotated[int, "int"]:
     traj_converted = _ffi.cast("const Temporal *", traj)
-    rqarr_converted = [_ffi.cast("const struct Raquet *", x) for x in rqarr]
-    spans_converted = _ffi.cast("const Span *", spans)
+    rqarr_converted = [_ffi.cast("struct Raquet *", x) for x in rqarr]
+    if len(spans) != len(rqarr):
+        raise ValueError("spans and rqarr must have the same length")
+    spans_converted = spans
     vspan_converted = _ffi.cast("const Span *", vspan)
-    result = _lib.araster_tile_value_series(traj_converted, rqarr_converted, spans_converted, count, vspan_converted)
+    result = _lib.araster_tile_value_series(
+        traj_converted, rqarr_converted, spans_converted, len(rqarr), vspan_converted
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
