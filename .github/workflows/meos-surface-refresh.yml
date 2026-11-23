@@ -29,6 +29,7 @@ concurrency:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   refresh:
@@ -55,11 +56,12 @@ jobs:
           python3 builder/build_pymeos_functions.py
           ruff format pymeos_cffi
 
-      # Opens a PR only if the surface drifted. PRs opened with the default
-      # GITHUB_TOKEN do NOT trigger workflow runs; supply a PAT in the
-      # MEOS_AUTOBUMP_TOKEN secret to get build + ruff CI on the refresh PR. Falls
-      # back to GITHUB_TOKEN (PR opens but must be re-triggered manually) when unset.
+      # Opens a PR only if the surface drifted, pushed with the PAT in the
+      # MEOS_AUTOBUMP_TOKEN secret, whose pull_request runs start on their own. With
+      # the secret empty it is pushed with GITHUB_TOKEN, whose pull_request runs wait
+      # for a maintainer's approval, and the next step runs the checks instead.
       - name: Open a refresh PR if the surface drifted
+        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.MEOS_AUTOBUMP_TOKEN || secrets.GITHUB_TOKEN }}
@@ -76,3 +78,18 @@ jobs:
 
             Opened by the `Refresh the CFFI surface from MobilityDB master` workflow.
           delete-branch: true
+
+      # A run started by workflow_dispatch needs no approval, so without the PAT the
+      # checks of the refresh PR are dispatched on its branch, against its head
+      - name: Run the checks of the refresh PR without the PAT
+        if: steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HAS_PAT: ${{ secrets.MEOS_AUTOBUMP_TOKEN != '' }}
+        run: |
+          if [ "$HAS_PAT" = true ]; then
+            exit 0
+          fi
+          echo "::warning::MEOS_AUTOBUMP_TOKEN is empty: the refresh PR is pushed with GITHUB_TOKEN and its checks are dispatched"
+          gh workflow run pr_build.yml --ref tooling/refresh-cffi-surface
+          gh workflow run ruff.yml --ref tooling/refresh-cffi-surface
