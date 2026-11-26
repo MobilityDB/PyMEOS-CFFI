@@ -2435,62 +2435,152 @@ def tstzspanset_upper(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> Annotated
     return result if result != _ffi.NULL else None
 
 
+def bigintset_scale(s: Annotated[_ffi.CData, "const Set *"], width: int) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    width_converted = _ffi.cast("int64_t", width)
+    result = _lib.bigintset_scale(s_converted, width_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def bigintset_shift_scale(
-    s: Annotated[_ffi.CData, "const Set *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    s: Annotated[_ffi.CData, "const Set *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
     shift_converted = _ffi.cast("int64_t", shift)
     width_converted = _ffi.cast("int64_t", width)
-    result = _lib.bigintset_shift_scale(s_converted, shift_converted, width_converted, hasshift, haswidth)
+    result = _lib.bigintset_shift_scale(s_converted, shift_converted, width_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def bigintset_shift(s: Annotated[_ffi.CData, "const Set *"], shift: int) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    shift_converted = _ffi.cast("int64_t", shift)
+    result = _lib.bigintset_shift(s_converted, shift_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def bigintspan_scale(s: Annotated[_ffi.CData, "const Span *"], width: int) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    width_converted = _ffi.cast("int64_t", width)
+    result = _lib.bigintspan_scale(s_converted, width_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def bigintspan_shift_scale(
-    s: Annotated[_ffi.CData, "const Span *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    s: Annotated[_ffi.CData, "const Span *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "Span *"]:
     s_converted = _ffi.cast("const Span *", s)
     shift_converted = _ffi.cast("int64_t", shift)
     width_converted = _ffi.cast("int64_t", width)
-    result = _lib.bigintspan_shift_scale(s_converted, shift_converted, width_converted, hasshift, haswidth)
+    result = _lib.bigintspan_shift_scale(s_converted, shift_converted, width_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def bigintspan_shift(s: Annotated[_ffi.CData, "const Span *"], shift: int) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    shift_converted = _ffi.cast("int64_t", shift)
+    result = _lib.bigintspan_shift(s_converted, shift_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def bigintspanset_scale(ss: Annotated[_ffi.CData, "const SpanSet *"], width: int) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    width_converted = _ffi.cast("int64_t", width)
+    result = _lib.bigintspanset_scale(ss_converted, width_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def bigintspanset_shift_scale(
-    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "SpanSet *"]:
     ss_converted = _ffi.cast("const SpanSet *", ss)
     shift_converted = _ffi.cast("int64_t", shift)
     width_converted = _ffi.cast("int64_t", width)
-    result = _lib.bigintspanset_shift_scale(ss_converted, shift_converted, width_converted, hasshift, haswidth)
+    result = _lib.bigintspanset_shift_scale(ss_converted, shift_converted, width_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def bigintspanset_shift(ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    shift_converted = _ffi.cast("int64_t", shift)
+    result = _lib.bigintspanset_shift(ss_converted, shift_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def dateset_scale(s: Annotated[_ffi.CData, "const Set *"], width: int) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.dateset_scale(s_converted, width)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def dateset_shift_scale(
-    s: Annotated[_ffi.CData, "const Set *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    s: Annotated[_ffi.CData, "const Set *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
-    result = _lib.dateset_shift_scale(s_converted, shift, width, hasshift, haswidth)
+    result = _lib.dateset_shift_scale(s_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def dateset_shift(s: Annotated[_ffi.CData, "const Set *"], shift: int) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.dateset_shift(s_converted, shift)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datespan_scale(s: Annotated[_ffi.CData, "const Span *"], width: int) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.datespan_scale(s_converted, width)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def datespan_shift_scale(
-    s: Annotated[_ffi.CData, "const Span *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    s: Annotated[_ffi.CData, "const Span *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "Span *"]:
     s_converted = _ffi.cast("const Span *", s)
-    result = _lib.datespan_shift_scale(s_converted, shift, width, hasshift, haswidth)
+    result = _lib.datespan_shift_scale(s_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datespan_shift(s: Annotated[_ffi.CData, "const Span *"], shift: int) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.datespan_shift(s_converted, shift)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datespanset_scale(ss: Annotated[_ffi.CData, "const SpanSet *"], width: int) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.datespanset_scale(ss_converted, width)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def datespanset_shift_scale(
-    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "SpanSet *"]:
     ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.datespanset_shift_scale(ss_converted, shift, width, hasshift, haswidth)
+    result = _lib.datespanset_shift_scale(ss_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datespanset_shift(ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.datespanset_shift(ss_converted, shift)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -2523,11 +2613,25 @@ def floatset_radians(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.
     return result if result != _ffi.NULL else None
 
 
+def floatset_scale(s: Annotated[_ffi.CData, "const Set *"], width: float) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.floatset_scale(s_converted, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def floatset_shift_scale(
-    s: Annotated[_ffi.CData, "const Set *"], shift: float, width: float, hasshift: bool, haswidth: bool
+    s: Annotated[_ffi.CData, "const Set *"], shift: float, width: float
 ) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
-    result = _lib.floatset_shift_scale(s_converted, shift, width, hasshift, haswidth)
+    result = _lib.floatset_shift_scale(s_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatset_shift(s: Annotated[_ffi.CData, "const Set *"], shift: float) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.floatset_shift(s_converted, shift)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -2567,11 +2671,25 @@ def floatspan_round(s: Annotated[_ffi.CData, "const Span *"], maxdd: int) -> Ann
     return result if result != _ffi.NULL else None
 
 
+def floatspan_scale(s: Annotated[_ffi.CData, "const Span *"], width: float) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.floatspan_scale(s_converted, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def floatspan_shift_scale(
-    s: Annotated[_ffi.CData, "const Span *"], shift: float, width: float, hasshift: bool, haswidth: bool
+    s: Annotated[_ffi.CData, "const Span *"], shift: float, width: float
 ) -> Annotated[_ffi.CData, "Span *"]:
     s_converted = _ffi.cast("const Span *", s)
-    result = _lib.floatspan_shift_scale(s_converted, shift, width, hasshift, haswidth)
+    result = _lib.floatspan_shift_scale(s_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatspan_shift(s: Annotated[_ffi.CData, "const Span *"], shift: float) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.floatspan_shift(s_converted, shift)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -2613,38 +2731,98 @@ def floatspanset_round(ss: Annotated[_ffi.CData, "const SpanSet *"], maxdd: int)
     return result if result != _ffi.NULL else None
 
 
-def floatspanset_shift_scale(
-    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: float, width: float, hasshift: bool, haswidth: bool
+def floatspanset_scale(
+    ss: Annotated[_ffi.CData, "const SpanSet *"], width: float
 ) -> Annotated[_ffi.CData, "SpanSet *"]:
     ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.floatspanset_shift_scale(ss_converted, shift, width, hasshift, haswidth)
+    result = _lib.floatspanset_scale(ss_converted, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatspanset_shift_scale(
+    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: float, width: float
+) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.floatspanset_shift_scale(ss_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatspanset_shift(
+    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: float
+) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.floatspanset_shift(ss_converted, shift)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intset_scale(s: Annotated[_ffi.CData, "const Set *"], width: int) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.intset_scale(s_converted, width)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def intset_shift_scale(
-    s: Annotated[_ffi.CData, "const Set *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    s: Annotated[_ffi.CData, "const Set *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
-    result = _lib.intset_shift_scale(s_converted, shift, width, hasshift, haswidth)
+    result = _lib.intset_shift_scale(s_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intset_shift(s: Annotated[_ffi.CData, "const Set *"], shift: int) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.intset_shift(s_converted, shift)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intspan_scale(s: Annotated[_ffi.CData, "const Span *"], width: int) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.intspan_scale(s_converted, width)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def intspan_shift_scale(
-    s: Annotated[_ffi.CData, "const Span *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    s: Annotated[_ffi.CData, "const Span *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "Span *"]:
     s_converted = _ffi.cast("const Span *", s)
-    result = _lib.intspan_shift_scale(s_converted, shift, width, hasshift, haswidth)
+    result = _lib.intspan_shift_scale(s_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intspan_shift(s: Annotated[_ffi.CData, "const Span *"], shift: int) -> Annotated[_ffi.CData, "Span *"]:
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.intspan_shift(s_converted, shift)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intspanset_scale(ss: Annotated[_ffi.CData, "const SpanSet *"], width: int) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.intspanset_scale(ss_converted, width)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
 def intspanset_shift_scale(
-    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int, width: int, hasshift: bool, haswidth: bool
+    ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "SpanSet *"]:
     ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.intspanset_shift_scale(ss_converted, shift, width, hasshift, haswidth)
+    result = _lib.intspanset_shift_scale(ss_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intspanset_shift(ss: Annotated[_ffi.CData, "const SpanSet *"], shift: int) -> Annotated[_ffi.CData, "SpanSet *"]:
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.intspanset_shift(ss_converted, shift)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -7022,20 +7200,48 @@ def tbox_round(box: Annotated[_ffi.CData, "const TBox *"], maxdd: int) -> Annota
     return result if result != _ffi.NULL else None
 
 
-def tfloatbox_shift_scale(
-    box: Annotated[_ffi.CData, "const TBox *"], shift: float, width: float, hasshift: bool, haswidth: bool
-) -> Annotated[_ffi.CData, "TBox *"]:
+def tfloatbox_scale_value(box: Annotated[_ffi.CData, "const TBox *"], width: float) -> Annotated[_ffi.CData, "TBox *"]:
     box_converted = _ffi.cast("const TBox *", box)
-    result = _lib.tfloatbox_shift_scale(box_converted, shift, width, hasshift, haswidth)
+    result = _lib.tfloatbox_scale_value(box_converted, width)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
-def tintbox_shift_scale(
-    box: Annotated[_ffi.CData, "const TBox *"], shift: int, width: int, hasshift: bool, haswidth: bool
+def tfloatbox_shift_scale_value(
+    box: Annotated[_ffi.CData, "const TBox *"], shift: float, width: float
 ) -> Annotated[_ffi.CData, "TBox *"]:
     box_converted = _ffi.cast("const TBox *", box)
-    result = _lib.tintbox_shift_scale(box_converted, shift, width, hasshift, haswidth)
+    result = _lib.tfloatbox_shift_scale_value(box_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloatbox_shift_value(box: Annotated[_ffi.CData, "const TBox *"], shift: float) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.tfloatbox_shift_value(box_converted, shift)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintbox_scale_value(box: Annotated[_ffi.CData, "const TBox *"], width: int) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.tintbox_scale_value(box_converted, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintbox_shift_scale_value(
+    box: Annotated[_ffi.CData, "const TBox *"], shift: int, width: int
+) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.tintbox_shift_scale_value(box_converted, shift, width)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintbox_shift_value(box: Annotated[_ffi.CData, "const TBox *"], shift: int) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.tintbox_shift_value(box_converted, shift)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -7081,13 +7287,29 @@ def tbigintbox_expand(box: Annotated[_ffi.CData, "const TBox *"], i: int) -> Ann
     return result if result != _ffi.NULL else None
 
 
-def tbigintbox_shift_scale(
-    box: Annotated[_ffi.CData, "const TBox *"], shift: int, width: int, hasshift: bool, haswidth: bool
+def tbigintbox_scale_value(box: Annotated[_ffi.CData, "const TBox *"], width: int) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    width_converted = _ffi.cast("int64_t", width)
+    result = _lib.tbigintbox_scale_value(box_converted, width_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbigintbox_shift_scale_value(
+    box: Annotated[_ffi.CData, "const TBox *"], shift: int, width: int
 ) -> Annotated[_ffi.CData, "TBox *"]:
     box_converted = _ffi.cast("const TBox *", box)
     shift_converted = _ffi.cast("int64_t", shift)
     width_converted = _ffi.cast("int64_t", width)
-    result = _lib.tbigintbox_shift_scale(box_converted, shift_converted, width_converted, hasshift, haswidth)
+    result = _lib.tbigintbox_shift_scale_value(box_converted, shift_converted, width_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbigintbox_shift_value(box: Annotated[_ffi.CData, "const TBox *"], shift: int) -> Annotated[_ffi.CData, "TBox *"]:
+    box_converted = _ffi.cast("const TBox *", box)
+    shift_converted = _ffi.cast("int64_t", shift)
+    result = _lib.tbigintbox_shift_value(box_converted, shift_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
