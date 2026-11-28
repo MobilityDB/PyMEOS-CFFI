@@ -35,7 +35,10 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
+
+      - uses: actions/checkout@v7
 
       # Keep this ref in step with pymeos_cffi/__init__.py __version__ (1.4.0a1, with no
       # stable-1.4 => master). The cdef covers every optional family.
@@ -62,7 +65,7 @@ jobs:
       # for a maintainer's approval, and the next step runs the checks instead.
       - name: Open a refresh PR if the surface drifted
         id: cpr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.MEOS_AUTOBUMP_TOKEN || secrets.GITHUB_TOKEN }}
           branch: tooling/refresh-cffi-surface

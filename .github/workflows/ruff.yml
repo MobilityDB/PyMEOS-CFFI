@@ -13,11 +13,14 @@ jobs:
     name: Lint code with Ruff
     runs-on: ubuntu-latest
     steps:
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
+
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Ruff
-        uses: astral-sh/ruff-action@v3
+        uses: astral-sh/ruff-action@v4.1.0
         with:
           args: "--version"
 
