@@ -1110,22 +1110,6 @@ def meos_full_version() -> Annotated[str, "char *"]:
     return result if result != _ffi.NULL else None
 
 
-def mobilitydb_version() -> Annotated[str, "char *"]:
-    size_out = _ffi.new("size_t *")
-    result = _lib.mobilitydb_version(size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
-def mobilitydb_full_version() -> Annotated[str, "char *"]:
-    size_out = _ffi.new("size_t *")
-    result = _lib.mobilitydb_full_version(size_out)
-    _check_error()
-    result = _take_string(result)
-    return result if result != _ffi.NULL else None
-
-
 def bigintset_in(string: str) -> Annotated[_ffi.CData, "Set *"]:
     string_converted = string.encode("utf-8")
     result = _lib.bigintset_in(string_converted)
