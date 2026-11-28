@@ -19,8 +19,11 @@ jobs:
       version: ${{ steps.check_version.outputs.version }}
 
     steps:
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -112,11 +115,14 @@ jobs:
     needs: checks
     runs-on: ubuntu-latest
     steps:
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.10"
           cache: "pip"
@@ -132,7 +138,7 @@ jobs:
           ls -l dist
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pymeos_cffi-sdist
           path: ./dist/pymeos_cffi-*.tar.gz
@@ -150,14 +156,15 @@ jobs:
             ld_prefix: "/opt/homebrew"
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
 
-      - name: Get dependencies from homebrew (cache)
-        uses: tecolicom/actions-use-homebrew-tools@v1
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Get dependencies from homebrew
         if: runner.os == 'macOS'
-        with:
-          tools: cmake libpq proj json-c
+        run: brew install cmake libpq proj json-c
 
       - name: Update brew
         if: matrix.os == 'macos-15-intel'
@@ -189,7 +196,7 @@ jobs:
           sudo make install
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: "pip"
@@ -239,7 +246,7 @@ jobs:
           CIBW_TEST_SKIP: "*"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pymeos_cffi-wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
@@ -255,17 +262,20 @@ jobs:
         os: [ ubuntu-latest, macos-15-intel, macos-15 ]
 
     steps:
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: pymeos_cffi-wheels-${{ matrix.os }}
           path: ./pymeos_cffi_wheels
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
@@ -294,7 +304,7 @@ jobs:
 
     steps:
       - name: Get artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ./dist
           merge-multiple: true
@@ -308,13 +318,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Get artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ./dist
           merge-multiple: true
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: ./dist/*
           prerelease: ${{ needs.checks.outputs.is_prerelease }}

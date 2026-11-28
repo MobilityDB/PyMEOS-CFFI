@@ -29,8 +29,11 @@ jobs:
       meos_branch: ${{ steps.meos_branch.outputs.meos_branch }}
       mobilitydb_sha: ${{ steps.meos_branch.outputs.mobilitydb_sha }}
     steps:
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Derive MEOS branch from package version
         id: meos_branch
@@ -62,8 +65,11 @@ jobs:
     outputs:
       meos_branch: ${{ needs.resolve.outputs.meos_branch }}
     steps:
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Provision MEOS (catalog + all-families libmeos)
         id: provision
@@ -76,13 +82,13 @@ jobs:
         run: cp "${{ steps.provision.outputs.catalog-path }}" builder/meos-idl.json
 
       - name: Upload the derived catalog for the macOS builds
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: meos-idl
           path: builder/meos-idl.json
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: "pip"
@@ -139,13 +145,14 @@ jobs:
             ld_prefix: "/opt/homebrew"
 
     steps:
+      - name: Name git's default branch
+        run: git config --global init.defaultBranch master
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install MEOS build deps (macOS)
-        uses: tecolicom/actions-use-homebrew-tools@v1
-        with:
-          tools: cmake libpq proj json-c gdal
+        run: brew install cmake libpq proj json-c gdal
 
       - name: Build and install the all-families MEOS
         shell: bash
@@ -196,7 +203,7 @@ jobs:
           exit 1
 
       - name: Download the derived catalog
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: meos-idl
           path: builder
@@ -213,7 +220,7 @@ jobs:
           fi
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: "pip"
