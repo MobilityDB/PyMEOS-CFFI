@@ -172,8 +172,6 @@ __all__ = [
     "meos_finalize",
     "meos_version",
     "meos_full_version",
-    "mobilitydb_version",
-    "mobilitydb_full_version",
     "bigintset_in",
     "bigintspan_expand",
     "bigintspan_in",
