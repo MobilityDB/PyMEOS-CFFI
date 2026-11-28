@@ -8,6 +8,7 @@ misbehaving wrapper cannot mask itself behind a crash inside ``meos_finalize``.
 import inspect
 import os
 
+import pymeos_cffi
 import pymeos_cffi.functions as f
 from pymeos_cffi import meos_finalize, meos_initialize, tstzspan_make
 
@@ -88,5 +89,12 @@ assert f.temporal_out(f.ttext_in(ttext), 0) == ttext, f"temporal_out returned {f
 rast = f.raster_add_band(f.raster_make_empty(2, 2, 0, 2, 1, -1, 0, 0, 3857), 1, "8BUI", 7, 0, False)
 assert f.raster_as_tiff(rast, None, 3857)[:2] in (b"II", b"MM"), "raster_as_tiff without options"
 assert f.raster_as_tiff(rast, ["TILED=NO"], 3857)[:2] in (b"II", b"MM"), "raster_as_tiff with options"
+# The binding answers its own version under its own name and the MEOS it links
+# under MEOS's name.
+assert pymeos_cffi.pymeos_cffi_version() == f"PyMEOS-CFFI {pymeos_cffi.__version__}"
+assert f.meos_version().startswith("MEOS "), f"meos_version returned {f.meos_version()!r}"
+assert pymeos_cffi.pymeos_cffi_full_version() == (f"{pymeos_cffi.pymeos_cffi_version()}, {f.meos_full_version()}"), (
+    f"pymeos_cffi_full_version returned {pymeos_cffi.pymeos_cffi_full_version()!r}"
+)
 meos_finalize()
 print(f"PyMEOS CFFI build + shape smoke test OK on {label}")

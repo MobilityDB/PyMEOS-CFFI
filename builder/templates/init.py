@@ -1,6 +1,7 @@
 from .enums import *
 from .errors import *
 from .functions import *
+from .version import *
 
 __version__ = "1.4.0a1"
 __all__ = [
@@ -33,6 +34,9 @@ __all__ = [
     "MeosOperation",
     "InterpolationType",
     "SpatialRelation",
+    # Version
+    "pymeos_cffi_version",
+    "pymeos_cffi_full_version",
     # Functions
     FUNCTIONS_REPLACE,
 ]
