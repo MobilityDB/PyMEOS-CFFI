@@ -1542,6 +1542,14 @@ def date_to_unix_days(d: int) -> Annotated[int, "int32_t"]:
     return result if result != _ffi.NULL else None
 
 
+def dateset_origins(s: Annotated[_ffi.CData, "const Set *"], zone: str) -> Annotated[_ffi.CData, "Set *"]:
+    s_converted = _ffi.cast("const Set *", s)
+    zone_converted = cstring_to_text(zone)
+    result = _lib.dateset_origins(s_converted, zone_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def dateset_to_tstzset(s: Annotated[_ffi.CData, "const Set *"]) -> Annotated[_ffi.CData, "Set *"]:
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.dateset_to_tstzset(s_converted)
@@ -1751,6 +1759,13 @@ def timestamptz_to_spanset(t: int) -> Annotated[_ffi.CData, "SpanSet *"]:
     return result if result != _ffi.NULL else None
 
 
+def timestamptz_to_unix_ms(t: int) -> Annotated[int, "int64_t"]:
+    t_converted = _ffi.cast("TimestampTz", t)
+    result = _lib.timestamptz_to_unix_ms(t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def timestamptz_to_unix_us(t: int) -> Annotated[int, "int64_t"]:
     t_converted = _ffi.cast("TimestampTz", t)
     result = _lib.timestamptz_to_unix_us(t_converted)
@@ -1782,6 +1797,13 @@ def tstzspanset_to_datespanset(ss: Annotated[_ffi.CData, "const SpanSet *"]) -> 
 def unix_days_to_date(days: int) -> Annotated[int, "DateADT"]:
     days_converted = _ffi.cast("int32_t", days)
     result = _lib.unix_days_to_date(days_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def unix_ms_to_timestamptz(ms: int) -> Annotated[int, "TimestampTz"]:
+    ms_converted = _ffi.cast("int64_t", ms)
+    result = _lib.unix_ms_to_timestamptz(ms_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -7991,6 +8013,13 @@ def temporal_out(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) ->
     return result if result != _ffi.NULL else None
 
 
+def temparr_out(temparr: list[Annotated[_ffi.CData, "Temporal *"]], maxdd: int) -> Annotated[_ffi.CData, "char **"]:
+    temparr_converted = [_ffi.cast("Temporal *", x) for x in temparr]
+    result = _lib.temparr_out(temparr_converted, len(temparr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tfloat_from_mfjson(string: str) -> Annotated[_ffi.CData, "Temporal *"]:
     string_converted = string.encode("utf-8")
     result = _lib.tfloat_from_mfjson(string_converted)
@@ -9070,6 +9099,51 @@ def temparr_round(
     result = _lib.temparr_round(temparr_converted, len(temparr), maxdd)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def temporal_occurrence(
+    temp: Annotated[_ffi.CData, "const Temporal *"], ref: int, origin: int
+) -> Annotated[_ffi.CData, "Temporal *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    ref_converted = _ffi.cast("TimestampTz", ref)
+    origin_converted = _ffi.cast("TimestampTz", origin)
+    result = _lib.temporal_occurrence(temp_converted, ref_converted, origin_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_occurrence_origins(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    ref: int,
+    origins: Annotated[_ffi.CData, "const Set *"],
+    s: Annotated[_ffi.CData, "const Span *"],
+) -> Annotated[_ffi.CData, "Set *"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    ref_converted = _ffi.cast("TimestampTz", ref)
+    origins_converted = _ffi.cast("const Set *", origins)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.temporal_occurrence_origins(temp_converted, ref_converted, origins_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_occurrences(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+    ref: int,
+    origins: Annotated[_ffi.CData, "const Set *"],
+    s: Annotated[_ffi.CData, "const Span *"],
+) -> tuple[Annotated[_ffi.CData, "Temporal **"], Annotated[list, "TimestampTz *"], Annotated[_ffi.CData, "int"]]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    ref_converted = _ffi.cast("TimestampTz", ref)
+    origins_converted = _ffi.cast("const Set *", origins)
+    s_converted = _ffi.cast("const Span *", s)
+    occ_origins = _ffi.new("TimestampTz **")
+    count = _ffi.new("int *")
+    result = _lib.temporal_occurrences(
+        temp_converted, ref_converted, origins_converted, s_converted, occ_origins, count
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None, occ_origins[0], count[0]
 
 
 def temporal_round(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int) -> Annotated[_ffi.CData, "Temporal *"]:
@@ -14725,6 +14799,24 @@ def geo_as_ewkb(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], endian: str | 
     return _take_bytes(result, size[0])
 
 
+def geoarr_as_ewkt(
+    geoarr: list[Annotated[_ffi.CData, "GSERIALIZED *"]], precision: int
+) -> Annotated[_ffi.CData, "char **"]:
+    geoarr_converted = [_ffi.cast("GSERIALIZED *", x) for x in geoarr]
+    result = _lib.geoarr_as_ewkt(geoarr_converted, len(geoarr), precision)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geoarr_as_text(
+    geoarr: list[Annotated[_ffi.CData, "GSERIALIZED *"]], precision: int
+) -> Annotated[_ffi.CData, "char **"]:
+    geoarr_converted = [_ffi.cast("GSERIALIZED *", x) for x in geoarr]
+    result = _lib.geoarr_as_text(geoarr_converted, len(geoarr), precision)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def geo_as_ewkt(gs: Annotated[_ffi.CData, "const GSERIALIZED *"], precision: int) -> Annotated[str, "char *"]:
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     size_out = _ffi.new("size_t *")
@@ -16838,6 +16930,24 @@ def tspatial_as_text(temp: Annotated[_ffi.CData, "const Temporal *"], maxdd: int
     return result if result != _ffi.NULL else None
 
 
+def tspatialarr_as_ewkt(
+    temparr: list[Annotated[_ffi.CData, "Temporal *"]], maxdd: int
+) -> Annotated[_ffi.CData, "char **"]:
+    temparr_converted = [_ffi.cast("Temporal *", x) for x in temparr]
+    result = _lib.tspatialarr_as_ewkt(temparr_converted, len(temparr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tspatialarr_as_text(
+    temparr: list[Annotated[_ffi.CData, "Temporal *"]], maxdd: int
+) -> Annotated[_ffi.CData, "char **"]:
+    temparr_converted = [_ffi.cast("Temporal *", x) for x in temparr]
+    result = _lib.tspatialarr_as_text(temparr_converted, len(temparr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tgeo_from_base_temp(
     gs: Annotated[_ffi.CData, "const GSERIALIZED *"], temp: Annotated[_ffi.CData, "const Temporal *"]
 ) -> Annotated[_ffi.CData, "Temporal *"]:
@@ -17176,6 +17286,15 @@ def tgeo_end_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated
     return result if result != _ffi.NULL else None
 
 
+def tgeo_space_time_volume(
+    temp: Annotated[_ffi.CData, "const Temporal *"], spheroid: bool
+) -> Annotated[float, "double"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tgeo_space_time_volume(temp_converted, spheroid)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tgeo_start_value(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "GSERIALIZED *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tgeo_start_value(temp_converted)
@@ -17295,6 +17414,25 @@ def tpoint_get_z(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_
     result = _lib.tpoint_get_z(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
+
+
+def tpoint_coords(
+    temp: Annotated[_ffi.CData, "const Temporal *"],
+) -> tuple[
+    Annotated[_ffi.CData, "double *"],
+    Annotated[list, "double *"],
+    Annotated[list, "double *"],
+    Annotated[list, "TimestampTz *"],
+    Annotated[_ffi.CData, "int"],
+]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    ycoords = _ffi.new("double **")
+    zcoords = _ffi.new("double **")
+    times = _ffi.new("TimestampTz **")
+    count = _ffi.new("int *")
+    result = _lib.tpoint_coords(temp_converted, ycoords, zcoords, times, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, ycoords[0], zcoords[0], times[0], count[0]
 
 
 def tpoint_is_simple(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[bool, "bool"]:
@@ -19825,6 +19963,24 @@ def cbuffer_as_text(cb: Annotated[_ffi.CData, "const struct Cbuffer *"], maxdd: 
     return result if result != _ffi.NULL else None
 
 
+def cbufferarr_as_ewkt(
+    cbarr: list[Annotated[_ffi.CData, "struct Cbuffer *"]], maxdd: int
+) -> Annotated[_ffi.CData, "char **"]:
+    cbarr_converted = [_ffi.cast("struct Cbuffer *", x) for x in cbarr]
+    result = _lib.cbufferarr_as_ewkt(cbarr_converted, len(cbarr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def cbufferarr_as_text(
+    cbarr: list[Annotated[_ffi.CData, "struct Cbuffer *"]], maxdd: int
+) -> Annotated[_ffi.CData, "char **"]:
+    cbarr_converted = [_ffi.cast("struct Cbuffer *", x) for x in cbarr]
+    result = _lib.cbufferarr_as_text(cbarr_converted, len(cbarr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def cbuffer_as_wkb(cb: Annotated[_ffi.CData, "const struct Cbuffer *"], variant: int) -> bytes:
     cb_converted = _ffi.cast("const struct Cbuffer *", cb)
     variant_converted = _ffi.cast("uint8_t", variant)
@@ -20451,6 +20607,13 @@ def tcbuffer_points(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotate
 def tcbuffer_radius(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Set *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tcbuffer_radius(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tcbuffer_space_time_volume(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[float, "double"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tcbuffer_space_time_volume(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -24926,15 +25089,6 @@ def temporal_in(string: str, temptype: Annotated[_ffi.CData, "MeosType"]) -> Ann
     string_converted = string.encode("utf-8")
     temptype_converted = _ffi.cast("MeosType", temptype)
     result = _lib.temporal_in(string_converted, temptype_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def temparr_out(
-    temparr: Annotated[list, "const Temporal **"], count: int, maxdd: int
-) -> Annotated[_ffi.CData, "char **"]:
-    temparr_converted = [_ffi.cast("const Temporal *", x) for x in temparr]
-    result = _lib.temparr_out(temparr_converted, count, maxdd)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -31621,6 +31775,20 @@ def npoint_as_text(np: Annotated[_ffi.CData, "const Npoint *"], maxdd: int) -> A
     return result if result != _ffi.NULL else None
 
 
+def npointarr_as_ewkt(nparr: list[Annotated[_ffi.CData, "Npoint *"]], maxdd: int) -> Annotated[_ffi.CData, "char **"]:
+    nparr_converted = [_ffi.cast("Npoint *", x) for x in nparr]
+    result = _lib.npointarr_as_ewkt(nparr_converted, len(nparr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def npointarr_as_text(nparr: list[Annotated[_ffi.CData, "Npoint *"]], maxdd: int) -> Annotated[_ffi.CData, "char **"]:
+    nparr_converted = [_ffi.cast("Npoint *", x) for x in nparr]
+    result = _lib.npointarr_as_text(nparr_converted, len(nparr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def npoint_as_wkb(np: Annotated[_ffi.CData, "const Npoint *"], variant: int) -> bytes:
     np_converted = _ffi.cast("const Npoint *", np)
     variant_converted = _ffi.cast("uint8_t", variant)
@@ -36282,6 +36450,24 @@ def pose_as_text(pose: Annotated[_ffi.CData, "const struct Pose *"], maxdd: int)
     return result if result != _ffi.NULL else None
 
 
+def posearr_as_ewkt(
+    posearr: list[Annotated[_ffi.CData, "struct Pose *"]], maxdd: int
+) -> Annotated[_ffi.CData, "char **"]:
+    posearr_converted = [_ffi.cast("struct Pose *", x) for x in posearr]
+    result = _lib.posearr_as_ewkt(posearr_converted, len(posearr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def posearr_as_text(
+    posearr: list[Annotated[_ffi.CData, "struct Pose *"]], maxdd: int
+) -> Annotated[_ffi.CData, "char **"]:
+    posearr_converted = [_ffi.cast("struct Pose *", x) for x in posearr]
+    result = _lib.posearr_as_text(posearr_converted, len(posearr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def pose_as_wkb(pose: Annotated[_ffi.CData, "const struct Pose *"], variant: int) -> bytes:
     pose_converted = _ffi.cast("const struct Pose *", pose)
     variant_converted = _ffi.cast("uint8_t", variant)
@@ -37706,6 +37892,24 @@ def posechain_as_text(pc: Annotated[_ffi.CData, "const struct PoseChain *"], max
     result = _lib.posechain_as_text(pc_converted, maxdd, size_out)
     _check_error()
     result = _take_string(result)
+    return result if result != _ffi.NULL else None
+
+
+def posechainarr_as_ewkt(
+    posechainarr: list[Annotated[_ffi.CData, "struct PoseChain *"]], maxdd: int
+) -> Annotated[_ffi.CData, "char **"]:
+    posechainarr_converted = [_ffi.cast("struct PoseChain *", x) for x in posechainarr]
+    result = _lib.posechainarr_as_ewkt(posechainarr_converted, len(posechainarr), maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def posechainarr_as_text(
+    posechainarr: list[Annotated[_ffi.CData, "struct PoseChain *"]], maxdd: int
+) -> Annotated[_ffi.CData, "char **"]:
+    posechainarr_converted = [_ffi.cast("struct PoseChain *", x) for x in posechainarr]
+    result = _lib.posechainarr_as_text(posechainarr_converted, len(posechainarr), maxdd)
+    _check_error()
     return result if result != _ffi.NULL else None
 
 
@@ -41747,6 +41951,13 @@ def trgeometry_pitch(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotat
 def trgeometry_roll(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[_ffi.CData, "Temporal *"]:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.trgeometry_roll(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def trgeometry_space_time_volume(temp: Annotated[_ffi.CData, "const Temporal *"]) -> Annotated[float, "double"]:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.trgeometry_space_time_volume(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
